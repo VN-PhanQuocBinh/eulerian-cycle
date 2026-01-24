@@ -13,7 +13,7 @@ export interface GraphNode {
 }
 
 export interface GraphEdge {
-  id: string;
+  id: `e-${string}-${string}`;
   source: string;
   target: string;
 }
@@ -67,14 +67,22 @@ export const useGraphStore = create<GraphState>()(
       setCyInstance: (instance) => set({ cyInstance: instance }),
       setEhInstance: (instance) => set({ ehInstance: instance }),
       // Node operations
-      addNode: (node) =>
-        set((state) => {
-          // Kiểm tra node đã tồn tại chưa
-          if (state.nodes.find((n) => n.id === node.id)) {
-            return state;
-          }
-          return { nodes: [...state.nodes, node] };
-        }),
+      addNode: (node) => {
+        const { cyInstance } = get();
+        if (!cyInstance) return;
+
+        const currentNodes = cyInstance?.nodes().map((el) => el.id()) || [];
+
+        if (!currentNodes.includes(node.id)) {
+          cyInstance?.add({
+            group: "nodes",
+            data: { id: node.id, label: node.label },
+            position: { x: node.x, y: node.y },
+          });
+
+          set((state) => ({ nodes: [...state.nodes, node] }));
+        }
+      },
 
       removeNode: (nodeId) =>
         set((state) => ({
@@ -89,22 +97,29 @@ export const useGraphStore = create<GraphState>()(
         })),
 
       // Edge operations
-      addEdge: (edge) =>
-        set((state) => {
-          // Kiểm tra cạnh đã tồn tại chưa
-          if (state.edges.find((e) => e.id === edge.id)) {
-            return state;
-          }
-          // Kiểm tra cả 2 node có tồn tại không
-          const sourceExists = state.nodes.find((n) => n.id === edge.source);
-          const targetExists = state.nodes.find((n) => n.id === edge.target);
+      addEdge: (edge) => {
+        const { cyInstance, edges, nodes } = get();
+        if (!cyInstance) return;
 
-          if (!sourceExists || !targetExists) {
-            return state;
-          }
+        // Kiểm tra cạnh đã tồn tại chưa
+        if (edges.find((e) => e.id === edge.id)) {
+          return;
+        }
+        // Kiểm tra cả 2 node có tồn tại không
+        const sourceExists = nodes.find((n) => n.id === edge.source);
+        const targetExists = nodes.find((n) => n.id === edge.target);
 
-          return { edges: [...state.edges, edge] };
-        }),
+        if (!sourceExists || !targetExists) {
+          return;
+        }
+
+        cyInstance?.add({
+          group: "edges",
+          data: edge,
+        });
+
+        return { edges: [...edges, edge] };
+      },
 
       removeEdge: (edgeId) =>
         set((state) => ({
@@ -118,13 +133,19 @@ export const useGraphStore = create<GraphState>()(
           edges: [],
         })),
 
-      resetGraph: () =>
+      resetGraph: () => {
+        const { cyInstance } = get();
+        if (!cyInstance) return;
+
+        cyInstance?.elements().remove();
+
         set(() => ({
           mode: "view",
           nodes: [],
           edges: [],
           isDirected: false,
-        })),
+        }));
+      },
 
       // Euler algorithm (placeholder)
       findEulerianPath: () => {

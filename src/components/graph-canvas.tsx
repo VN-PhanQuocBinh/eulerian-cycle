@@ -9,60 +9,20 @@ import { useGraphStore } from "@/contexts/graph-context";
 cytoscape.use(edgehandles);
 
 const GraphCanvas = () => {
+  const addNode = useGraphStore((state) => state.addNode);
+  const addEdge = useGraphStore((state) => state.addEdge);
+  const setCyInstance = useGraphStore((state) => state.setCyInstance);
+  const setEhInstance = useGraphStore((state) => state.setEhInstance);
+
   const { openNodeInputAt } = useNodeInput();
   const containerRef = useRef<HTMLDivElement>(null);
   const cyRef = useRef<cytoscape.Core | null>(null);
   const ehRef = useRef<EdgeHandlesInstance | null>(null);
 
-  const addNode = useCallback(
-    (id: string, x: number, y: number) => {
-      if (!cyRef.current) return;
-
-      const currentNodes = cyRef.current.nodes().map((el) => el.id());
-
-      console.log("Current Nodes:", currentNodes);
-
-      // Kiểm tra xem ID đã tồn tại chưa để tránh crash
-      if (!currentNodes.includes(id)) {
-        cyRef.current.add({
-          group: "nodes",
-          data: { id, label: id },
-          position: { x, y },
-        });
-      }
-    },
-    [cyRef],
-  );
-
-  // 2. Helper: Thêm Cạnh
-  const addEdge = useCallback((sourceId: string, targetId: string) => {
-    if (!cyRef.current) return;
-
-    const edgeId = `e-${sourceId}-${targetId}`;
-
-    // Chỉ thêm nếu cả 2 đỉnh tồn tại và cạnh chưa tồn tại
-    if (
-      !cyRef.current.getElementById(sourceId).empty() &&
-      !cyRef.current.getElementById(targetId).empty() &&
-      cyRef.current.getElementById(edgeId).empty()
-    ) {
-      cyRef.current.add({
-        group: "edges",
-        data: {
-          id: edgeId,
-          source: sourceId,
-          target: targetId,
-        },
-      });
-    }
-  }, []);
-
   useEffect(() => {
     if (!containerRef.current) return;
 
-    console.log([...(cyRef.current?.nodes().map((el) => el.id()) || [])]);
-
-    cyRef.current = cytoscape({
+    const graphInstance = cytoscape({
       container: containerRef.current,
       style: [
         {
@@ -94,6 +54,9 @@ const GraphCanvas = () => {
       userPanningEnabled: true,
     });
 
+    cyRef.current = graphInstance;
+    setCyInstance(graphInstance);
+
     let defaults: EdgeHandlesOptions = {
       canConnect: function (
         sourceNode: cytoscape.NodeSingular,
@@ -124,78 +87,44 @@ const GraphCanvas = () => {
       disableBrowserGestures: true, // during an edge drawing gesture, disable browser gestures such as two-finger trackpad swipe and pinch-to-zoom
     };
 
-    ehRef.current = cyRef.current.edgehandles(defaults);
-
-    // Initialize with some nodes and edges for testing
-    addNode("V1", 100, 100);
-    addNode("V2", 300, 200);
-    addEdge("V1", "V2");
+    ehRef.current = graphInstance.edgehandles(defaults);
+    setEhInstance(graphInstance.edgehandles(defaults));
 
     const handleDoubleClick = (event: cytoscape.EventObject) => {
-      if (!cyRef.current) return;
-
-      if (event.target === cyRef.current) {
-        console.log("Zoom", cyRef.current.zoom());
-
+      if (event.target === graphInstance) {
         const { x, y } = event.position;
 
         openNodeInputAt({
           x: event.renderedPosition.x,
           y: event.renderedPosition.y,
           onComplete: (nodeId: string) => {
-            addNode(nodeId, x, y);
-            console.log("Adding node", nodeId, "At position", x, y);
+            addNode({ id: nodeId.toLowerCase(), label: nodeId, x, y });
           },
         });
       }
     };
 
-    cyRef.current?.on("dblclick", handleDoubleClick);
+    graphInstance.on("dblclick", handleDoubleClick);
+
+    // Initialize with some nodes and edges for testing
+    addNode({ id: "v1", label: "1", x: 100, y: 100 });
+    addNode({ id: "v2", label: "2", x: 300, y: 200 });
+    addEdge({ id: "e-v1-v2", source: "v1", target: "v2" });
 
     return () => {
-      cyRef.current?.destroy();
-
-      cyRef.current?.off("dblclick", handleDoubleClick);
+      graphInstance.off("dblclick", handleDoubleClick);
+      graphInstance.destroy();
     };
   }, [addNode, addEdge]);
-
-  const handleClearGraph = useCallback(() => {
-    if (cyRef.current) {
-      cyRef.current.elements().remove();
-    }
-  }, []);
 
   return (
     // <NodeInputProvider>
     <div className="relative flex-1 h-full bg-slate-50 border border-slate-200 rounded-lg overflow-hidden">
-      {/* <div className="absolute top-4 right-4 z-10 flex gap-2">
-        <button
-          onClick={() =>
-            addNode(`V${Math.floor(Math.random() * 100)}`, Math.random() * 400, Math.random() * 400)
-          }
-          className="bg-white px-3 py-1 rounded shadow border text-sm"
-        >
-          + Thêm Đỉnh Random
-        </button>
-        <button
-          onClick={handleClearGraph}
-          className="bg-red-50 text-red-600 px-3 py-1 rounded shadow border text-sm"
-        >
-          Xóa hết
-        </button>
-      </div> */}
-
       {/* Canvas */}
       <div ref={containerRef} className="w-full h-full" />
 
-      <FunctionalBar
-        onToggleViewMode={() => ehRef.current?.disableDrawMode()}
-        onToggleAddMode={() => ehRef.current?.enableDrawMode()}
-        onToggleClearGraphMode={handleClearGraph}
-        onToggleRunEulerMode={() => console.log("Run Euler")}
-      />
+      <FunctionalBar />
     </div>
-    // </NodeInputProvider>
   );
 };
 
