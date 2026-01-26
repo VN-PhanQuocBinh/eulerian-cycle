@@ -3,7 +3,7 @@ import { devtools } from "zustand/middleware";
 import type cytoscape from "cytoscape";
 
 // Types
-export type GraphMode = "view" | "add" | "delete";
+export type GraphMode = "view" | "add-node" | "add-edge" | "delete";
 
 export interface GraphNode {
   id: string;
@@ -32,6 +32,10 @@ interface GraphState {
   setIsDirected: (isDirected: boolean) => void;
   setCyInstance: (instance: cytoscape.Core | null) => void;
   setEhInstance: (instance: any) => void;
+
+  // Bulk updates
+  updateNodes: (nodes: GraphNode[]) => void;
+  updateEdges: (edges: GraphEdge[]) => void;
 
   // Node operations
   addNode: (node: GraphNode) => void;
@@ -118,13 +122,16 @@ export const useGraphStore = create<GraphState>()(
           data: edge,
         });
 
-        return { edges: [...edges, edge] };
+        set((state) => ({ edges: [...state.edges, edge] }));
       },
 
       removeEdge: (edgeId) =>
         set((state) => ({
           edges: state.edges.filter((e) => e.id !== edgeId),
         })),
+
+      updateNodes: (nodes) => set({ nodes }),
+      updateEdges: (edges) => set({ edges }),
 
       // Graph operations
       clearGraph: () =>

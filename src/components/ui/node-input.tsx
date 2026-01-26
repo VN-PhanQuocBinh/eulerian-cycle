@@ -33,10 +33,11 @@ export const NodeInput = forwardRef<HTMLDivElement, NodeInputProps>(
         onBlur?.(internalRef.current?.innerText || "");
       };
 
-      const handleEnterKey = (e: KeyboardEvent) => {
-        if (e.key === "Enter") {
-          e.preventDefault();
-          onBlur?.("");
+      const handleEnterKey = (event: KeyboardEvent) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          if (internalRef.current && internalRef.current.contains(event.target as Node)) return;
+          onBlur?.(internalRef.current?.innerText || "");
         }
       };
 
