@@ -6,6 +6,7 @@ import type { EdgeHandlesInstance, EdgeHandlesOptions } from "cytoscape-edgehand
 import FunctionalBar from "./functional-bar";
 import { useGraphStore } from "@/contexts/graph-context";
 import type { GraphEdge, GraphNode } from "@/contexts/graph-context";
+import { generateNodeId } from "@/utils/generate-node-id";
 
 cytoscape.use(edgehandles);
 
@@ -14,7 +15,7 @@ const graphStyles: cytoscape.StylesheetJson = [
     selector: "node",
     style: {
       "background-color": "#3b82f6",
-      label: "data(id)",
+      label: "data(label)",
       color: "#fff",
       "text-valign": "center",
       "text-halign": "center",
@@ -52,8 +53,8 @@ const graphStyles: cytoscape.StylesheetJson = [
 const GraphCanvas = () => {
   const graphMode = useGraphStore((state) => state.mode);
   const edges = useGraphStore((state) => state.edges);
-  const nodes = useGraphStore((state) => state.nodes);
   const addNode = useGraphStore((state) => state.addNode);
+  const updateNode = useGraphStore((state) => state.updateNode);
   const addEdge = useGraphStore((state) => state.addEdge);
   const setCyInstance = useGraphStore((state) => state.setCyInstance);
   const setEhInstance = useGraphStore((state) => state.setEhInstance);
@@ -118,10 +119,37 @@ const GraphCanvas = () => {
     ehRef.current = ehInstance;
     setEhInstance(ehInstance);
 
+    // Pending for implementation: custom context menu on nodes
+    graphInstance.on("cxttapstart ", "node", function (evt) {
+      const node = evt.target;
+      console.log("tapped " + node.id());
+    });
+
     return () => {
       graphInstance.destroy();
     };
   }, [addNode, addEdge]);
+
+  useEffect(() => {
+    if (!cyRef.current || !["view", "add-edge"].includes(graphMode)) return;
+
+    cyRef.current.on("dblclick", "node", (event) => {
+      const node = event.target;
+      console.log("Double clicked on node", node.id());
+      // Prevent adding node when double-clicking on existing node
+      openNodeInputAt({
+        x: event.target.position().x,
+        y: event.target.position().y,
+        onComplete: (label: string) => {
+          updateNode(node.id(), { label });
+        },
+      });
+    });
+
+    return () => {
+      cyRef.current?.off("dblclick", "node");
+    };
+  }, [graphMode, openNodeInputAt]);
 
   // Enable/disable edge drawing mode based on graphMode
   useEffect(() => {
@@ -140,8 +168,9 @@ const GraphCanvas = () => {
         openNodeInputAt({
           x: event.renderedPosition.x,
           y: event.renderedPosition.y,
-          onComplete: (nodeId: string) => {
-            addNode({ id: nodeId.toLowerCase(), label: nodeId, x, y });
+          onComplete: (label: string) => {
+            const nodeId = generateNodeId();
+            addNode({ id: nodeId.toLowerCase(), label, x, y });
           },
         });
       }

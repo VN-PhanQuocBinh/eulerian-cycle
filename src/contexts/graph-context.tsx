@@ -40,7 +40,7 @@ interface GraphState {
   // Node operations
   addNode: (node: GraphNode) => void;
   removeNode: (nodeId: string) => void;
-  updateNode: (nodeId: string, updates: Partial<GraphNode>) => void;
+  updateNode: (nodeId: string, updates: Partial<Pick<GraphNode, "label">>) => void;
 
   // Edge operations
   addEdge: (edge: GraphEdge) => void;
@@ -77,7 +77,7 @@ export const useGraphStore = create<GraphState>()(
 
         const currentNodes = cyInstance?.nodes().map((el) => el.id()) || [];
 
-        if (!currentNodes.includes(node.id)) {
+        if (!currentNodes.includes(node.id) && node.id.trim() !== "") {
           cyInstance?.add({
             group: "nodes",
             data: { id: node.id, label: node.label },
@@ -91,25 +91,34 @@ export const useGraphStore = create<GraphState>()(
       removeNode: (nodeId) =>
         set((state) => ({
           nodes: state.nodes.filter((n) => n.id !== nodeId),
-          // Xóa luôn các cạnh liên quan
+          // Also remove connected edges
           edges: state.edges.filter((e) => e.source !== nodeId && e.target !== nodeId),
         })),
 
-      updateNode: (nodeId, updates) =>
+      updateNode: (nodeId, updates) => {
+        const { cyInstance } = get();
+        if (!cyInstance || !updates.label) return;
+
+        const nodeInCy = cyInstance.getElementById(nodeId);
+        if (nodeInCy) {
+          nodeInCy.data({ ...nodeInCy.data(), label: updates.label });
+        }
+
         set((state) => ({
           nodes: state.nodes.map((n) => (n.id === nodeId ? { ...n, ...updates } : n)),
-        })),
+        }));
+      },
 
       // Edge operations
       addEdge: (edge) => {
         const { cyInstance, edges, nodes } = get();
         if (!cyInstance) return;
 
-        // Kiểm tra cạnh đã tồn tại chưa
+        // Check if edge already exists
         if (edges.find((e) => e.id === edge.id)) {
           return;
         }
-        // Kiểm tra cả 2 node có tồn tại không
+        // Check if both nodes exist
         const sourceExists = nodes.find((n) => n.id === edge.source);
         const targetExists = nodes.find((n) => n.id === edge.target);
 
