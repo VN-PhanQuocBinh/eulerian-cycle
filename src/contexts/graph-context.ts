@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import type cytoscape from "cytoscape";
+import type { ToastHandler } from "@/components/ui/toast";
 
 // Types
 export type GraphMode = "view" | "add-node" | "add-edge" | "delete";
@@ -32,6 +33,10 @@ interface GraphState {
   setIsDirected: (isDirected: boolean) => void;
   setCyInstance: (instance: cytoscape.Core | null) => void;
   setEhInstance: (instance: any) => void;
+
+  // Toast handler
+  toastHandler: ToastHandler;
+  setToastHandler: (handler: ToastHandler) => void;
 
   // Bulk updates
   updateNodes: (nodes: GraphNode[]) => void;
@@ -65,19 +70,28 @@ export const useGraphStore = create<GraphState>()(
       isDirected: false,
       cyInstance: null,
       ehInstance: null,
+
+      // Toast handler
+      toastHandler: () => {},
+      setToastHandler: (handler) => set({ toastHandler: handler }),
+
       // Mode actions
       setMode: (mode) => set({ mode }),
       setIsDirected: (isDirected) => set({ isDirected }),
       setCyInstance: (instance) => set({ cyInstance: instance }),
       setEhInstance: (instance) => set({ ehInstance: instance }),
+
       // Node operations
       addNode: (node) => {
-        const { cyInstance } = get();
+        const { cyInstance, toastHandler } = get();
         if (!cyInstance) return;
 
+        const { id: nodeId, label: nodeLabel } = node;
         const currentNodes = cyInstance?.nodes().map((el) => el.id()) || [];
+        const isExistingLabel = cyInstance.nodes().some((el) => el.data("label") === nodeLabel);
+        const isExistingId = currentNodes.includes(nodeId);
 
-        if (!currentNodes.includes(node.id) && node.id.trim() !== "") {
+        if (!isExistingId && !isExistingLabel && nodeId.trim() !== "" && nodeLabel.trim() !== "") {
           cyInstance?.add({
             group: "nodes",
             data: { id: node.id, label: node.label },
@@ -85,6 +99,11 @@ export const useGraphStore = create<GraphState>()(
           });
 
           set((state) => ({ nodes: [...state.nodes, node] }));
+        } else {
+          toastHandler({
+            message: "Node with the same ID or label already exists or ID is empty.",
+            type: "error",
+          });
         }
       },
 

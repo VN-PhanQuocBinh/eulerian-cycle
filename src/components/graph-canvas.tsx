@@ -4,53 +4,18 @@ import edgehandles from "cytoscape-edgehandles";
 import { useNodeInput } from "./ui/node-input";
 import type { EdgeHandlesInstance, EdgeHandlesOptions } from "cytoscape-edgehandles";
 import FunctionalBar from "./functional-bar";
+import AdjacencyListPanel from "./adjacency-list-panel";
 import { useGraphStore } from "@/contexts/graph-context";
 import type { GraphEdge, GraphNode } from "@/contexts/graph-context";
 import { generateNodeId } from "@/utils/generate-node-id";
+import { useToast } from "./ui/toast";
+import { graphStyles } from "@/configs/graph";
 
 cytoscape.use(edgehandles);
 
-const graphStyles: cytoscape.StylesheetJson = [
-  {
-    selector: "node",
-    style: {
-      "background-color": "#3b82f6",
-      label: "data(label)",
-      color: "#fff",
-      "text-valign": "center",
-      "text-halign": "center",
-      width: 40,
-      height: 40,
-    },
-  },
-  {
-    selector: "edge",
-    style: {
-      width: 3,
-      "line-color": "#94a3b8",
-      "target-arrow-color": "#94a3b8",
-      // "target-arrow-shape": "triangle", // Mũi tên cho đồ thị có hướng
-      "curve-style": "bezier",
-      "control-point-step-size": 40, // Khoảng cách uốn cong giữa các cạnh
-    },
-  },
-  {
-    selector: "node:selected",
-    style: {
-      "background-color": "#f0c002", // Viền đỏ khi chọn
-      color: "#000",
-    },
-  },
-  {
-    selector: "edge:selected",
-    style: {
-      "line-color": "#f0c002",
-      width: 5,
-    },
-  },
-];
-
 const GraphCanvas = () => {
+  const { showToast } = useToast();
+
   const graphMode = useGraphStore((state) => state.mode);
   const edges = useGraphStore((state) => state.edges);
   const addNode = useGraphStore((state) => state.addNode);
@@ -60,11 +25,17 @@ const GraphCanvas = () => {
   const setEhInstance = useGraphStore((state) => state.setEhInstance);
   const updateNodes = useGraphStore((state) => state.updateNodes);
   const updateEdges = useGraphStore((state) => state.updateEdges);
+  const setToastHandler = useGraphStore((state) => state.setToastHandler);
 
   const { openNodeInputAt } = useNodeInput();
   const containerRef = useRef<HTMLDivElement>(null);
   const cyRef = useRef<cytoscape.Core | null>(null);
   const ehRef = useRef<EdgeHandlesInstance | null>(null);
+
+  // Set toast handler in graph store
+  useEffect(() => {
+    setToastHandler(showToast);
+  }, [setToastHandler, showToast]);
 
   // Initialize Cytoscape and EdgeHandles
   useEffect(() => {
@@ -88,7 +59,8 @@ const GraphCanvas = () => {
         targetNode: cytoscape.NodeSingular,
       ) {
         // whether an edge can be created between source and target
-        return !sourceNode.same(targetNode); // e.g. disallow loops
+        // return !sourceNode.same(targetNode); // e.g. disallow loops
+        return true;
       },
       edgeParams: function (
         sourceNode: cytoscape.NodeSingular,
@@ -107,6 +79,7 @@ const GraphCanvas = () => {
           },
         };
       },
+
       hoverDelay: 150, // time spent hovering over a target node before it is considered selected
       snap: true, // when enabled, the edge can be drawn by just moving close to a target node (can be confusing on compound graphs)
       snapThreshold: 50, // the target node must be less than or equal to this many pixels away from the cursor/finger
@@ -256,6 +229,7 @@ const GraphCanvas = () => {
       <div ref={containerRef} className="w-full h-full" />
 
       <FunctionalBar />
+      <AdjacencyListPanel />
     </div>
   );
 };
