@@ -55,6 +55,9 @@ interface GraphState {
   clearGraph: () => void;
   resetGraph: () => void;
 
+  saveGraph: () => Promise<string>;
+  loadGraph: () => Promise<string>;
+
   // Euler algorithm
   findEulerianPath: () => string[] | null;
   findEulerianCycle: () => string[] | null;
@@ -180,6 +183,106 @@ export const useGraphStore = create<GraphState>()(
           edges: [],
           isDirected: false,
         }));
+      },
+
+      // File operations
+      saveGraph: async () => {
+        const { nodes, edges, toastHandler } = get();
+
+        const graphData = {
+          nodes,
+          edges,
+          metadata: {
+            version: "1.0",
+            createdAt: new Date().toISOString(),
+          },
+        };
+
+        try {
+          const result = await (window as any).ipcRenderer.saveGraph(
+            JSON.stringify(graphData, null, 2),
+          );
+
+          if (result.success) {
+            toastHandler({
+              message: "Graph saved successfully.",
+              type: "success",
+            });
+          } else {
+            toastHandler({
+              message: `Failed to save graph. ${result.error || ""}`,
+              type: "error",
+            });
+          }
+        } catch (error) {
+          toastHandler({
+            message: "Failed to save graph.",
+            type: "error",
+          });
+        }
+      },
+
+      loadGraph: async () => {
+        const { cyInstance, toastHandler } = get();
+
+        if (!cyInstance) {
+          toastHandler({
+            message: "Graph canvas not initialized",
+            type: "error",
+          });
+          return;
+        }
+
+        try {
+          const result = await (window as any).ipcRenderer.loadGraph();
+
+          if (!result.success || !result.data) {
+            toastHandler({
+              message: result.error || "Failed to load graph",
+              type: "error",
+            });
+            return;
+          }
+
+          const graphData = JSON.parse(result.data);
+
+          // Clear current graph
+          cyInstance.elements().remove();
+
+          // Load nodes
+          graphData.nodes.forEach((node: GraphNode) => {
+            cyInstance.add({
+              group: "nodes",
+              data: { id: node.id, label: node.label },
+              position: { x: node.x, y: node.y },
+            });
+          });
+
+          // Load edges
+          graphData.edges.forEach((edge: GraphEdge) => {
+            cyInstance.add({
+              group: "edges",
+              data: edge,
+            });
+          });
+
+          // Update store
+          set({
+            nodes: graphData.nodes,
+            edges: graphData.edges,
+            isDirected: graphData.isDirected,
+          });
+
+          toastHandler({
+            message: "Graph loaded successfully!",
+            type: "success",
+          });
+        } catch (error) {
+          toastHandler({
+            message: "Failed to parse graph file",
+            type: "error",
+          });
+        }
       },
 
       // Euler algorithm (placeholder)

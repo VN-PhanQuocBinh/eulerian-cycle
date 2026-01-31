@@ -32,6 +32,9 @@ const GraphCanvas = () => {
   const cyRef = useRef<cytoscape.Core | null>(null);
   const ehRef = useRef<EdgeHandlesInstance | null>(null);
 
+  console.log("current nodes:", cyRef.current?.nodes().map((n) => n.data()));
+  console.log("current edges:", cyRef.current?.edges().map((e) => e.data()));
+
   // Set toast handler in graph store
   useEffect(() => {
     setToastHandler(showToast);

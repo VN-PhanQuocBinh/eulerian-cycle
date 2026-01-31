@@ -16,7 +16,8 @@ electron.contextBridge.exposeInMainWorld("ipcRenderer", {
   invoke(...args) {
     const [channel, ...omit] = args;
     return electron.ipcRenderer.invoke(channel, ...omit);
-  }
+  },
   // You can expose other APTs you need here.
-  // ...
+  saveGraph: (graphData) => electron.ipcRenderer.invoke("save-graph", graphData),
+  loadGraph: () => electron.ipcRenderer.invoke("load-graph")
 });
