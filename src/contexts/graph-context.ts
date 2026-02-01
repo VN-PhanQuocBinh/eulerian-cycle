@@ -3,8 +3,25 @@ import { devtools } from "zustand/middleware";
 import type cytoscape from "cytoscape";
 import type { ToastHandler } from "@/components/ui/toast";
 
+import { NODE_STYLES, EDGE_STYLES } from "@/configs/graph";
+
 // Types
 export type GraphMode = "view" | "add-node" | "add-edge" | "delete";
+export type GraphAlgorithm = "eulerian-cycle" | "connected-components";
+
+// Colors for different components
+const COMPONENT_COLORS = [
+  "#64748b", // Slate (Xám xanh - rất chuyên nghiệp)
+  "#f97316", // Orange (Cam san hô - nổi bật nhưng dịu)
+  "#0891b2", // Cyan (Xanh lơ đậm - khác biệt với Blue)
+  "#8b5cf6", // Violet (Tím hoa cà)
+  "#10b981", // Emerald (Xanh lục ngọc)
+  "#f43f5e", // Rose (Đỏ hồng - mềm mại hơn Red)
+  "#eab308", // Yellow (Vàng đồng)
+  "#d946ef", // Fuchsia (Hồng tím)
+  "#4d7c0f", // Lime (Xanh lá mạ đậm)
+  "#a855f7", // Purple (Tím đậm)
+];
 
 export interface GraphNode {
   id: string;
@@ -27,6 +44,23 @@ interface GraphState {
   isDirected: boolean;
   cyInstance: cytoscape.Core | null;
   ehInstance: any | null;
+  currentAlgorithm: GraphAlgorithm;
+
+  // Algorithm results
+  connectedComponents: string[][];
+
+  // Animation state
+  isAnimating: boolean;
+  stepDuration: number;
+  animationSteps: {
+    type: "visit" | "explore" | "component-complete";
+    nodeId?: string;
+    edgeId?: string;
+    componentIndex?: number;
+  }[];
+  currentStep: number;
+  highlightedNodes: string[];
+  highlightedEdges: string[];
 
   // Actions
   setMode: (mode: GraphMode) => void;
@@ -61,6 +95,20 @@ interface GraphState {
   // Euler algorithm
   findEulerianPath: () => string[] | null;
   findEulerianCycle: () => string[] | null;
+
+  // Algorithm operations
+  getAdjacencyList: () => Map<string, Set<string>>;
+  setAlgorithm: (algorithm: GraphAlgorithm) => void;
+  runAlgorithm: (speed?: number) => void;
+
+  // Helpers
+  highlightNode: (nodeId: string, color: string, pulse?: boolean) => void;
+  highlightEdge: (sourceId: string, targetId: string, color: string) => void;
+  clearHighlights: () => void;
+  delay: (ms: number) => Promise<void>;
+
+  // Algorithm implementations
+  findConnectedComponents: () => string[][];
 }
 
 export const useGraphStore = create<GraphState>()(
@@ -73,6 +121,16 @@ export const useGraphStore = create<GraphState>()(
       isDirected: false,
       cyInstance: null,
       ehInstance: null,
+      currentAlgorithm: "connected-components",
+
+      // Animation state
+      connectedComponents: [],
+      isAnimating: false,
+      stepDuration: 500,
+      animationSteps: [],
+      currentStep: 0,
+      highlightedNodes: [],
+      highlightedEdges: [],
 
       // Toast handler
       toastHandler: () => {},
@@ -285,7 +343,178 @@ export const useGraphStore = create<GraphState>()(
         }
       },
 
-      // Euler algorithm (placeholder)
+      // Algorithms implementation
+      getAdjacencyList: (): Map<string, Set<string>> => {
+        const { nodes, edges, isDirected } = get();
+        const adjacencyList: Map<string, Set<string>> = new Map();
+
+        // Khởi tạo adjacency list cho tất cả nodes
+        nodes.forEach((node) => {
+          adjacencyList.set(node.id, new Set());
+        });
+
+        // Thêm edges vào adjacency list
+        edges.forEach((edge) => {
+          adjacencyList.get(edge.source)?.add(edge.target);
+
+          // Nếu là đồ thị vô hướng, thêm cả chiều ngược lại
+          if (!isDirected) {
+            adjacencyList.get(edge.target)?.add(edge.source);
+          }
+        });
+
+        return adjacencyList;
+      },
+
+      // ========== HELPER METHODS ==========
+      delay: (ms: number) => new Promise((resolve) => setTimeout(resolve, ms)),
+
+      highlightNode: (nodeId: string, color: string, pulse = false) => {
+        const { cyInstance } = get();
+        if (!cyInstance) return;
+
+        const node = cyInstance.getElementById(nodeId);
+        if (node.length === 0) return;
+
+        node.style({
+          "background-color": color,
+          "transition-duration": "300ms",
+        });
+
+        if (pulse) {
+          node.animate({
+            style: { width: 40, height: 40 },
+            duration: 200,
+            complete: () => {
+              node.animate({
+                style: { width: 30, height: 30 },
+                duration: 200,
+              });
+            },
+          });
+        }
+      },
+
+      highlightEdge: (sourceId: string, targetId: string, color: string) => {
+        const { cyInstance, isDirected } = get();
+        if (!cyInstance) return;
+
+        let edge = cyInstance.edges(`[source="${sourceId}"][target="${targetId}"]`);
+
+        // Nếu không tìm thấy và là undirected graph, thử chiều ngược lại
+        if (edge.length === 0 && !isDirected) {
+          edge = cyInstance.edges(`[source="${targetId}"][target="${sourceId}"]`);
+        }
+
+        if (edge.length > 0) {
+          edge[0].style({
+            "line-color": color,
+            "target-arrow-color": color,
+            width: 4,
+            "transition-duration": "300ms",
+          });
+        }
+      },
+
+      clearHighlights: () => {
+        const { cyInstance } = get();
+        if (!cyInstance) return;
+
+        // Reset all nodes and edges to default style
+        cyInstance.nodes().style(NODE_STYLES);
+        cyInstance.edges().style(EDGE_STYLES);
+
+        set({
+          highlightedNodes: [],
+          highlightedEdges: [],
+          connectedComponents: [],
+          currentStep: 0,
+        });
+      },
+
+      // ========== ALGORITHM IMPLEMENTATIONS ==========
+      findConnectedComponents: async () => {
+        const {
+          nodes,
+          cyInstance,
+          stepDuration,
+          getAdjacencyList,
+          delay,
+          highlightEdge,
+          highlightNode,
+        } = get();
+
+        if (nodes.length === 0 || !cyInstance) {
+          return [];
+        }
+
+        set({ isAnimating: true, connectedComponents: [], currentStep: 0 });
+
+        const adjacencyList = getAdjacencyList();
+        const visited = new Set<string>();
+        const components: string[][] = [];
+
+        // BFS with animation
+        const animatedBFS = async (
+          startNode: string,
+          componentIndex: number,
+        ): Promise<string[]> => {
+          const queue: string[] = [startNode];
+          const component: string[] = [];
+          const color = COMPONENT_COLORS[componentIndex % COMPONENT_COLORS.length];
+
+          visited.add(startNode);
+          highlightNode(startNode, color, true);
+          await delay(stepDuration);
+
+          while (queue.length > 0) {
+            const current = queue.shift()!;
+            component.push(current);
+
+            // Dim current node slightly
+            highlightNode(current, color, false);
+
+            const neighbors = adjacencyList.get(current) || new Set();
+
+            for (const neighbor of neighbors) {
+              if (!visited.has(neighbor)) {
+                visited.add(neighbor);
+
+                // Highlight edge being explored
+                highlightEdge(current, neighbor, color);
+                await delay(stepDuration / 2);
+
+                // Highlight discovered node
+                highlightNode(neighbor, color, true);
+                queue.push(neighbor);
+
+                await delay(stepDuration);
+              }
+            }
+          }
+
+          return component;
+        };
+
+        // Main algorithm loop
+        for (let i = 0; i < nodes.length; i++) {
+          const node = nodes[i];
+          if (!visited.has(node.id)) {
+            const component = await animatedBFS(node.id, components.length);
+            components.push(component);
+
+            // Update UI after each component
+            set({ connectedComponents: [...components] });
+
+            // Pause between components
+            await delay(stepDuration);
+          }
+        }
+
+        set({ isAnimating: false });
+        return components;
+      },
+
       findEulerianPath: () => {
         const { nodes, edges } = get();
         // TODO: Implement Eulerian path algorithm
@@ -298,6 +527,70 @@ export const useGraphStore = create<GraphState>()(
         // TODO: Implement Eulerian cycle algorithm
         console.log("Finding Eulerian cycle...", { nodes, edges });
         return null;
+      },
+
+      // Algorithm operations
+      setAlgorithm: (algorithm) => set({ currentAlgorithm: algorithm }),
+      runAlgorithm: async (speed = 1) => {
+        const {
+          currentAlgorithm,
+          cyInstance,
+          nodes,
+          edges,
+          isAnimating,
+          stepDuration,
+          findConnectedComponents,
+          toastHandler,
+        } = get();
+
+        if (isAnimating) {
+          toastHandler({
+            message: "Animation is already running!",
+            type: "warning",
+          });
+          return;
+        }
+
+        if (!cyInstance || nodes.length === 0) {
+          toastHandler({
+            message: "Graph is empty!",
+            type: "error",
+          });
+          return;
+        }
+
+        // Clear previous highlights
+        get().clearHighlights();
+
+        // Set animation speed
+        set({ stepDuration: stepDuration * speed });
+
+        switch (currentAlgorithm) {
+          case "connected-components": {
+            const components = await findConnectedComponents();
+            const componentSizes = components.map((c) => c.length).join(", ");
+            toastHandler({
+              message: `Found ${components.length} connected component(s). Sizes: [${componentSizes}]`,
+              type: "success",
+            });
+            break;
+          }
+
+          case "eulerian-cycle": {
+            // TODO: Implement with animation
+            toastHandler({
+              message: "Eulerian cycle algorithm coming soon!",
+              type: "info",
+            });
+            break;
+          }
+
+          default:
+            break;
+        }
+
+        console.log(edges);
+        console.log(cyInstance);
       },
     }),
     { name: "GraphStore" },

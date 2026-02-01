@@ -32,8 +32,22 @@ const GraphCanvas = () => {
   const cyRef = useRef<cytoscape.Core | null>(null);
   const ehRef = useRef<EdgeHandlesInstance | null>(null);
 
-  console.log("current nodes:", cyRef.current?.nodes().map((n) => n.data()));
-  console.log("current edges:", cyRef.current?.edges().map((e) => e.data()));
+  useEffect(() => {
+    const removeSaveListener = (window as any).ipcRenderer?.onRequestSaveGraph?.(() => {
+      const { saveGraph } = useGraphStore.getState();
+      saveGraph();
+    });
+
+    const removeLoadListener = (window as any).ipcRenderer?.onRequestLoadGraph?.(() => {
+      const { loadGraph } = useGraphStore.getState();
+      loadGraph();
+    });
+
+    return () => {
+      if (removeSaveListener) removeSaveListener();
+      if (removeLoadListener) removeLoadListener();
+    };
+  }, []);
 
   // Set toast handler in graph store
   useEffect(() => {
@@ -145,7 +159,8 @@ const GraphCanvas = () => {
           x: event.renderedPosition.x,
           y: event.renderedPosition.y,
           onComplete: (label: string) => {
-            const nodeId = generateNodeId();
+            // const nodeId = generateNodeId();
+            const nodeId = `node_${label}`;
             addNode({ id: nodeId.toLowerCase(), label, x, y });
           },
         });
