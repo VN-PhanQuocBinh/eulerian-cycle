@@ -1,4 +1,3 @@
-import { use } from "cytoscape";
 import { createContext, useState, useEffect, useRef, useContext, forwardRef } from "react";
 
 type HandleComplete = (nodeId: string) => void;
@@ -33,10 +32,10 @@ export const NodeInput = forwardRef<HTMLDivElement, NodeInputProps>(
         onBlur?.(internalRef.current?.innerText || "");
       };
 
-      const handleEnterKey = (e: KeyboardEvent) => {
-        if (e.key === "Enter") {
-          e.preventDefault();
-          onBlur?.("");
+      const handleEnterKey = (event: KeyboardEvent) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          onBlur?.(internalRef.current?.innerText || "");
         }
       };
 
@@ -93,9 +92,6 @@ export function NodeInputProvider({ children }: { children: React.ReactNode }) {
 
   const handleComplete = () => {
     const content = inputRef.current?.innerText.trim();
-    if (content) {
-      console.log("Node Input Content:", content);
-    }
 
     setIsOpen(false);
     if (onCompleteRef.current) {

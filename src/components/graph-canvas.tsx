@@ -1,98 +1,60 @@
 import { useEffect, useRef, useCallback } from "react";
-import cytoscape from "cytoscape";
+import cytoscape, { use } from "cytoscape";
 import edgehandles from "cytoscape-edgehandles";
 import { useNodeInput } from "./ui/node-input";
 import type { EdgeHandlesInstance, EdgeHandlesOptions } from "cytoscape-edgehandles";
 import FunctionalBar from "./functional-bar";
+import AdjacencyListPanel from "./adjacency-list-panel";
 import { useGraphStore } from "@/contexts/graph-context";
+import type { GraphEdge, GraphNode } from "@/contexts/graph-context";
+import { generateNodeId } from "@/utils/generate-node-id";
+import { useToast } from "./ui/toast";
+import { graphStyles } from "@/configs/graph";
 
 cytoscape.use(edgehandles);
 
 const GraphCanvas = () => {
+  const { showToast } = useToast();
+
+  const graphMode = useGraphStore((state) => state.mode);
+  const edges = useGraphStore((state) => state.edges);
+  const addNode = useGraphStore((state) => state.addNode);
+  const updateNode = useGraphStore((state) => state.updateNode);
+  const addEdge = useGraphStore((state) => state.addEdge);
+  const setCyInstance = useGraphStore((state) => state.setCyInstance);
+  const setEhInstance = useGraphStore((state) => state.setEhInstance);
+  const updateNodes = useGraphStore((state) => state.updateNodes);
+  const updateEdges = useGraphStore((state) => state.updateEdges);
+  const setToastHandler = useGraphStore((state) => state.setToastHandler);
+
   const { openNodeInputAt } = useNodeInput();
   const containerRef = useRef<HTMLDivElement>(null);
   const cyRef = useRef<cytoscape.Core | null>(null);
   const ehRef = useRef<EdgeHandlesInstance | null>(null);
 
-  const addNode = useCallback(
-    (id: string, x: number, y: number) => {
-      if (!cyRef.current) return;
+  console.log("current nodes:", cyRef.current?.nodes().map((n) => n.data()));
+  console.log("current edges:", cyRef.current?.edges().map((e) => e.data()));
 
-      const currentNodes = cyRef.current.nodes().map((el) => el.id());
+  // Set toast handler in graph store
+  useEffect(() => {
+    setToastHandler(showToast);
+  }, [setToastHandler, showToast]);
 
-      console.log("Current Nodes:", currentNodes);
-
-      // Kiểm tra xem ID đã tồn tại chưa để tránh crash
-      if (!currentNodes.includes(id)) {
-        cyRef.current.add({
-          group: "nodes",
-          data: { id, label: id },
-          position: { x, y },
-        });
-      }
-    },
-    [cyRef],
-  );
-
-  // 2. Helper: Thêm Cạnh
-  const addEdge = useCallback((sourceId: string, targetId: string) => {
-    if (!cyRef.current) return;
-
-    const edgeId = `e-${sourceId}-${targetId}`;
-
-    // Chỉ thêm nếu cả 2 đỉnh tồn tại và cạnh chưa tồn tại
-    if (
-      !cyRef.current.getElementById(sourceId).empty() &&
-      !cyRef.current.getElementById(targetId).empty() &&
-      cyRef.current.getElementById(edgeId).empty()
-    ) {
-      cyRef.current.add({
-        group: "edges",
-        data: {
-          id: edgeId,
-          source: sourceId,
-          target: targetId,
-        },
-      });
-    }
-  }, []);
-
+  // Initialize Cytoscape and EdgeHandles
   useEffect(() => {
     if (!containerRef.current) return;
 
-    console.log([...(cyRef.current?.nodes().map((el) => el.id()) || [])]);
-
-    cyRef.current = cytoscape({
+    const graphInstance = cytoscape({
       container: containerRef.current,
-      style: [
-        {
-          selector: "node",
-          style: {
-            "background-color": "#3b82f6",
-            label: "data(id)",
-            color: "#fff",
-            "text-valign": "center",
-            "text-halign": "center",
-            width: 40,
-            height: 40,
-          },
-        },
-        {
-          selector: "edge",
-          style: {
-            width: 3,
-            "line-color": "#94a3b8",
-            "target-arrow-color": "#94a3b8",
-            // "target-arrow-shape": "triangle", // Mũi tên cho đồ thị có hướng
-            "curve-style": "bezier",
-          },
-        },
-      ],
+      style: graphStyles,
       elements: [],
       layout: { name: "preset" },
       userZoomingEnabled: true,
       userPanningEnabled: true,
     });
+
+    cyRef.current = graphInstance;
+    setCyInstance(graphInstance);
 
     let defaults: EdgeHandlesOptions = {
       canConnect: function (
@@ -100,7 +62,8 @@ const GraphCanvas = () => {
         targetNode: cytoscape.NodeSingular,
       ) {
         // whether an edge can be created between source and target
-        return !sourceNode.same(targetNode); // e.g. disallow loops
+        // return !sourceNode.same(targetNode); // e.g. disallow loops
+        return true;
       },
       edgeParams: function (
         sourceNode: cytoscape.NodeSingular,
@@ -108,14 +71,18 @@ const GraphCanvas = () => {
       ): cytoscape.ElementDefinition {
         // for edges between the specified source and target
         // return element object to be passed to cy.add() for edge
+        const uniqueId = `edge-${sourceNode.id()}-${targetNode.id()}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+
         return {
           data: {
-            id: `e-${sourceNode.id()}-${targetNode.id()}`,
+            // id: `e-${sourceNode.id()}-${targetNode.id()}`,
+            id: uniqueId,
             source: sourceNode.id(),
             target: targetNode.id(),
           },
         };
       },
+
       hoverDelay: 150, // time spent hovering over a target node before it is considered selected
       snap: true, // when enabled, the edge can be drawn by just moving close to a target node (can be confusing on compound graphs)
       snapThreshold: 50, // the target node must be less than or equal to this many pixels away from the cursor/finger
@@ -124,78 +91,149 @@ const GraphCanvas = () => {
       disableBrowserGestures: true, // during an edge drawing gesture, disable browser gestures such as two-finger trackpad swipe and pinch-to-zoom
     };
 
-    ehRef.current = cyRef.current.edgehandles(defaults);
+    const ehInstance = graphInstance.edgehandles(defaults);
+    ehRef.current = ehInstance;
+    setEhInstance(ehInstance);
 
-    // Initialize with some nodes and edges for testing
-    addNode("V1", 100, 100);
-    addNode("V2", 300, 200);
-    addEdge("V1", "V2");
+    // Pending for implementation: custom context menu on nodes
+    graphInstance.on("cxttapstart ", "node", function (evt) {
+      const node = evt.target;
+      console.log("tapped " + node.id());
+    });
+
+    return () => {
+      graphInstance.destroy();
+    };
+  }, [addNode, addEdge]);
+
+  useEffect(() => {
+    if (!cyRef.current || !["view", "add-edge"].includes(graphMode)) return;
+
+    cyRef.current.on("dblclick", "node", (event) => {
+      const node = event.target;
+      console.log("Double clicked on node", node.id());
+      // Prevent adding node when double-clicking on existing node
+      openNodeInputAt({
+        x: event.target.position().x,
+        y: event.target.position().y,
+        onComplete: (label: string) => {
+          updateNode(node.id(), { label });
+        },
+      });
+    });
+
+    return () => {
+      cyRef.current?.off("dblclick", "node");
+    };
+  }, [graphMode, openNodeInputAt]);
+
+  // Enable/disable edge drawing mode based on graphMode
+  useEffect(() => {
+    if (!cyRef.current || !ehRef.current) return;
+
+    if (graphMode === "add-edge") {
+      ehRef.current.enableDrawMode();
+    } else {
+      ehRef.current.disableDrawMode();
+    }
 
     const handleDoubleClick = (event: cytoscape.EventObject) => {
-      if (!cyRef.current) return;
-
       if (event.target === cyRef.current) {
-        console.log("Zoom", cyRef.current.zoom());
-
         const { x, y } = event.position;
 
         openNodeInputAt({
           x: event.renderedPosition.x,
           y: event.renderedPosition.y,
-          onComplete: (nodeId: string) => {
-            addNode(nodeId, x, y);
-            console.log("Adding node", nodeId, "At position", x, y);
+          onComplete: (label: string) => {
+            const nodeId = generateNodeId();
+            addNode({ id: nodeId.toLowerCase(), label, x, y });
           },
         });
       }
     };
 
-    cyRef.current?.on("dblclick", handleDoubleClick);
+    if (graphMode === "add-node") {
+      cyRef.current.on("dblclick", handleDoubleClick);
+    }
 
     return () => {
-      cyRef.current?.destroy();
-
       cyRef.current?.off("dblclick", handleDoubleClick);
     };
-  }, [addNode, addEdge]);
+  }, [graphMode, updateEdges]);
 
-  const handleClearGraph = useCallback(() => {
-    if (cyRef.current) {
-      cyRef.current.elements().remove();
-    }
-  }, []);
+  // Update store when edges are added via edgehandles
+  useEffect(() => {
+    if (!cyRef.current) return;
+
+    const handleEdgeAdded = (
+      _event: cytoscape.EventObject,
+      sourceNode: cytoscape.NodeSingular,
+      targetNode: cytoscape.NodeSingular,
+      addedEdge: cytoscape.EdgeSingular,
+    ) => {
+      const newEdge: GraphEdge = {
+        id: addedEdge.id() as `e-${string}-${string}`,
+        source: sourceNode.id(),
+        target: targetNode.id(),
+      };
+
+      updateEdges([...edges, newEdge]);
+    };
+
+    cyRef.current.on("ehcomplete", handleEdgeAdded);
+    return () => {
+      cyRef.current?.off("ehcomplete", handleEdgeAdded);
+    };
+  }, [updateEdges, edges]);
+
+  // Delete selected nodes or edges on Delete or Backspace key press
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!cyRef.current) return;
+
+      if (event.key === "Delete" || event.key === "Backspace") {
+        const selectedElements = cyRef.current?.$(":selected");
+        selectedElements?.remove();
+
+        // Update store
+        const remainingNodes =
+          cyRef.current.nodes().map((el) => {
+            const position = el.position();
+            return {
+              id: el.id(),
+              label: el.data("label"),
+              x: position.x,
+              y: position.y,
+            } as GraphNode;
+          }) || [];
+        updateNodes(remainingNodes);
+
+        const remainingEdges =
+          cyRef.current.edges().map((el) => {
+            return {
+              id: el.id() as string,
+              source: el.data("source") as string,
+              target: el.data("target") as string,
+            } as GraphEdge;
+          }) || [];
+        updateEdges(remainingEdges);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [cyRef.current, updateEdges, updateNodes]);
 
   return (
     // <NodeInputProvider>
     <div className="relative flex-1 h-full bg-slate-50 border border-slate-200 rounded-lg overflow-hidden">
-      {/* <div className="absolute top-4 right-4 z-10 flex gap-2">
-        <button
-          onClick={() =>
-            addNode(`V${Math.floor(Math.random() * 100)}`, Math.random() * 400, Math.random() * 400)
-          }
-          className="bg-white px-3 py-1 rounded shadow border text-sm"
-        >
-          + Thêm Đỉnh Random
-        </button>
-        <button
-          onClick={handleClearGraph}
-          className="bg-red-50 text-red-600 px-3 py-1 rounded shadow border text-sm"
-        >
-          Xóa hết
-        </button>
-      </div> */}
-
       {/* Canvas */}
       <div ref={containerRef} className="w-full h-full" />
 
-      <FunctionalBar
-        onToggleViewMode={() => ehRef.current?.disableDrawMode()}
-        onToggleAddMode={() => ehRef.current?.enableDrawMode()}
-        onToggleClearGraphMode={handleClearGraph}
-        onToggleRunEulerMode={() => console.log("Run Euler")}
-      />
+      <FunctionalBar />
+      <AdjacencyListPanel />
     </div>
-    // </NodeInputProvider>
   );
 };
 

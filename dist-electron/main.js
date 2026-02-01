@@ -1,7 +1,8 @@
-import { app, BrowserWindow } from "electron";
+import { ipcMain, dialog, app, BrowserWindow, Menu } from "electron";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import fs from "node:fs/promises";
 createRequire(import.meta.url);
 const __dirname$1 = path.dirname(fileURLToPath(import.meta.url));
 process.env.APP_ROOT = path.join(__dirname$1, "..");
@@ -25,7 +26,122 @@ function createWindow() {
   } else {
     win.loadFile(path.join(RENDERER_DIST, "index.html"));
   }
+  const menu = Menu.buildFromTemplate([
+    {
+      label: "File",
+      submenu: [
+        {
+          label: "Open Graph",
+          accelerator: "CmdOrCtrl+O",
+          click: async () => {
+            const result = await handleLoad();
+            win == null ? void 0 : win.webContents.send("load-graph-response", result);
+          }
+        },
+        {
+          label: "Save Graph",
+          accelerator: "CmdOrCtrl+S",
+          click: async () => {
+            win == null ? void 0 : win.webContents.send("save-graph-request");
+          }
+        },
+        {
+          type: "separator"
+        },
+        {
+          label: "Exit",
+          accelerator: "CmdOrCtrl+Q",
+          click: () => {
+            app.quit();
+          }
+        }
+      ]
+    }
+    // {
+    //   label: 'Edit',
+    //   submenu: [
+    //     { role: 'undo' },
+    //     { role: 'redo' },
+    //     { type: 'separator' },
+    //     { role: 'cut' },
+    //     { role: 'copy' },
+    //     { role: 'paste' }
+    //   ]
+    // },
+    // {
+    //   label: 'View',
+    //   submenu: [
+    //     { role: 'reload' },
+    //     { role: 'forceReload' },
+    //     { role: 'toggleDevTools' },
+    //     { type: 'separator' },
+    //     { role: 'resetZoom' },
+    //     { role: 'zoomIn' },
+    //     { role: 'zoomOut' }
+    //   ]
+    // }
+  ]);
+  Menu.setApplicationMenu(menu);
 }
+async function handleLoad() {
+  try {
+    const { filePaths, canceled } = await dialog.showOpenDialog({
+      title: "Load Graph",
+      defaultPath: app.getPath("documents"),
+      filters: [
+        { name: "JSON Files", extensions: ["json"] },
+        { name: "All Files", extensions: ["*"] }
+      ],
+      properties: ["openFile"]
+    });
+    if (canceled || filePaths.length === 0) {
+      return { success: false, error: "Load operation was canceled." };
+    }
+    const data = await fs.readFile(filePaths[0], "utf-8");
+    return { success: true, data, filePath: filePaths[0] };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+ipcMain.handle("save-graph", async (_event, graphData) => {
+  try {
+    const { filePath, canceled } = await dialog.showSaveDialog({
+      title: "Save Graph",
+      defaultPath: path.join(app.getPath("documents"), "graph.json"),
+      filters: [
+        { name: "JSON Files", extensions: ["json"] },
+        { name: "All Files", extensions: ["*"] }
+      ]
+    });
+    if (canceled || !filePath) {
+      return { success: false, error: "Save operation was canceled." };
+    }
+    await fs.writeFile(filePath, graphData, "utf-8");
+    return { success: true, message: "Graph saved successfully." };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+ipcMain.handle("load-graph", async () => {
+  try {
+    const { filePaths, canceled } = await dialog.showOpenDialog({
+      title: "Load Graph",
+      defaultPath: app.getPath("documents"),
+      filters: [
+        { name: "JSON Files", extensions: ["json"] },
+        { name: "All Files", extensions: ["*"] }
+      ],
+      properties: ["openFile"]
+    });
+    if (canceled || filePaths.length === 0) {
+      return { success: false, error: "Load operation was canceled." };
+    }
+    const data = await fs.readFile(filePaths[0], "utf-8");
+    return { success: true, data, filePath: filePaths[0] };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     app.quit();
