@@ -1,115 +1,9 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import type cytoscape from "cytoscape";
-import type { ToastHandler } from "@/components/ui/toast";
 
 import { NODE_STYLES, EDGE_STYLES } from "@/configs/graph";
-
-// Types
-export type GraphMode = "view" | "add-node" | "add-edge" | "delete";
-export type GraphAlgorithm = "eulerian-cycle" | "connected-components";
-
-// Colors for different components
-const COMPONENT_COLORS = [
-  "#64748b", // Slate (Xám xanh - rất chuyên nghiệp)
-  "#f97316", // Orange (Cam san hô - nổi bật nhưng dịu)
-  "#0891b2", // Cyan (Xanh lơ đậm - khác biệt với Blue)
-  "#8b5cf6", // Violet (Tím hoa cà)
-  "#10b981", // Emerald (Xanh lục ngọc)
-  "#f43f5e", // Rose (Đỏ hồng - mềm mại hơn Red)
-  "#eab308", // Yellow (Vàng đồng)
-  "#d946ef", // Fuchsia (Hồng tím)
-  "#4d7c0f", // Lime (Xanh lá mạ đậm)
-  "#a855f7", // Purple (Tím đậm)
-];
-
-export interface GraphNode {
-  id: string;
-  label: string;
-  x: number;
-  y: number;
-}
-
-export interface GraphEdge {
-  id: `e-${string}-${string}`;
-  source: string;
-  target: string;
-}
-
-interface GraphState {
-  // State
-  mode: GraphMode;
-  nodes: GraphNode[];
-  edges: GraphEdge[];
-  isDirected: boolean;
-  cyInstance: cytoscape.Core | null;
-  ehInstance: any | null;
-  currentAlgorithm: GraphAlgorithm;
-
-  // Algorithm results
-  connectedComponents: string[][];
-
-  // Animation state
-  isAnimating: boolean;
-  stepDuration: number;
-  animationSteps: {
-    type: "visit" | "explore" | "component-complete";
-    nodeId?: string;
-    edgeId?: string;
-    componentIndex?: number;
-  }[];
-  currentStep: number;
-  highlightedNodes: string[];
-  highlightedEdges: string[];
-
-  // Actions
-  setMode: (mode: GraphMode) => void;
-  setIsDirected: (isDirected: boolean) => void;
-  setCyInstance: (instance: cytoscape.Core | null) => void;
-  setEhInstance: (instance: any) => void;
-
-  // Toast handler
-  toastHandler: ToastHandler;
-  setToastHandler: (handler: ToastHandler) => void;
-
-  // Bulk updates
-  updateNodes: (nodes: GraphNode[]) => void;
-  updateEdges: (edges: GraphEdge[]) => void;
-
-  // Node operations
-  addNode: (node: GraphNode) => void;
-  removeNode: (nodeId: string) => void;
-  updateNode: (nodeId: string, updates: Partial<Pick<GraphNode, "label">>) => void;
-
-  // Edge operations
-  addEdge: (edge: GraphEdge) => void;
-  removeEdge: (edgeId: string) => void;
-
-  // Graph operations
-  clearGraph: () => void;
-  resetGraph: () => void;
-
-  saveGraph: () => Promise<string>;
-  loadGraph: () => Promise<string>;
-
-  // Euler algorithm
-  findEulerianPath: () => string[] | null;
-  findEulerianCycle: () => string[] | null;
-
-  // Algorithm operations
-  getAdjacencyList: () => Map<string, Set<string>>;
-  setAlgorithm: (algorithm: GraphAlgorithm) => void;
-  runAlgorithm: (speed?: number) => void;
-
-  // Helpers
-  highlightNode: (nodeId: string, color: string, pulse?: boolean) => void;
-  highlightEdge: (sourceId: string, targetId: string, color: string) => void;
-  clearHighlights: () => void;
-  delay: (ms: number) => Promise<void>;
-
-  // Algorithm implementations
-  findConnectedComponents: () => string[][];
-}
+import type { GraphNode, GraphEdge, GraphState } from "@/types/graph";
+import { COMPONENT_COLORS } from "@/types/styles";
 
 export const useGraphStore = create<GraphState>()(
   devtools(
@@ -125,6 +19,9 @@ export const useGraphStore = create<GraphState>()(
 
       // Animation state
       connectedComponents: [],
+      steps: [],
+
+      // Animation state
       isAnimating: false,
       stepDuration: 500,
       animationSteps: [],
@@ -376,18 +273,19 @@ export const useGraphStore = create<GraphState>()(
         const node = cyInstance.getElementById(nodeId);
         if (node.length === 0) return;
 
-        node.style({
-          "background-color": color,
-          "transition-duration": "300ms",
-        });
+        // node.style({
+        //   "background-color": color,
+        //   "transition-duration": "300ms",
+        // });
+        node.addClass("highlighted");
 
         if (pulse) {
           node.animate({
-            style: { width: 40, height: 40 },
+            style: { width: 50, height: 50 },
             duration: 200,
             complete: () => {
               node.animate({
-                style: { width: 30, height: 30 },
+                style: { width: 40, height: 40 },
                 duration: 200,
               });
             },

@@ -1,13 +1,12 @@
-import { useEffect, useRef, useCallback } from "react";
-import cytoscape, { use } from "cytoscape";
+import { useEffect, useRef } from "react";
+import cytoscape from "cytoscape";
 import edgehandles from "cytoscape-edgehandles";
 import { useNodeInput } from "./ui/node-input";
 import type { EdgeHandlesInstance, EdgeHandlesOptions } from "cytoscape-edgehandles";
 import FunctionalBar from "./functional-bar";
 import AdjacencyListPanel from "./adjacency-list-panel";
 import { useGraphStore } from "@/contexts/graph-context";
-import type { GraphEdge, GraphNode } from "@/contexts/graph-context";
-import { generateNodeId } from "@/utils/generate-node-id";
+import type { GraphEdge, GraphNode } from "@/types/graph";
 import { useToast } from "./ui/toast";
 import { graphStyles } from "@/configs/graph";
 

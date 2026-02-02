@@ -1,10 +1,10 @@
-import { MousePointer2, PlusCircle, Play, Trash2, SplinePointer } from "lucide-react";
+import { MousePointer2, PlusCircle, Trash2, SplinePointer } from "lucide-react";
 import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/utils/cn";
 import { useGraphStore } from "@/contexts/graph-context";
 
 function FunctionalBar() {
-  const { mode, setMode, clearGraph, resetGraph, runAlgorithm } = useGraphStore();
+  const { mode, setMode, clearGraph, resetGraph } = useGraphStore();
 
   const handleReset = () => {
     resetGraph();
