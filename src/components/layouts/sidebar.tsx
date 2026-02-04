@@ -31,10 +31,10 @@ function Sidebar() {
 
   const saveGraph = useGraphStore((state) => state.saveGraph);
   const loadGraph = useGraphStore((state) => state.loadGraph);
-  const clearHighlights = useGraphStore((state) => state.clearHighlights);
   const findConnectedComponents = useGraphStore((state) => state.findConnectedComponents);
   const highlightNode = useGraphStore((state) => state.highlightNode);
   const highlightEdge = useGraphStore((state) => state.highlightEdge);
+  const clearHighlights = useGraphStore((state) => state.clearHighlights);
 
   const { showToast } = useToast();
   const [currentAlgorithm, setCurrentAlgorithm] = useState<GraphAlgorithm>("connected-components");
@@ -45,24 +45,24 @@ function Sidebar() {
   const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
-    const runAlgorithm = async () => {
-      if (currentAlgorithm === "connected-components") {
-        const { steps } = await findConnectedComponents();
-        setSteps(steps || []);
-      }
-    };
+    console.log("Algorithm or graph changed, computing steps...");
 
-    runAlgorithm();
+    if (currentAlgorithm === "connected-components") {
+      const { steps } = findConnectedComponents();
+      console.log(steps);
+      setSteps(steps || []);
+    }
+    
   }, [edges, nodes, isDirected, currentAlgorithm]);
 
   const nextStep = () => {
-    if (currentStep.current < steps.length - 1) {
-      const step = steps[currentStep.current];
+    if (currentStep.current < steps.length) {
+      const step = steps[currentStep.current].current;
 
       if (step.elementType === "node") {
-        highlightNode(step.elementId, step.class, true);
+        highlightNode(step.elementId, step.classes.join(" "), true);
       } else if (step.elementType === "edge") {
-        highlightEdge(step.sourceElement, step.targetElement, step.class);
+        highlightEdge(step.sourceElement, step.targetElement, step.classes.join(" "));
       }
 
       currentStep.current++;
@@ -113,6 +113,13 @@ function Sidebar() {
         });
         return;
       }
+
+      if (currentStep.current >= steps.length) {
+        // Restart from beginning if at the end
+        currentStep.current = 0;
+        clearHighlights();
+      }
+
       setIsAnimating(true);
     }
   };
@@ -245,7 +252,7 @@ function Sidebar() {
         <div className="flex gap-2 mb-2">
           <button
             onClick={handleToggleRun}
-            disabled={isAnimating && runMode === "continuous"}
+            disabled={runMode !== "continuous"}
             className={cn(
               "flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg transition-colors font-medium",
               isAnimating && runMode === "continuous"

@@ -20,12 +20,12 @@ export interface GraphEdge {
 
 export type StepAction = "visit" | "explore" | "component-complete" | "deactivate";
 
-export type Step =
+export type CurrentStep =
   | {
       elementId: string;
       elementType: "node";
       action: StepAction;
-      class: string;
+      classes: string[];
       message: string;
     }
   | {
@@ -33,11 +33,25 @@ export type Step =
       targetElement: string;
       elementType: "edge";
       action: StepAction;
-      class: string;
+      classes: string[];
       message: string;
     };
 
+export type PrevStep = {
+  classes: string[];
+};
+
+export interface Step {
+  prev: PrevStep;
+  current: CurrentStep;
+}
+
 export type RunMode = "step-by-step" | "continuous";
+
+export interface ConnectedComponentsResult {
+  components: string[][];
+  steps: Step[];
+}
 
 export interface GraphState {
   // State
@@ -47,10 +61,6 @@ export interface GraphState {
   isDirected: boolean;
   cyInstance: cytoscape.Core | null;
   ehInstance: any | null;
-
-  // Algorithm results
-  connectedComponents: string[][];
-  steps: Step[];
 
   // Animation state
   highlightedNodes: string[];

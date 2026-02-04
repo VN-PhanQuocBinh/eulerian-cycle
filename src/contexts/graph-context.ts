@@ -2,7 +2,13 @@ import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 
 import { NODE_STYLES, EDGE_STYLES } from "@/configs/graph";
-import type { GraphNode, GraphEdge, GraphState, Step } from "@/types/graph";
+import type {
+  GraphNode,
+  GraphEdge,
+  GraphState,
+  Step,
+  ConnectedComponentsResult,
+} from "@/types/graph";
 import { COMPONENT_COLORS } from "@/types/styles";
 
 export const useGraphStore = create<GraphState>()(
@@ -302,27 +308,29 @@ export const useGraphStore = create<GraphState>()(
         if (!cyInstance) return;
 
         // Reset all nodes and edges to default style
-        cyInstance.nodes().style(NODE_STYLES);
-        cyInstance.edges().style(EDGE_STYLES);
+        // cyInstance.nodes().style(NODE_STYLES);
+        // cyInstance.edges().style(EDGE_STYLES);
+        cyInstance.nodes().classes("");
+        cyInstance.edges().classes("");
 
         set({
           highlightedNodes: [],
           highlightedEdges: [],
-          connectedComponents: [],
         });
       },
 
       // ========== ALGORITHM IMPLEMENTATIONS ==========
-      findConnectedComponents: () => {
+      findConnectedComponents: (): ConnectedComponentsResult => {
         const { nodes, cyInstance, getAdjacencyList } = get();
 
-        const steps: Step[] = [];
+        const steps: ConnectedComponentsResult["steps"] = [];
 
         if (nodes.length === 0 || !cyInstance) {
-          return [];
+          return {
+            components: [],
+            steps: [],
+          };
         }
-
-        set({ connectedComponents: [] });
 
         const adjacencyList = getAdjacencyList();
         const visited = new Set<string>();
@@ -339,13 +347,18 @@ export const useGraphStore = create<GraphState>()(
             const current = queue.shift()!;
             component.push(current);
 
-            // Dim current node slightly
+            // Record step for visiting node
             steps.push({
-              elementId: current,
-              elementType: "node",
-              action: "visit",
-              message: `Visited node ${current}`,
-              class: `component-${componentIndex % COMPONENT_COLORS.length}`,
+              prev: {
+                classes: cyInstance.getElementById(current).classes(),
+              },
+              current: {
+                elementId: current,
+                elementType: "node",
+                action: "visit",
+                message: `Visited node ${current}`,
+                classes: [`component-${componentIndex % COMPONENT_COLORS.length}`],
+              },
             });
 
             const neighbors = adjacencyList.get(current) || new Set();
@@ -355,15 +368,28 @@ export const useGraphStore = create<GraphState>()(
                 visited.add(neighbor);
 
                 // Highlight edge being explored
+                let processingEdge = cyInstance.edges(
+                  `[source="${current}"][target="${neighbor}"]`,
+                );
+                if (processingEdge.length === 0) {
+                  processingEdge = cyInstance.edges(`[source="${neighbor}"][target="${current}"]`);
+                }
+
                 steps.push({
-                  sourceElement: current,
-                  targetElement: neighbor,
-                  elementType: "edge",
-                  action: "visit",
-                  message: `Visited edge from ${current} to ${neighbor}`,
-                  class: `component-${componentIndex % COMPONENT_COLORS.length}`,
+                  prev: {
+                    classes: processingEdge[0].classes(),
+                  },
+                  current: {
+                    sourceElement: current,
+                    targetElement: neighbor,
+                    elementType: "edge",
+                    action: "visit",
+                    message: `Visited edge from ${current} to ${neighbor}`,
+                    classes: [`component-${componentIndex % COMPONENT_COLORS.length}`],
+                  },
                 });
 
+                // Enqueue neighbor
                 queue.push(neighbor);
               }
             }
@@ -378,9 +404,6 @@ export const useGraphStore = create<GraphState>()(
           if (!visited.has(node.id)) {
             const component = animatedBFS(node.id, components.length);
             components.push(component);
-
-            // Update UI after each component
-            set({ connectedComponents: [...components] });
           }
         }
 
