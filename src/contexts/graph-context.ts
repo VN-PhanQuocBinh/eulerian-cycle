@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 
 import { NODE_STYLES, EDGE_STYLES } from "@/configs/graph";
-import type { GraphNode, GraphEdge, GraphState } from "@/types/graph";
+import type { GraphNode, GraphEdge, GraphState, Step } from "@/types/graph";
 import { COMPONENT_COLORS } from "@/types/styles";
 
 export const useGraphStore = create<GraphState>()(
@@ -15,7 +15,6 @@ export const useGraphStore = create<GraphState>()(
       isDirected: false,
       cyInstance: null,
       ehInstance: null,
-      currentAlgorithm: "connected-components",
 
       // Animation state
       connectedComponents: [],
@@ -23,9 +22,6 @@ export const useGraphStore = create<GraphState>()(
 
       // Animation state
       isAnimating: false,
-      stepDuration: 500,
-      animationSteps: [],
-      currentStep: 0,
       highlightedNodes: [],
       highlightedEdges: [],
 
@@ -264,20 +260,14 @@ export const useGraphStore = create<GraphState>()(
       },
 
       // ========== HELPER METHODS ==========
-      delay: (ms: number) => new Promise((resolve) => setTimeout(resolve, ms)),
-
-      highlightNode: (nodeId: string, color: string, pulse = false) => {
+      highlightNode: (nodeId: string, className: string, pulse = false) => {
         const { cyInstance } = get();
         if (!cyInstance) return;
 
         const node = cyInstance.getElementById(nodeId);
         if (node.length === 0) return;
 
-        // node.style({
-        //   "background-color": color,
-        //   "transition-duration": "300ms",
-        // });
-        node.addClass("highlighted");
+        node.addClass(className);
 
         if (pulse) {
           node.animate({
@@ -293,24 +283,17 @@ export const useGraphStore = create<GraphState>()(
         }
       },
 
-      highlightEdge: (sourceId: string, targetId: string, color: string) => {
+      highlightEdge: (sourceId: string, targetId: string, className: string) => {
         const { cyInstance, isDirected } = get();
         if (!cyInstance) return;
 
         let edge = cyInstance.edges(`[source="${sourceId}"][target="${targetId}"]`);
-
-        // Nếu không tìm thấy và là undirected graph, thử chiều ngược lại
         if (edge.length === 0 && !isDirected) {
           edge = cyInstance.edges(`[source="${targetId}"][target="${sourceId}"]`);
         }
 
         if (edge.length > 0) {
-          edge[0].style({
-            "line-color": color,
-            "target-arrow-color": color,
-            width: 4,
-            "transition-duration": "300ms",
-          });
+          edge[0].addClass(className);
         }
       },
 
@@ -326,51 +309,44 @@ export const useGraphStore = create<GraphState>()(
           highlightedNodes: [],
           highlightedEdges: [],
           connectedComponents: [],
-          currentStep: 0,
         });
       },
 
       // ========== ALGORITHM IMPLEMENTATIONS ==========
-      findConnectedComponents: async () => {
-        const {
-          nodes,
-          cyInstance,
-          stepDuration,
-          getAdjacencyList,
-          delay,
-          highlightEdge,
-          highlightNode,
-        } = get();
+      findConnectedComponents: () => {
+        const { nodes, cyInstance, getAdjacencyList } = get();
+
+        const steps: Step[] = [];
 
         if (nodes.length === 0 || !cyInstance) {
           return [];
         }
 
-        set({ isAnimating: true, connectedComponents: [], currentStep: 0 });
+        set({ connectedComponents: [] });
 
         const adjacencyList = getAdjacencyList();
         const visited = new Set<string>();
         const components: string[][] = [];
 
         // BFS with animation
-        const animatedBFS = async (
-          startNode: string,
-          componentIndex: number,
-        ): Promise<string[]> => {
+        const animatedBFS = (startNode: string, componentIndex: number): string[] => {
           const queue: string[] = [startNode];
           const component: string[] = [];
-          const color = COMPONENT_COLORS[componentIndex % COMPONENT_COLORS.length];
 
           visited.add(startNode);
-          highlightNode(startNode, color, true);
-          await delay(stepDuration);
 
           while (queue.length > 0) {
             const current = queue.shift()!;
             component.push(current);
 
             // Dim current node slightly
-            highlightNode(current, color, false);
+            steps.push({
+              elementId: current,
+              elementType: "node",
+              action: "visit",
+              message: `Visited node ${current}`,
+              class: `component-${componentIndex % COMPONENT_COLORS.length}`,
+            });
 
             const neighbors = adjacencyList.get(current) || new Set();
 
@@ -379,14 +355,16 @@ export const useGraphStore = create<GraphState>()(
                 visited.add(neighbor);
 
                 // Highlight edge being explored
-                highlightEdge(current, neighbor, color);
-                await delay(stepDuration / 2);
+                steps.push({
+                  sourceElement: current,
+                  targetElement: neighbor,
+                  elementType: "edge",
+                  action: "visit",
+                  message: `Visited edge from ${current} to ${neighbor}`,
+                  class: `component-${componentIndex % COMPONENT_COLORS.length}`,
+                });
 
-                // Highlight discovered node
-                highlightNode(neighbor, color, true);
                 queue.push(neighbor);
-
-                await delay(stepDuration);
               }
             }
           }
@@ -398,19 +376,18 @@ export const useGraphStore = create<GraphState>()(
         for (let i = 0; i < nodes.length; i++) {
           const node = nodes[i];
           if (!visited.has(node.id)) {
-            const component = await animatedBFS(node.id, components.length);
+            const component = animatedBFS(node.id, components.length);
             components.push(component);
 
             // Update UI after each component
             set({ connectedComponents: [...components] });
-
-            // Pause between components
-            await delay(stepDuration);
           }
         }
 
-        set({ isAnimating: false });
-        return components;
+        return {
+          components,
+          steps,
+        };
       },
 
       findEulerianPath: () => {
@@ -425,70 +402,6 @@ export const useGraphStore = create<GraphState>()(
         // TODO: Implement Eulerian cycle algorithm
         console.log("Finding Eulerian cycle...", { nodes, edges });
         return null;
-      },
-
-      // Algorithm operations
-      setAlgorithm: (algorithm) => set({ currentAlgorithm: algorithm }),
-      runAlgorithm: async (speed = 1) => {
-        const {
-          currentAlgorithm,
-          cyInstance,
-          nodes,
-          edges,
-          isAnimating,
-          stepDuration,
-          findConnectedComponents,
-          toastHandler,
-        } = get();
-
-        if (isAnimating) {
-          toastHandler({
-            message: "Animation is already running!",
-            type: "warning",
-          });
-          return;
-        }
-
-        if (!cyInstance || nodes.length === 0) {
-          toastHandler({
-            message: "Graph is empty!",
-            type: "error",
-          });
-          return;
-        }
-
-        // Clear previous highlights
-        get().clearHighlights();
-
-        // Set animation speed
-        set({ stepDuration: stepDuration * speed });
-
-        switch (currentAlgorithm) {
-          case "connected-components": {
-            const components = await findConnectedComponents();
-            const componentSizes = components.map((c) => c.length).join(", ");
-            toastHandler({
-              message: `Found ${components.length} connected component(s). Sizes: [${componentSizes}]`,
-              type: "success",
-            });
-            break;
-          }
-
-          case "eulerian-cycle": {
-            // TODO: Implement with animation
-            toastHandler({
-              message: "Eulerian cycle algorithm coming soon!",
-              type: "info",
-            });
-            break;
-          }
-
-          default:
-            break;
-        }
-
-        console.log(edges);
-        console.log(cyInstance);
       },
     }),
     { name: "GraphStore" },

@@ -1,3 +1,5 @@
+import { COMPONENT_COLORS } from "@/types/styles";
+
 export const NODE_STYLES: cytoscape.Css.Node = {
   "background-color": "#3b82f6",
   label: "data(label)",
@@ -79,4 +81,20 @@ export const graphStyles: cytoscape.StylesheetJson = [
       opacity: 0.2,
     },
   },
+
+  ...COMPONENT_COLORS.map((color, index) => ({
+    selector: `node.component-${index}`,
+    style: {
+      "background-color": color,
+    },
+  })),
+
+  ...COMPONENT_COLORS.map((color, index) => ({
+    selector: `edge.component-${index}`,
+    style: {
+      "line-color": color,
+      "target-arrow-color": color,
+      width: 4,
+    } as cytoscape.Css.Edge,
+  })),
 ];

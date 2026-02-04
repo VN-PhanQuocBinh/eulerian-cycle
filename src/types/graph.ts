@@ -18,12 +18,26 @@ export interface GraphEdge {
   target: string;
 }
 
-export interface Step {
-  elementId: string;
-  elementType: "node" | "edge";
-  action: "visit" | "explore" | "component-complete" | "deactivate";
-  message: string;
-}
+export type StepAction = "visit" | "explore" | "component-complete" | "deactivate";
+
+export type Step =
+  | {
+      elementId: string;
+      elementType: "node";
+      action: StepAction;
+      class: string;
+      message: string;
+    }
+  | {
+      sourceElement: string;
+      targetElement: string;
+      elementType: "edge";
+      action: StepAction;
+      class: string;
+      message: string;
+    };
+
+export type RunMode = "step-by-step" | "continuous";
 
 export interface GraphState {
   // State
@@ -33,22 +47,12 @@ export interface GraphState {
   isDirected: boolean;
   cyInstance: cytoscape.Core | null;
   ehInstance: any | null;
-  currentAlgorithm: GraphAlgorithm;
 
   // Algorithm results
   connectedComponents: string[][];
   steps: Step[];
 
   // Animation state
-  isAnimating: boolean;
-  stepDuration: number;
-  animationSteps: {
-    type: "visit" | "explore" | "component-complete";
-    nodeId?: string;
-    edgeId?: string;
-    componentIndex?: number;
-  }[];
-  currentStep: number;
   highlightedNodes: string[];
   highlightedEdges: string[];
 
@@ -82,21 +86,19 @@ export interface GraphState {
   saveGraph: () => Promise<string>;
   loadGraph: () => Promise<string>;
 
-  // Euler algorithm
+  // Algorithm implementations
+  findConnectedComponents: () => {
+    components: string[][];
+    steps: Step[];
+  };
   findEulerianPath: () => string[] | null;
   findEulerianCycle: () => string[] | null;
 
   // Algorithm operations
   getAdjacencyList: () => Map<string, Set<string>>;
-  setAlgorithm: (algorithm: GraphAlgorithm) => void;
-  runAlgorithm: (speed?: number) => void;
 
   // Helpers
-  highlightNode: (nodeId: string, color: string, pulse?: boolean) => void;
-  highlightEdge: (sourceId: string, targetId: string, color: string) => void;
+  highlightNode: (nodeId: string, className: string, pulse?: boolean) => void;
+  highlightEdge: (sourceId: string, targetId: string, className: string) => void;
   clearHighlights: () => void;
-  delay: (ms: number) => Promise<void>;
-
-  // Algorithm implementations
-  findConnectedComponents: () => string[][];
 }
