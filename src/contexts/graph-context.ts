@@ -1,13 +1,13 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 
-import { NODE_STYLES, EDGE_STYLES } from "@/configs/graph";
 import type {
   GraphNode,
   GraphEdge,
   GraphState,
   Step,
   ConnectedComponentsResult,
+  GraphData,
 } from "@/types/graph";
 import { COMPONENT_COLORS } from "@/types/styles";
 
@@ -23,13 +23,7 @@ export const useGraphStore = create<GraphState>()(
       ehInstance: null,
 
       // Animation state
-      connectedComponents: [],
-      steps: [],
-
-      // Animation state
       isAnimating: false,
-      highlightedNodes: [],
-      highlightedEdges: [],
 
       // Toast handler
       toastHandler: () => {},
@@ -40,6 +34,27 @@ export const useGraphStore = create<GraphState>()(
       setIsDirected: (isDirected) => set({ isDirected }),
       setCyInstance: (instance) => set({ cyInstance: instance }),
       setEhInstance: (instance) => set({ ehInstance: instance }),
+      getCurrentNodesData: () => {
+        const { cyInstance } = get();
+        if (!cyInstance) return [];
+
+        return cyInstance.nodes().map((el) => ({
+          id: el.id(),
+          label: el.data("label"),
+          x: el.position().x,
+          y: el.position().y,
+        }));
+      },
+
+      getCurrentEdgesData: () => {
+        const { cyInstance } = get();
+        if (!cyInstance) return [];
+        return cyInstance.edges().map((el) => ({
+          id: el.id() as `e-${string}-${string}`,
+          source: el.data("source"),
+          target: el.data("target"),
+        }));
+      },
 
       // Node operations
       addNode: (node) => {
@@ -122,17 +137,11 @@ export const useGraphStore = create<GraphState>()(
       updateEdges: (edges) => set({ edges }),
 
       // Graph operations
-      clearGraph: () =>
-        set(() => ({
-          nodes: [],
-          edges: [],
-        })),
-
-      resetGraph: () => {
+      clearGraph: () => {
         const { cyInstance } = get();
         if (!cyInstance) return;
 
-        cyInstance?.elements().remove();
+        cyInstance.elements().remove();
 
         set(() => ({
           mode: "view",
@@ -142,13 +151,66 @@ export const useGraphStore = create<GraphState>()(
         }));
       },
 
-      // File operations
-      saveGraph: async () => {
-        const { nodes, edges, toastHandler } = get();
+      resetGraph: () => {
+        const {
+          cyInstance,
+          isDirected,
+          drawGraphFromData,
+          getCurrentEdgesData,
+          getCurrentNodesData,
+        } = get();
+        if (!cyInstance) return;
 
-        const graphData = {
+        const nodes = getCurrentNodesData();
+        const edges: GraphEdge[] = getCurrentEdgesData();
+
+        drawGraphFromData({
           nodes,
           edges,
+          isDirected,
+        });
+      },
+
+      drawGraphFromData: (graphData: GraphData) => {
+        const { cyInstance, clearGraph } = get();
+        if (!cyInstance || !graphData) return;
+
+        const { nodes, edges, isDirected } = graphData;
+        // Clear current graph
+        clearGraph();
+
+        // Load nodes
+        nodes.forEach((node: GraphNode) => {
+          cyInstance.add({
+            group: "nodes",
+            data: { id: node.id, label: node.label },
+            position: { x: node.x, y: node.y },
+          });
+        });
+
+        // Load edges
+        edges.forEach((edge: GraphEdge) => {
+          cyInstance.add({
+            group: "edges",
+            data: edge,
+          });
+        });
+
+        // Update store
+        set({
+          nodes,
+          edges,
+          isDirected,
+        });
+      },
+
+      // File operations
+      saveGraph: async () => {
+        const { getCurrentEdgesData, getCurrentNodesData, toastHandler } = get();
+
+        const graphData = {
+          nodes: getCurrentNodesData(),
+          edges: getCurrentEdgesData(),
           metadata: {
             version: "1.0",
             createdAt: new Date().toISOString(),
@@ -180,7 +242,7 @@ export const useGraphStore = create<GraphState>()(
       },
 
       loadGraph: async () => {
-        const { cyInstance, toastHandler } = get();
+        const { cyInstance, toastHandler, drawGraphFromData } = get();
 
         if (!cyInstance) {
           toastHandler({
@@ -201,34 +263,9 @@ export const useGraphStore = create<GraphState>()(
             return;
           }
 
-          const graphData = JSON.parse(result.data);
-
-          // Clear current graph
-          cyInstance.elements().remove();
-
-          // Load nodes
-          graphData.nodes.forEach((node: GraphNode) => {
-            cyInstance.add({
-              group: "nodes",
-              data: { id: node.id, label: node.label },
-              position: { x: node.x, y: node.y },
-            });
-          });
-
-          // Load edges
-          graphData.edges.forEach((edge: GraphEdge) => {
-            cyInstance.add({
-              group: "edges",
-              data: edge,
-            });
-          });
-
-          // Update store
-          set({
-            nodes: graphData.nodes,
-            edges: graphData.edges,
-            isDirected: graphData.isDirected,
-          });
+          const graphData: GraphData = JSON.parse(result.data);
+          drawGraphFromData(graphData);
+          set({ graphData });
 
           toastHandler({
             message: "Graph loaded successfully!",
@@ -266,21 +303,21 @@ export const useGraphStore = create<GraphState>()(
       },
 
       // ========== HELPER METHODS ==========
-      highlightNode: (nodeId: string, className: string, pulse = false) => {
+      highlightNode: (nodeId: string, className: string[], pulse = false) => {
         const { cyInstance } = get();
         if (!cyInstance) return;
 
         const node = cyInstance.getElementById(nodeId);
         if (node.length === 0) return;
 
-        node.addClass(className);
+        node[0].addClass(className);
 
         if (pulse) {
-          node.animate({
+          node[0].animate({
             style: { width: 50, height: 50 },
             duration: 200,
             complete: () => {
-              node.animate({
+              node[0].animate({
                 style: { width: 40, height: 40 },
                 duration: 200,
               });
@@ -289,7 +326,7 @@ export const useGraphStore = create<GraphState>()(
         }
       },
 
-      highlightEdge: (sourceId: string, targetId: string, className: string) => {
+      highlightEdge: (sourceId: string, targetId: string, className: string[]) => {
         const { cyInstance, isDirected } = get();
         if (!cyInstance) return;
 
@@ -301,22 +338,6 @@ export const useGraphStore = create<GraphState>()(
         if (edge.length > 0) {
           edge[0].addClass(className);
         }
-      },
-
-      clearHighlights: () => {
-        const { cyInstance } = get();
-        if (!cyInstance) return;
-
-        // Reset all nodes and edges to default style
-        // cyInstance.nodes().style(NODE_STYLES);
-        // cyInstance.edges().style(EDGE_STYLES);
-        cyInstance.nodes().classes("");
-        cyInstance.edges().classes("");
-
-        set({
-          highlightedNodes: [],
-          highlightedEdges: [],
-        });
       },
 
       // ========== ALGORITHM IMPLEMENTATIONS ==========

@@ -53,6 +53,12 @@ export interface ConnectedComponentsResult {
   steps: Step[];
 }
 
+export interface GraphData {
+  nodes: GraphNode[];
+  edges: GraphEdge[];
+  isDirected: boolean;
+}
+
 export interface GraphState {
   // State
   mode: GraphMode;
@@ -61,16 +67,15 @@ export interface GraphState {
   isDirected: boolean;
   cyInstance: cytoscape.Core | null;
   ehInstance: any | null;
-
-  // Animation state
-  highlightedNodes: string[];
-  highlightedEdges: string[];
+  graphData: GraphData;
 
   // Actions
   setMode: (mode: GraphMode) => void;
   setIsDirected: (isDirected: boolean) => void;
   setCyInstance: (instance: cytoscape.Core | null) => void;
   setEhInstance: (instance: any) => void;
+  getCurrentNodesData: () => GraphNode[];
+  getCurrentEdgesData: () => GraphEdge[];
 
   // Toast handler
   toastHandler: ToastHandler;
@@ -92,6 +97,7 @@ export interface GraphState {
   // Graph operations
   clearGraph: () => void;
   resetGraph: () => void;
+  drawGraphFromData: (data: GraphData) => void;
 
   saveGraph: () => Promise<string>;
   loadGraph: () => Promise<string>;
@@ -108,7 +114,6 @@ export interface GraphState {
   getAdjacencyList: () => Map<string, Set<string>>;
 
   // Helpers
-  highlightNode: (nodeId: string, className: string, pulse?: boolean) => void;
-  highlightEdge: (sourceId: string, targetId: string, className: string) => void;
-  clearHighlights: () => void;
+  highlightNode: (nodeId: string, className: string[], pulse?: boolean) => void;
+  highlightEdge: (sourceId: string, targetId: string, className: string[]) => void;
 }

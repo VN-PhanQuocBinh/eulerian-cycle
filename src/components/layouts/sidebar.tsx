@@ -18,6 +18,7 @@ import { SelectItem, SelectContent, Select } from "@/components/ui/select";
 import type { GraphAlgorithm, Step, RunMode } from "@/types/graph";
 import { cn } from "@/utils/cn";
 import { useToast } from "@/components/ui/toast";
+import { generateEdgeSelector } from "@/utils";
 
 const ALGORITHM_OPTIONS: { label: string; value: GraphAlgorithm }[] = [
   { label: "Eulerian Cycle", value: "eulerian-cycle" },
@@ -25,17 +26,20 @@ const ALGORITHM_OPTIONS: { label: string; value: GraphAlgorithm }[] = [
 ];
 
 function Sidebar() {
+  // Graph store
   const isDirected = useGraphStore((state) => state.isDirected);
   const edges = useGraphStore((state) => state.edges);
   const nodes = useGraphStore((state) => state.nodes);
 
+  const cyInstance = useGraphStore((state) => state.cyInstance);
   const saveGraph = useGraphStore((state) => state.saveGraph);
   const loadGraph = useGraphStore((state) => state.loadGraph);
   const findConnectedComponents = useGraphStore((state) => state.findConnectedComponents);
   const highlightNode = useGraphStore((state) => state.highlightNode);
   const highlightEdge = useGraphStore((state) => state.highlightEdge);
-  const clearHighlights = useGraphStore((state) => state.clearHighlights);
+  const resetGraph = useGraphStore((state) => state.resetGraph);
 
+  // Local state
   const { showToast } = useToast();
   const [currentAlgorithm, setCurrentAlgorithm] = useState<GraphAlgorithm>("connected-components");
   const [runMode, setRunMode] = useState<RunMode>("continuous");
@@ -43,43 +47,64 @@ function Sidebar() {
   const [steps, setSteps] = useState<Step[]>([]);
   const currentStep = useRef(0);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [canBackward, setCanBackward] = useState(true);
+  const [canForward, setCanForward] = useState(true);
 
+  // Load steps when algorithm or graph changes
   useEffect(() => {
-    console.log("Algorithm or graph changed, computing steps...");
-
     if (currentAlgorithm === "connected-components") {
       const { steps } = findConnectedComponents();
-      console.log(steps);
       setSteps(steps || []);
     }
-    
   }, [edges, nodes, isDirected, currentAlgorithm]);
 
+  // Step controls
   const nextStep = () => {
     if (currentStep.current < steps.length) {
       const step = steps[currentStep.current].current;
 
       if (step.elementType === "node") {
-        highlightNode(step.elementId, step.classes.join(" "), true);
+        highlightNode(step.elementId, step.classes, true);
       } else if (step.elementType === "edge") {
-        highlightEdge(step.sourceElement, step.targetElement, step.classes.join(" "));
+        highlightEdge(step.sourceElement, step.targetElement, step.classes);
       }
 
       currentStep.current++;
+      setCanForward(currentStep.current < steps.length);
     }
   };
 
   const previousStep = () => {
-    if (currentStep.current > 0) {
+    if (currentStep.current > 0 && cyInstance) {
+      const currentStepData = steps[currentStep.current - 1].current;
+      const prevStepData = steps[currentStep.current - 1].prev;
+
+      if (currentStepData.elementType === "node") {
+        const revertNode = cyInstance.getElementById(currentStepData.elementId);
+        if (revertNode) {
+          revertNode.removeClass(currentStepData.classes);
+          revertNode.addClass(prevStepData.classes);
+        }
+      } else if (currentStepData.elementType === "edge") {
+        const revertEdge = cyInstance.edges(
+          generateEdgeSelector(currentStepData.sourceElement, currentStepData.targetElement),
+        );
+        if (revertEdge) {
+          revertEdge.removeClass(currentStepData.classes);
+          revertEdge.addClass(prevStepData.classes);
+        }
+      }
       currentStep.current -= 1;
+      setCanBackward(currentStep.current > 0);
     }
   };
 
+  // Animation effect
   useEffect(() => {
     let animationInterval: NodeJS.Timeout;
 
     if (runMode === "continuous" && steps?.length > 0 && isAnimating) {
-      setIsAnimating(true);
+      console.log(steps);
 
       animationInterval = setInterval(() => {
         if (currentStep.current < steps.length) {
@@ -99,8 +124,6 @@ function Sidebar() {
   }, [isAnimating, runMode, steps, speed]);
 
   const handleToggleRun = async () => {
-    console.log("Toggling run animation. Current isAnimating:", isAnimating);
-
     if (isAnimating) {
       // Pause animation
       setIsAnimating(false);
@@ -115,9 +138,7 @@ function Sidebar() {
       }
 
       if (currentStep.current >= steps.length) {
-        // Restart from beginning if at the end
-        currentStep.current = 0;
-        clearHighlights();
+        handleReset();
       }
 
       setIsAnimating(true);
@@ -128,8 +149,21 @@ function Sidebar() {
     setCurrentAlgorithm(algorithm);
   };
 
+  const handleReset = () => {
+    resetGraph();
+    // clearHighlights();
+    currentStep.current = 0;
+    setIsAnimating(false);
+    setSteps([]);
+
+    if (currentAlgorithm === "connected-components") {
+      const { steps } = findConnectedComponents();
+      setSteps(steps || []);
+    }
+  };
+
   useEffect(() => {
-    console.log(steps);
+    // console.log(steps);
   }, [steps, currentAlgorithm]);
 
   return (
@@ -256,8 +290,8 @@ function Sidebar() {
             className={cn(
               "flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg transition-colors font-medium",
               isAnimating && runMode === "continuous"
-                ? "bg-yellow-600 hover:bg-yellow-700 text-white"
-                : "bg-green-600 hover:bg-green-700 text-white disabled:bg-gray-400 disabled:cursor-not-allowed",
+                ? "bg-yellow-600 not-disabled:hover:bg-yellow-700 text-white"
+                : "bg-green-600 not-disabled:hover:bg-green-700 text-white disabled:opacity-50 disabled:cursor-not-allowed!",
             )}
           >
             {isAnimating && runMode === "continuous" ? (
@@ -273,9 +307,9 @@ function Sidebar() {
             )}
           </button>
           <button
-            onClick={clearHighlights}
-            disabled={isAnimating && runMode === "continuous"}
-            className="px-3 py-2 bg-slate-200 hover:bg-slate-300 disabled:bg-gray-300 disabled:cursor-not-allowed text-slate-700 rounded-lg transition-colors"
+            onClick={handleReset}
+            disabled={isAnimating}
+            className="px-3 py-2 bg-slate-200 not-disabled:hover:bg-slate-300 disabled:opacity-50 disabled:cursor-not-allowed! text-slate-700 rounded-lg transition-colors"
             title="Clear"
           >
             <RotateCcw size={16} />
@@ -288,16 +322,18 @@ function Sidebar() {
             <div className="flex gap-2">
               <button
                 onClick={previousStep}
-                className="flex-1 flex items-center justify-center gap-2 py-2 px-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-lg transition-colors text-sm"
+                className="flex-1 flex items-center justify-center gap-2 py-2 px-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed! text-white rounded-lg transition-colors text-sm"
                 title="Previous Step"
+                disabled={!canBackward}
               >
                 <SkipBack size={16} />
                 Prev
               </button>
               <button
                 onClick={nextStep}
-                className="flex-1 flex items-center justify-center gap-2 py-2 px-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-lg transition-colors text-sm"
+                className="flex-1 flex items-center justify-center gap-2 py-2 px-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed! text-white rounded-lg transition-colors text-sm"
                 title="Next Step"
+                disabled={!canForward}
               >
                 Next
                 <SkipForward size={16} />
