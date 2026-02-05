@@ -107,11 +107,11 @@ export interface GraphState {
     components: string[][];
     steps: Step[];
   };
-  findEulerianPath: () => string[] | null;
-  findEulerianCycle: () => string[] | null;
+  checkEulerianCycle: () => { exists: boolean; reason?: string };
+  findEulerianCycle: () => { cycle: string[] | null; steps: Step[] };
 
   // Algorithm operations
-  getAdjacencyList: () => Map<string, Set<string>>;
+  getAdjacencyList: () => Map<string, string[]>;
 
   // Helpers
   highlightNode: (nodeId: string, className: string[], pulse?: boolean) => void;

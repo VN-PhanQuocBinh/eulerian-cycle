@@ -12,7 +12,8 @@ import {
   SkipBack,
 } from "lucide-react";
 import { useGraphStore } from "@/contexts/graph-context";
-import { useEffect, useMemo, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
+import { useDebounce } from "@/hooks/use-debounce";
 import { Slider } from "@/components/ui/slider";
 import { SelectItem, SelectContent, Select } from "@/components/ui/select";
 import type { GraphAlgorithm, Step, RunMode } from "@/types/graph";
@@ -25,6 +26,8 @@ const ALGORITHM_OPTIONS: { label: string; value: GraphAlgorithm }[] = [
   { label: "Connected Components", value: "connected-components" },
 ];
 
+const BASE_ANIMATION_SPEED = 500; // in milliseconds
+
 function Sidebar() {
   // Graph store
   const isDirected = useGraphStore((state) => state.isDirected);
@@ -35,6 +38,8 @@ function Sidebar() {
   const saveGraph = useGraphStore((state) => state.saveGraph);
   const loadGraph = useGraphStore((state) => state.loadGraph);
   const findConnectedComponents = useGraphStore((state) => state.findConnectedComponents);
+  const checkEulerianCycle = useGraphStore((state) => state.checkEulerianCycle);
+  const findEulerianCycle = useGraphStore((state) => state.findEulerianCycle);
   const highlightNode = useGraphStore((state) => state.highlightNode);
   const highlightEdge = useGraphStore((state) => state.highlightEdge);
   const resetGraph = useGraphStore((state) => state.resetGraph);
@@ -43,7 +48,8 @@ function Sidebar() {
   const { showToast } = useToast();
   const [currentAlgorithm, setCurrentAlgorithm] = useState<GraphAlgorithm>("connected-components");
   const [runMode, setRunMode] = useState<RunMode>("continuous");
-  const [speed, setSpeed] = useState(50);
+  const [speed, setSpeed] = useState(100);
+  const debouncedSpeed = useDebounce(speed, 300);
   const [steps, setSteps] = useState<Step[]>([]);
   const currentStep = useRef(0);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -104,16 +110,17 @@ function Sidebar() {
     let animationInterval: NodeJS.Timeout;
 
     if (runMode === "continuous" && steps?.length > 0 && isAnimating) {
-      console.log(steps);
-
-      animationInterval = setInterval(() => {
-        if (currentStep.current < steps.length) {
-          nextStep();
-        } else {
-          clearInterval(animationInterval);
-          setIsAnimating(false);
-        }
-      }, 500);
+      animationInterval = setInterval(
+        () => {
+          if (currentStep.current < steps.length) {
+            nextStep();
+          } else {
+            clearInterval(animationInterval);
+            setIsAnimating(false);
+          }
+        },
+        BASE_ANIMATION_SPEED / (debouncedSpeed / 100),
+      );
     }
 
     return () => {
@@ -121,7 +128,7 @@ function Sidebar() {
         clearInterval(animationInterval);
       }
     };
-  }, [isAnimating, runMode, steps, speed]);
+  }, [isAnimating, runMode, steps, debouncedSpeed]);
 
   const handleToggleRun = async () => {
     if (isAnimating) {
@@ -163,14 +170,14 @@ function Sidebar() {
   };
 
   useEffect(() => {
-    // console.log(steps);
+    findEulerianCycle().cycle;
   }, [steps, currentAlgorithm]);
 
   return (
     <aside className="w-[280px] bg-white border-r space-y-4 border-slate-200 flex flex-col p-4 gap-4 overflow-y-auto">
       {/* ALGORITHM SELECTION */}
       <section>
-        <h3 className="text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
+        <h3 className="text-base font-semibold text-slate-700 mb-2 flex items-center gap-2">
           <Zap size={16} />
           Algorithm
         </h3>
@@ -207,11 +214,11 @@ function Sidebar() {
 
       {/* RUN MODE */}
       <section>
-        <h3 className="text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
+        <h3 className="text-base font-semibold text-slate-700 mb-2 flex items-center gap-2">
           <FastForward size={16} />
           Run Mode
         </h3>
-        <div className="space-y-2">
+        <div className="space-y-2 pl-2">
           <label className="flex items-center gap-2 cursor-pointer group">
             <input
               type="radio"
@@ -257,7 +264,7 @@ function Sidebar() {
             runMode === "step-by-step" ? "opacity-50" : "",
           )}
         >
-          <h3 className="text-sm font-semibold text-slate-700">Speed</h3>
+          <h3 className="text-base font-semibold text-slate-700">Speed</h3>
           <span className="text-xs text-slate-500">{speed}%</span>
         </div>
         <Slider
@@ -265,7 +272,7 @@ function Sidebar() {
           value={[speed]}
           onValueChange={(value) => setSpeed(value[0])}
           min={10}
-          max={100}
+          max={200}
         />
         <div className="flex justify-between text-xs text-slate-400 mt-1">
           <span>Slow</span>
@@ -280,7 +287,7 @@ function Sidebar() {
 
       {/* ALGORITHM CONTROLS */}
       <section>
-        <h3 className="text-sm font-semibold text-slate-700 mb-2">Controls</h3>
+        <h3 className="text-base font-semibold text-slate-700 mb-2">Controls</h3>
 
         {/* Main Run/Pause/Clear Controls */}
         <div className="flex gap-2 mb-2">
@@ -317,46 +324,36 @@ function Sidebar() {
         </div>
 
         {/* Step-by-Step Controls */}
-        {runMode === "step-by-step" && (
-          <div className="space-y-2">
-            <div className="flex gap-2">
-              <button
-                onClick={previousStep}
-                className="flex-1 flex items-center justify-center gap-2 py-2 px-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed! text-white rounded-lg transition-colors text-sm"
-                title="Previous Step"
-                disabled={!canBackward}
-              >
-                <SkipBack size={16} />
-                Prev
-              </button>
-              <button
-                onClick={nextStep}
-                className="flex-1 flex items-center justify-center gap-2 py-2 px-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed! text-white rounded-lg transition-colors text-sm"
-                title="Next Step"
-                disabled={!canForward}
-              >
-                Next
-                <SkipForward size={16} />
-              </button>
-            </div>
+        <div className="space-y-2">
+          <div className="flex gap-2">
+            <button
+              onClick={previousStep}
+              className="flex-1 flex items-center justify-center gap-2 py-2 px-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed! text-white rounded-lg transition-colors text-sm"
+              title="Previous Step"
+              disabled={!canBackward || runMode !== "step-by-step" || isAnimating}
+            >
+              <SkipBack size={16} />
+              Prev
+            </button>
+            <button
+              onClick={nextStep}
+              className="flex-1 flex items-center justify-center gap-2 py-2 px-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed! text-white rounded-lg transition-colors text-sm"
+              title="Next Step"
+              disabled={!canForward || runMode !== "step-by-step" || isAnimating}
+            >
+              Next
+              <SkipForward size={16} />
+            </button>
+          </div>
 
-            {/* Step Counter */}
-            {/* {hasSteps && (
+          {/* Step Counter */}
+          {/* {hasSteps && (
               <div className="text-center">
                 <span className="text-xs text-slate-600 font-medium">
                   Step {currentStep + 1} / {animationSteps.length}
                 </span>
               </div>
             )} */}
-          </div>
-        )}
-      </section>
-
-      {/* RESULT DISPLAY */}
-      <section className="flex-1">
-        <h3 className="text-sm font-semibold text-slate-700 mb-2">Result</h3>
-        <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 min-h-[100px] max-h-[200px] overflow-y-auto">
-          <p className="text-xs text-slate-400 italic">Run the algorithm to see results...</p>
         </div>
       </section>
 

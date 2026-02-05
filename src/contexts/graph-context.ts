@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
+import { generateEdgeSelector } from "@/utils";
 
 import type {
   GraphNode,
@@ -280,22 +281,22 @@ export const useGraphStore = create<GraphState>()(
       },
 
       // Algorithms implementation
-      getAdjacencyList: (): Map<string, Set<string>> => {
+      getAdjacencyList: (): Map<string, string[]> => {
         const { nodes, edges, isDirected } = get();
-        const adjacencyList: Map<string, Set<string>> = new Map();
+        const adjacencyList: Map<string, string[]> = new Map();
 
         // Khởi tạo adjacency list cho tất cả nodes
         nodes.forEach((node) => {
-          adjacencyList.set(node.id, new Set());
+          adjacencyList.set(node.id, []);
         });
 
         // Thêm edges vào adjacency list
         edges.forEach((edge) => {
-          adjacencyList.get(edge.source)?.add(edge.target);
+          adjacencyList.get(edge.source)?.push(edge.target);
 
           // Nếu là đồ thị vô hướng, thêm cả chiều ngược lại
           if (!isDirected) {
-            adjacencyList.get(edge.target)?.add(edge.source);
+            adjacencyList.get(edge.target)?.push(edge.source);
           }
         });
 
@@ -382,7 +383,7 @@ export const useGraphStore = create<GraphState>()(
               },
             });
 
-            const neighbors = adjacencyList.get(current) || new Set();
+            const neighbors = adjacencyList.get(current) || [];
 
             for (const neighbor of neighbors) {
               if (!visited.has(neighbor)) {
@@ -434,18 +435,125 @@ export const useGraphStore = create<GraphState>()(
         };
       },
 
-      findEulerianPath: () => {
-        const { nodes, edges } = get();
-        // TODO: Implement Eulerian path algorithm
-        console.log("Finding Eulerian path...", { nodes, edges });
-        return null;
+      checkEulerianCycle: () => {
+        const { nodes, edges, isDirected, getAdjacencyList } = get();
+
+        if (nodes.length === 0) {
+          return { exists: false, reason: "Graph is empty." };
+        }
+
+        const adjacencyList = getAdjacencyList();
+
+        if (isDirected) {
+          const inDegrees: Map<string, number> = new Map();
+          const outDegrees: Map<string, number> = new Map();
+
+          nodes.forEach((node) => {
+            inDegrees.set(node.id, 0);
+            outDegrees.set(node.id, 0);
+          });
+
+          edges.forEach((edge) => {
+            outDegrees.set(edge.source, (outDegrees.get(edge.source) || 0) + 1);
+            inDegrees.set(edge.target, (inDegrees.get(edge.target) || 0) + 1);
+          });
+
+          for (const node of nodes) {
+            if (inDegrees.get(node.id) !== outDegrees.get(node.id)) {
+              return {
+                exists: false,
+                reason: `Node ${node.id} has in-degree ${inDegrees.get(
+                  node.id,
+                )} ≠ out-degree ${outDegrees.get(node.id)}.`,
+              };
+            }
+          }
+        } else {
+          for (const node of nodes) {
+            const degree = adjacencyList.get(node.id)?.length || 0;
+            if (degree % 2 !== 0) {
+              return {
+                exists: false,
+                reason: `Node ${node.id} has odd degree ${degree}.`,
+              };
+            }
+          }
+        }
+
+        return { exists: true };
       },
 
       findEulerianCycle: () => {
-        const { nodes, edges } = get();
-        // TODO: Implement Eulerian cycle algorithm
-        console.log("Finding Eulerian cycle...", { nodes, edges });
-        return null;
+        const { cyInstance, nodes, edges, isDirected, getAdjacencyList, checkEulerianCycle } =
+          get();
+
+        const getEdgeKey = (from: string, to: string) => {
+          return isDirected ? `${from}-${to}` : [from, to].sort().join("-");
+        };
+
+        // Logic to find Eulerian Cycle
+        if (nodes.length === 0 || !cyInstance) {
+          return { cycle: null, steps: [] };
+        }
+
+        const check = checkEulerianCycle();
+        if (!check.exists) {
+          return { cycle: null, steps: [] };
+        }
+
+        const adjacencyList = getAdjacencyList();
+
+        const circuit: string[] = [];
+        const stack: string[] = [nodes[0].id];
+        let currentNode = nodes[0].id;
+
+        const visitedEdges = new Set<string>();
+
+        while (stack.length > 0) {
+          const neighbors = adjacencyList.get(currentNode) || [];
+
+          if (neighbors.length > 0) {
+            const nextNode = neighbors.pop()!;
+            let processingEdge = cyInstance.edges(
+              `edge[source = "${currentNode}"][target = "${nextNode}"]`,
+            );
+            if (processingEdge.length === 0 && !isDirected) {
+              processingEdge = cyInstance.edges(
+                `edge[source = "${nextNode}"][target = "${currentNode}"]`,
+              );
+            }
+
+            const edgeId = Array.from(processingEdge)
+              .find((edge) => !visitedEdges.has(edge.id()))
+              ?.id();
+
+            console.group("Debug Info");
+            console.log("Current Node:", currentNode);
+            console.log("Next Node:", nextNode);
+            console.log("Edge ID:", edgeId);
+            console.log("Already Visited Edges:", visitedEdges.has(edgeId!));
+            console.groupEnd();
+
+            if (!edgeId || visitedEdges.has(edgeId)) continue;
+
+            visitedEdges.add(edgeId);
+            stack.push(currentNode);
+            currentNode = nextNode!;
+          } else {
+            circuit.push(currentNode);
+            currentNode = stack.pop()!;
+          }
+        }
+
+        circuit.reverse();
+
+        console.log("Stack:", stack);
+        console.log("Eulerian Circuit:", circuit);
+
+        return {
+          cycle: circuit,
+          steps: [],
+        };
       },
     }),
     { name: "GraphStore" },
