@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import { generateEdgeSelector } from "@/utils";
 
 import type {
   GraphNode,
@@ -19,7 +18,8 @@ export const useGraphStore = create<GraphState>()(
       mode: "view",
       nodes: [],
       edges: [],
-      isDirected: false,
+      isDirected: true,
+      test: false,
       cyInstance: null,
       ehInstance: null,
 
@@ -201,7 +201,7 @@ export const useGraphStore = create<GraphState>()(
         set({
           nodes,
           edges,
-          isDirected,
+          isDirected: !!isDirected,
         });
       },
 
@@ -266,7 +266,10 @@ export const useGraphStore = create<GraphState>()(
 
           const graphData: GraphData = JSON.parse(result.data);
           drawGraphFromData(graphData);
-          set({ graphData });
+          set({
+            nodes: graphData.nodes,
+            edges: graphData.edges,
+          });
 
           toastHandler({
             message: "Graph loaded successfully!",
@@ -282,7 +285,8 @@ export const useGraphStore = create<GraphState>()(
 
       // Algorithms implementation
       getAdjacencyList: (): Map<string, string[]> => {
-        const { nodes, edges, isDirected } = get();
+        const state = get();
+        const { nodes, edges, isDirected } = state;
         const adjacencyList: Map<string, string[]> = new Map();
 
         // Khởi tạo adjacency list cho tất cả nodes
@@ -292,11 +296,21 @@ export const useGraphStore = create<GraphState>()(
 
         // Thêm edges vào adjacency list
         edges.forEach((edge) => {
-          adjacencyList.get(edge.source)?.push(edge.target);
+          const sourceAdj = adjacencyList.get(edge.source);
+          if (sourceAdj) {
+            sourceAdj.push(edge.target);
+          } else {
+            alert("Error: Source node not found in adjacency list");
+          }
 
           // Nếu là đồ thị vô hướng, thêm cả chiều ngược lại
           if (!isDirected) {
-            adjacencyList.get(edge.target)?.push(edge.source);
+            const targetAdj = adjacencyList.get(edge.target);
+            if (targetAdj) {
+              targetAdj.push(edge.source);
+            } else {
+              alert("Error: Target node not found in adjacency list");
+            }
           }
         });
 
@@ -330,14 +344,19 @@ export const useGraphStore = create<GraphState>()(
       highlightEdge: (sourceId: string, targetId: string, className: string[]) => {
         const { cyInstance, isDirected } = get();
         if (!cyInstance) return;
+        // console.log("Highlighting edge:", sourceId, "->", targetId);
 
-        let edge = cyInstance.edges(`[source="${sourceId}"][target="${targetId}"]`);
-        if (edge.length === 0 && !isDirected) {
-          edge = cyInstance.edges(`[source="${targetId}"][target="${sourceId}"]`);
+        let processingEdges = cyInstance.edges(`[source="${sourceId}"][target="${targetId}"]`);
+        if (processingEdges.length === 0 && !isDirected) {
+          processingEdges = cyInstance.edges(`[source="${targetId}"][target="${sourceId}"]`);
         }
 
-        if (edge.length > 0) {
-          edge[0].addClass(className);
+        const highlightedEdge = Array.from(processingEdges).find(
+          (edge) => !edge.classes().includes(className.join(" ")),
+        );
+
+        if (highlightedEdge) {
+          highlightedEdge.addClass(className);
         }
       },
 
@@ -486,10 +505,7 @@ export const useGraphStore = create<GraphState>()(
       findEulerianCycle: () => {
         const { cyInstance, nodes, edges, isDirected, getAdjacencyList, checkEulerianCycle } =
           get();
-
-        const getEdgeKey = (from: string, to: string) => {
-          return isDirected ? `${from}-${to}` : [from, to].sort().join("-");
-        };
+        const steps: Step[] = [];
 
         // Logic to find Eulerian Cycle
         if (nodes.length === 0 || !cyInstance) {
@@ -498,21 +514,36 @@ export const useGraphStore = create<GraphState>()(
 
         const check = checkEulerianCycle();
         if (!check.exists) {
-          return { cycle: null, steps: [] };
+          return { cycle: null, steps: [], message: check.reason };
         }
 
         const adjacencyList = getAdjacencyList();
+        console.log("Adjacency List:", adjacencyList);
 
-        const circuit: string[] = [];
+        // Hierholzer's Algorithm
+        const circuit: Set<string> = new Set();
         const stack: string[] = [nodes[0].id];
-        let currentNode = nodes[0].id;
-
+        let currentNode: string;
         const visitedEdges = new Set<string>();
 
         while (stack.length > 0) {
+          currentNode = stack[stack.length - 1];
           const neighbors = adjacencyList.get(currentNode) || [];
 
           if (neighbors.length > 0) {
+            steps.push({
+              prev: {
+                classes: cyInstance.getElementById(currentNode).classes(),
+              },
+              current: {
+                elementId: currentNode,
+                elementType: "node",
+                action: "explore",
+                message: `Exploring from node ${currentNode}`,
+                classes: ["exploring"],
+              },
+            });
+
             const nextNode = neighbors.pop()!;
             let processingEdge = cyInstance.edges(
               `edge[source = "${currentNode}"][target = "${nextNode}"]`,
@@ -532,27 +563,53 @@ export const useGraphStore = create<GraphState>()(
             console.log("Next Node:", nextNode);
             console.log("Edge ID:", edgeId);
             console.log("Already Visited Edges:", visitedEdges.has(edgeId!));
+            console.log("Stack:", stack);
             console.groupEnd();
 
             if (!edgeId || visitedEdges.has(edgeId)) continue;
 
+            steps.push({
+              prev: {
+                classes: processingEdge[0].classes(),
+              },
+              current: {
+                sourceElement: currentNode,
+                targetElement: nextNode,
+                elementType: "edge",
+                action: "traverse",
+                message: `Traversing edge from ${currentNode} to ${nextNode}`,
+                classes: ["in-cycle"],
+              },
+            });
+
             visitedEdges.add(edgeId);
-            stack.push(currentNode);
-            currentNode = nextNode!;
+            stack.push(nextNode);
           } else {
-            circuit.push(currentNode);
-            currentNode = stack.pop()!;
+            if (!circuit.has(currentNode)) {
+              steps.push({
+                prev: {
+                  classes: cyInstance.getElementById(currentNode).classes(),
+                },
+                current: {
+                  elementId: currentNode,
+                  elementType: "node",
+                  action: "add-to-circuit",
+                  message: `Added ${currentNode} to circuit`,
+                  classes: ["in-cycle"],
+                },
+              });
+            }
+
+            circuit.add(stack.pop()!);
           }
         }
 
-        circuit.reverse();
-
-        console.log("Stack:", stack);
-        console.log("Eulerian Circuit:", circuit);
+        Array.from(circuit).reverse();
 
         return {
           cycle: circuit,
-          steps: [],
+          steps: steps,
+          message: "Eulerian cycle found successfully.",
         };
       },
     }),

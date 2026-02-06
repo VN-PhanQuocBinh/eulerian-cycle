@@ -46,7 +46,7 @@ function Sidebar() {
 
   // Local state
   const { showToast } = useToast();
-  const [currentAlgorithm, setCurrentAlgorithm] = useState<GraphAlgorithm>("connected-components");
+  const [currentAlgorithm, setCurrentAlgorithm] = useState<GraphAlgorithm>("eulerian-cycle");
   const [runMode, setRunMode] = useState<RunMode>("continuous");
   const [speed, setSpeed] = useState(100);
   const debouncedSpeed = useDebounce(speed, 300);
@@ -56,11 +56,24 @@ function Sidebar() {
   const [canBackward, setCanBackward] = useState(true);
   const [canForward, setCanForward] = useState(true);
 
+  console.log(steps)
+
   // Load steps when algorithm or graph changes
   useEffect(() => {
-    if (currentAlgorithm === "connected-components") {
-      const { steps } = findConnectedComponents();
-      setSteps(steps || []);
+    switch (currentAlgorithm) {
+      case "connected-components": {
+        const { steps } = findConnectedComponents();
+
+        setSteps(steps || []);
+        break;
+      }
+      case "eulerian-cycle": {
+        const { steps } = findEulerianCycle();
+        setSteps(steps || []);
+        break;
+      }
+      default:
+        setSteps([]);
     }
   }, [edges, nodes, isDirected, currentAlgorithm]);
 
@@ -68,6 +81,7 @@ function Sidebar() {
   const nextStep = () => {
     if (currentStep.current < steps.length) {
       const step = steps[currentStep.current].current;
+      console.log(step.message);
 
       if (step.elementType === "node") {
         highlightNode(step.elementId, step.classes, true);
@@ -76,6 +90,7 @@ function Sidebar() {
       }
 
       currentStep.current++;
+      setCanBackward(currentStep.current > 0);
       setCanForward(currentStep.current < steps.length);
     }
   };
@@ -100,8 +115,10 @@ function Sidebar() {
           revertEdge.addClass(prevStepData.classes);
         }
       }
+
       currentStep.current -= 1;
       setCanBackward(currentStep.current > 0);
+      setCanForward(currentStep.current < steps.length);
     }
   };
 
@@ -153,24 +170,19 @@ function Sidebar() {
   };
 
   const handleAlgorithmChange = (algorithm: GraphAlgorithm) => {
+    handleReset();
     setCurrentAlgorithm(algorithm);
   };
 
   const handleReset = () => {
     resetGraph();
-    // clearHighlights();
     currentStep.current = 0;
     setIsAnimating(false);
     setSteps([]);
-
-    if (currentAlgorithm === "connected-components") {
-      const { steps } = findConnectedComponents();
-      setSteps(steps || []);
-    }
   };
 
   useEffect(() => {
-    findEulerianCycle().cycle;
+    
   }, [steps, currentAlgorithm]);
 
   return (

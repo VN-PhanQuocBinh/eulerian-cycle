@@ -18,7 +18,13 @@ export interface GraphEdge {
   target: string;
 }
 
-export type StepAction = "visit" | "explore" | "component-complete" | "deactivate";
+export type StepAction =
+  | "visit"
+  | "explore"
+  | "component-complete"
+  | "deactivate"
+  | "traverse"
+  | "add-to-circuit";
 
 export type CurrentStep =
   | {
@@ -108,7 +114,7 @@ export interface GraphState {
     steps: Step[];
   };
   checkEulerianCycle: () => { exists: boolean; reason?: string };
-  findEulerianCycle: () => { cycle: string[] | null; steps: Step[] };
+  findEulerianCycle: () => { cycle: string[] | null; steps: Step[]; message?: string };
 
   // Algorithm operations
   getAdjacencyList: () => Map<string, string[]>;

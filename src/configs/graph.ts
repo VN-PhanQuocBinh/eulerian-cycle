@@ -14,7 +14,7 @@ export const EDGE_STYLES: cytoscape.Css.Edge = {
   width: 3,
   "line-color": "#94a3b8",
   "target-arrow-color": "#94a3b8",
-  // "target-arrow-shape": "triangle", // Mũi tên cho đồ thị có hướng
+  "target-arrow-shape": "triangle", // Mũi tên cho đồ thị có hướng
   "curve-style": "bezier",
   "control-point-step-size": 40, // Khoảng cách uốn cong giữa các cạnh
 };
@@ -97,4 +97,29 @@ export const graphStyles: cytoscape.StylesheetJson = [
       width: 4,
     } as cytoscape.Css.Edge,
   })),
+
+  {
+    selector: "node.exploring",
+    style: {
+      "background-color": "#f59e0b",
+      "border-color": "#f59e0b",
+      "border-width": "4px",
+    },
+  },
+  {
+    selector: "node.in-cycle",
+    style: {
+      "background-color": "#10b981",
+      "border-color": "#10b981",
+      "border-width": "4px",
+    },
+  },
+  {
+    selector: "edge.in-cycle",
+    style: {
+      "line-color": "#10b981",
+      "target-arrow-color": "#10b981",
+      width: 4,
+    } as cytoscape.Css.Edge,
+  },
 ];
