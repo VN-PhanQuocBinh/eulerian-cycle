@@ -528,9 +528,9 @@ export const useGraphStore = create<GraphState>()(
 
         while (stack.length > 0) {
           currentNode = stack[stack.length - 1];
-          const neighbors = adjacencyList.get(currentNode) || [];
+          const currentNodeNeighbors = adjacencyList.get(currentNode) || [];
 
-          if (neighbors.length > 0) {
+          if (currentNodeNeighbors.length > 0) {
             steps.push({
               prev: {
                 classes: cyInstance.getElementById(currentNode).classes(),
@@ -544,7 +544,8 @@ export const useGraphStore = create<GraphState>()(
               },
             });
 
-            const nextNode = neighbors.pop()!;
+            const nextNode = currentNodeNeighbors.pop()!;
+            const nextNodeNeighbors = adjacencyList.get(nextNode) || [];
             let processingEdge = cyInstance.edges(
               `edge[source = "${currentNode}"][target = "${nextNode}"]`,
             );
@@ -567,6 +568,7 @@ export const useGraphStore = create<GraphState>()(
             console.groupEnd();
 
             if (!edgeId || visitedEdges.has(edgeId)) continue;
+            nextNodeNeighbors.splice(nextNodeNeighbors.indexOf(currentNode), 1);
 
             steps.push({
               prev: {
