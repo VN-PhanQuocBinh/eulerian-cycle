@@ -1,13 +1,12 @@
-import { useEffect, useRef, useCallback } from "react";
-import cytoscape, { use } from "cytoscape";
+import { useEffect, useRef } from "react";
+import cytoscape from "cytoscape";
 import edgehandles from "cytoscape-edgehandles";
 import { useNodeInput } from "./ui/node-input";
 import type { EdgeHandlesInstance, EdgeHandlesOptions } from "cytoscape-edgehandles";
 import FunctionalBar from "./functional-bar";
-import AdjacencyListPanel from "./adjacency-list-panel";
+// import AdjacencyListPanel from "./adjacency-list-panel";
 import { useGraphStore } from "@/contexts/graph-context";
-import type { GraphEdge, GraphNode } from "@/contexts/graph-context";
-import { generateNodeId } from "@/utils/generate-node-id";
+import type { GraphEdge, GraphNode } from "@/types/graph";
 import { useToast } from "./ui/toast";
 import { graphStyles } from "@/configs/graph";
 
@@ -32,8 +31,22 @@ const GraphCanvas = () => {
   const cyRef = useRef<cytoscape.Core | null>(null);
   const ehRef = useRef<EdgeHandlesInstance | null>(null);
 
-  console.log("current nodes:", cyRef.current?.nodes().map((n) => n.data()));
-  console.log("current edges:", cyRef.current?.edges().map((e) => e.data()));
+  useEffect(() => {
+    const removeSaveListener = (window as any).ipcRenderer?.onRequestSaveGraph?.(() => {
+      const { saveGraph } = useGraphStore.getState();
+      saveGraph();
+    });
+
+    const removeLoadListener = (window as any).ipcRenderer?.onRequestLoadGraph?.(() => {
+      const { loadGraph } = useGraphStore.getState();
+      loadGraph();
+    });
+
+    return () => {
+      if (removeSaveListener) removeSaveListener();
+      if (removeLoadListener) removeLoadListener();
+    };
+  }, []);
 
   // Set toast handler in graph store
   useEffect(() => {
@@ -145,7 +158,8 @@ const GraphCanvas = () => {
           x: event.renderedPosition.x,
           y: event.renderedPosition.y,
           onComplete: (label: string) => {
-            const nodeId = generateNodeId();
+            // const nodeId = generateNodeId();
+            const nodeId = `node_${label}`;
             addNode({ id: nodeId.toLowerCase(), label, x, y });
           },
         });
@@ -227,12 +241,12 @@ const GraphCanvas = () => {
 
   return (
     // <NodeInputProvider>
-    <div className="relative flex-1 h-full bg-slate-50 border border-slate-200 rounded-lg overflow-hidden">
+    <div className=" relative flex-1 h-full bg-slate-50 border border-slate-200 rounded-lg overflow-hidden">
       {/* Canvas */}
       <div ref={containerRef} className="w-full h-full" />
 
       <FunctionalBar />
-      <AdjacencyListPanel />
+      {/* <AdjacencyListPanel /> */}
     </div>
   );
 };

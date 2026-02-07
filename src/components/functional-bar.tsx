@@ -1,15 +1,14 @@
-import { MousePointer2, PlusCircle, Play, Trash2, SplinePointer } from "lucide-react";
+import { MousePointer2, PlusCircle, Trash2, SplinePointer } from "lucide-react";
 import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/utils/cn";
 import { useGraphStore } from "@/contexts/graph-context";
 
 function FunctionalBar() {
-  const { mode, setMode, clearGraph, resetGraph } = useGraphStore();
+  const { mode, setMode, clearGraph } = useGraphStore();
 
-  const handleReset = () => {
-    resetGraph();
+  const handleClear = () => {
     clearGraph();
-  }
+  };
 
   return (
     <div className="absolute top-4 right-4 z-10 flex gap-2">
@@ -57,16 +56,10 @@ function FunctionalBar() {
 
       <Tooltip content="Xóa hết đồ thị">
         <button
-          onClick={handleReset}
+          onClick={handleClear}
           className="flex items-center gap-2 bg-red-50 text-red-600 px-3 py-2 rounded-lg shadow border text-sm hover:bg-red-100 transition-all"
         >
           <Trash2 size={16} />
-        </button>
-      </Tooltip>
-
-      <Tooltip content="Chạy thuật toán Euler">
-        <button className="flex items-center gap-2 bg-white text-blue-600 px-3 py-2 rounded-lg shadow text-sm hover:bg-slate-50 transition-all">
-          <Play size={16} />
         </button>
       </Tooltip>
     </div>

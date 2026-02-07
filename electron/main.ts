@@ -57,15 +57,16 @@ function createWindow() {
           label: "Open Graph",
           accelerator: "CmdOrCtrl+O",
           click: async () => {
-            const result = await handleLoad();
-            win?.webContents.send("load-graph-response", result);
+            // const result = await handleLoad();
+            // win?.webContents.send("graph-loaded", result);
+            win?.webContents.send("request-load-graph");
           },
         },
         {
           label: "Save Graph",
           accelerator: "CmdOrCtrl+S",
           click: async () => {
-            win?.webContents.send("save-graph-request");
+            win?.webContents.send("request-save-graph");
           },
         },
         {
@@ -91,44 +92,21 @@ function createWindow() {
     //     { role: 'paste' }
     //   ]
     // },
-    // {
-    //   label: 'View',
-    //   submenu: [
-    //     { role: 'reload' },
-    //     { role: 'forceReload' },
-    //     { role: 'toggleDevTools' },
-    //     { type: 'separator' },
-    //     { role: 'resetZoom' },
-    //     { role: 'zoomIn' },
-    //     { role: 'zoomOut' }
-    //   ]
-    // }
+    {
+      label: 'View',
+      submenu: [
+        { role: 'reload' },
+        { role: 'forceReload' },
+        { role: 'toggleDevTools' },
+        { type: 'separator' },
+        { role: 'resetZoom' },
+        { role: 'zoomIn' },
+        { role: 'zoomOut' }
+      ]
+    }
   ]);
 
   Menu.setApplicationMenu(menu);
-}
-
-async function handleLoad() {
-  try {
-    const { filePaths, canceled } = await dialog.showOpenDialog({
-      title: "Load Graph",
-      defaultPath: app.getPath("documents"),
-      filters: [
-        { name: "JSON Files", extensions: ["json"] },
-        { name: "All Files", extensions: ["*"] },
-      ],
-      properties: ["openFile"],
-    });
-
-    if (canceled || filePaths.length === 0) {
-      return { success: false, error: "Load operation was canceled." };
-    }
-
-    const data = await fs.readFile(filePaths[0], "utf-8");
-    return { success: true, data, filePath: filePaths[0] };
-  } catch (error) {
-    return { success: false, error: (error as Error).message };
-  }
 }
 
 // IPC Handlers
@@ -155,6 +133,8 @@ ipcMain.handle("save-graph", async (_event, graphData: string) => {
 });
 
 ipcMain.handle("load-graph", async () => {
+  
+  console.log("Handling load-graph request...");
   try {
     const { filePaths, canceled } = await dialog.showOpenDialog({
       title: "Load Graph",
