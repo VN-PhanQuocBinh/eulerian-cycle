@@ -26,26 +26,28 @@ export type StepAction =
   | "traverse"
   | "add-to-circuit";
 
-export type CurrentStep =
-  | {
-      elementId: string;
-      elementType: "node";
-      action: StepAction;
-      classes: string[];
-      message: string;
-    }
-  | {
-      sourceElement: string;
-      targetElement: string;
-      elementType: "edge";
-      action: StepAction;
-      classes: string[];
-      message: string;
-    };
-
-export type PrevStep = {
+export type BaseStep = {
+  elementType: "node" | "edge";
+  action: StepAction;
   classes: string[];
+  message: string;
+  stack?: string[];
+  circuit?: string[];
 };
+
+export type NodeStep = BaseStep & {
+  elementType: "node";
+  elementId: string;
+};
+
+export type EdgeStep = BaseStep & {
+  elementType: "edge";
+  sourceElement: string;
+  targetElement: string;
+};
+
+export type CurrentStep = NodeStep | EdgeStep;
+export type PrevStep = Pick<CurrentStep, "classes" | "stack" | "circuit">;
 
 export interface Step {
   prev: PrevStep;

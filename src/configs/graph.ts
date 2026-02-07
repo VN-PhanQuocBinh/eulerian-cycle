@@ -14,7 +14,7 @@ export const EDGE_STYLES: cytoscape.Css.Edge = {
   width: 3,
   "line-color": "#94a3b8",
   "target-arrow-color": "#94a3b8",
-  "target-arrow-shape": "triangle", // Mũi tên cho đồ thị có hướng
+  // "target-arrow-shape": "triangle", // Mũi tên cho đồ thị có hướng
   "curve-style": "bezier",
   "control-point-step-size": 40, // Khoảng cách uốn cong giữa các cạnh
 };

@@ -186,7 +186,7 @@ function Sidebar() {
   }, [steps, currentAlgorithm]);
 
   return (
-    <aside className="w-[280px] bg-white border-r space-y-4 border-slate-200 flex flex-col p-4 gap-4 overflow-y-auto">
+    <aside className="w-full h-full bg-white border-r space-y-4 border-slate-200 flex flex-col p-4 gap-4 overflow-y-auto">
       {/* ALGORITHM SELECTION */}
       <section>
         <h3 className="text-base font-semibold text-slate-700 mb-2 flex items-center gap-2">

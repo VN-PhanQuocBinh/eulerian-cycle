@@ -523,11 +523,10 @@ export const useGraphStore = create<GraphState>()(
         // Hierholzer's Algorithm
         const circuit: Set<string> = new Set();
         const stack: string[] = [nodes[0].id];
-        let currentNode: string;
         const visitedEdges = new Set<string>();
 
         while (stack.length > 0) {
-          currentNode = stack[stack.length - 1];
+          const currentNode = stack[stack.length - 1];
           const currentNodeNeighbors = adjacencyList.get(currentNode) || [];
 
           if (currentNodeNeighbors.length > 0) {

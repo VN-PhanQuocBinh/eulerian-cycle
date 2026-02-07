@@ -3,21 +3,46 @@ import Sidebar from "./components/layouts/sidebar";
 import { NodeInputProvider } from "./components/ui/node-input";
 import DebugPanel from "./components/debug-panel";
 import { ToastProvider } from "./components/ui/toast";
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 
 function App() {
   return (
     <ToastProvider>
       <div className="flex h-screen w-screen bg-slate-100 overflow-hidden text-slate-900">
-        {/* SIDEBAR */}
-        <Sidebar />
+        {/* <Sidebar />
 
-        {/* MAIN CONTENT */}
         <main className="flex-1 p-4 h-full">
           <NodeInputProvider>
             <GraphCanvas />
             <DebugPanel />
           </NodeInputProvider>
-        </main>
+        </main> */}
+        <ResizablePanelGroup orientation="horizontal">
+          <ResizablePanel minSize={250} defaultSize={300} maxSize={400}>
+            <Sidebar />
+          </ResizablePanel>
+
+          <ResizableHandle withHandle />
+
+          <ResizablePanel>
+            <main className="flex-1 h-full">
+              <NodeInputProvider>
+                <ResizablePanelGroup orientation="vertical">
+                  <ResizablePanel defaultSize="75%" minSize="25%" className="p-4">
+                    <GraphCanvas />
+                    <DebugPanel />
+                  </ResizablePanel>
+
+                  <ResizableHandle withHandle className="bg-slate-300 hover:bg-slate-400" />
+
+                  <ResizablePanel defaultSize="25%" minSize="25%">
+                    <div className="w-full">Hello</div>
+                  </ResizablePanel>
+                </ResizablePanelGroup>
+              </NodeInputProvider>
+            </main>
+          </ResizablePanel>
+        </ResizablePanelGroup>
       </div>
     </ToastProvider>
   );

@@ -4,7 +4,7 @@ import edgehandles from "cytoscape-edgehandles";
 import { useNodeInput } from "./ui/node-input";
 import type { EdgeHandlesInstance, EdgeHandlesOptions } from "cytoscape-edgehandles";
 import FunctionalBar from "./functional-bar";
-import AdjacencyListPanel from "./adjacency-list-panel";
+// import AdjacencyListPanel from "./adjacency-list-panel";
 import { useGraphStore } from "@/contexts/graph-context";
 import type { GraphEdge, GraphNode } from "@/types/graph";
 import { useToast } from "./ui/toast";
@@ -241,12 +241,12 @@ const GraphCanvas = () => {
 
   return (
     // <NodeInputProvider>
-    <div className="relative flex-1 h-full bg-slate-50 border border-slate-200 rounded-lg overflow-hidden">
+    <div className=" relative flex-1 h-full bg-slate-50 border border-slate-200 rounded-lg overflow-hidden">
       {/* Canvas */}
       <div ref={containerRef} className="w-full h-full" />
 
       <FunctionalBar />
-      <AdjacencyListPanel />
+      {/* <AdjacencyListPanel /> */}
     </div>
   );
 };
