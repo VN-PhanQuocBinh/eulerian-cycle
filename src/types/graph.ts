@@ -26,27 +26,47 @@ export type StepAction =
   | "traverse"
   | "add-to-circuit";
 
-export type BaseStep = {
-  elementType: "node" | "edge";
+// export type BaseStep = {
+//   elementType: "node" | "edge";
+//   action: StepAction;
+//   classes: string[];
+//   message: string;
+//   stack?: string[];
+//   circuit?: string[];
+// };
+
+// export type NodeStep = BaseStep & {
+//   elementType: "node";
+//   elementId: string;
+// };
+
+// export type EdgeStep = BaseStep & {
+//   elementType: "edge";
+//   sourceElement: string;
+//   targetElement: string;
+// };
+
+export type StepNodeElement = {
+  type: "node";
+  id: string;
+  label: string;
+};
+
+export type StepEdgeElement = {
+  type: "edge";
+  id: string;
+  source: StepNodeElement;
+  target: StepNodeElement;
+};
+
+export type CurrentStep = {
+  element: StepNodeElement | StepEdgeElement;
   action: StepAction;
   classes: string[];
   message: string;
   stack?: string[];
   circuit?: string[];
 };
-
-export type NodeStep = BaseStep & {
-  elementType: "node";
-  elementId: string;
-};
-
-export type EdgeStep = BaseStep & {
-  elementType: "edge";
-  sourceElement: string;
-  targetElement: string;
-};
-
-export type CurrentStep = NodeStep | EdgeStep;
 export type PrevStep = Pick<CurrentStep, "classes" | "stack" | "circuit">;
 
 export interface Step {
@@ -77,6 +97,10 @@ export interface GraphState {
   ehInstance: any | null;
   graphData: GraphData;
 
+  // Algorithm state
+  currentAlgorithm: GraphAlgorithm | null;
+  steps: Step[];
+
   // Actions
   setMode: (mode: GraphMode) => void;
   setIsDirected: (isDirected: boolean) => void;
@@ -84,6 +108,10 @@ export interface GraphState {
   setEhInstance: (instance: any) => void;
   getCurrentNodesData: () => GraphNode[];
   getCurrentEdgesData: () => GraphEdge[];
+
+  // Algorithm state operations
+  setCurrentAlgorithm: (algorithm: GraphAlgorithm | null) => void;
+  setSteps: (steps: Step[]) => void;
 
   // Toast handler
   toastHandler: ToastHandler;
@@ -119,7 +147,7 @@ export interface GraphState {
   findEulerianCycle: () => { cycle: string[] | null; steps: Step[]; message?: string };
 
   // Algorithm operations
-  getAdjacencyList: () => Map<string, string[]>;
+  getAdjacencyList: () => Map<string, GraphNode[]>;
 
   // Helpers
   highlightNode: (nodeId: string, className: string[], pulse?: boolean) => void;

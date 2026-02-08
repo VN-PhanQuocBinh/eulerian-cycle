@@ -33,12 +33,14 @@ function Sidebar() {
   const isDirected = useGraphStore((state) => state.isDirected);
   const edges = useGraphStore((state) => state.edges);
   const nodes = useGraphStore((state) => state.nodes);
-
   const cyInstance = useGraphStore((state) => state.cyInstance);
+  const steps = useGraphStore((state) => state.steps);
+  const currentAlgorithm = useGraphStore((state) => state.currentAlgorithm);
+  const setSteps = useGraphStore((state) => state.setSteps);
+  const setCurrentAlgorithm = useGraphStore((state) => state.setCurrentAlgorithm);
   const saveGraph = useGraphStore((state) => state.saveGraph);
   const loadGraph = useGraphStore((state) => state.loadGraph);
   const findConnectedComponents = useGraphStore((state) => state.findConnectedComponents);
-  const checkEulerianCycle = useGraphStore((state) => state.checkEulerianCycle);
   const findEulerianCycle = useGraphStore((state) => state.findEulerianCycle);
   const highlightNode = useGraphStore((state) => state.highlightNode);
   const highlightEdge = useGraphStore((state) => state.highlightEdge);
@@ -46,17 +48,17 @@ function Sidebar() {
 
   // Local state
   const { showToast } = useToast();
-  const [currentAlgorithm, setCurrentAlgorithm] = useState<GraphAlgorithm>("eulerian-cycle");
+  // const [currentAlgorithm, setCurrentAlgorithm] = useState<GraphAlgorithm>("eulerian-cycle");
   const [runMode, setRunMode] = useState<RunMode>("continuous");
   const [speed, setSpeed] = useState(100);
   const debouncedSpeed = useDebounce(speed, 300);
-  const [steps, setSteps] = useState<Step[]>([]);
+  // const [steps, setSteps] = useState<Step[]>([]);
   const currentStep = useRef(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [canBackward, setCanBackward] = useState(true);
   const [canForward, setCanForward] = useState(true);
 
-  console.log(steps)
+  console.log(steps);
 
   // Load steps when algorithm or graph changes
   useEffect(() => {
@@ -83,10 +85,10 @@ function Sidebar() {
       const step = steps[currentStep.current].current;
       console.log(step.message);
 
-      if (step.elementType === "node") {
-        highlightNode(step.elementId, step.classes, true);
-      } else if (step.elementType === "edge") {
-        highlightEdge(step.sourceElement, step.targetElement, step.classes);
+      if (step.element.type === "node") {
+        highlightNode(step.element.id, step.classes, true);
+      } else if (step.element.type === "edge") {
+        highlightEdge(step.element.source.id, step.element.target.id, step.classes);
       }
 
       currentStep.current++;
@@ -100,15 +102,18 @@ function Sidebar() {
       const currentStepData = steps[currentStep.current - 1].current;
       const prevStepData = steps[currentStep.current - 1].prev;
 
-      if (currentStepData.elementType === "node") {
-        const revertNode = cyInstance.getElementById(currentStepData.elementId);
+      if (currentStepData.element.type === "node") {
+        const revertNode = cyInstance.getElementById(currentStepData.element.id);
         if (revertNode) {
           revertNode.removeClass(currentStepData.classes);
           revertNode.addClass(prevStepData.classes);
         }
-      } else if (currentStepData.elementType === "edge") {
+      } else if (currentStepData.element.type === "edge") {
         const revertEdge = cyInstance.edges(
-          generateEdgeSelector(currentStepData.sourceElement, currentStepData.targetElement),
+          generateEdgeSelector(
+            currentStepData.element.source.id,
+            currentStepData.element.target.id,
+          ),
         );
         if (revertEdge) {
           revertEdge.removeClass(currentStepData.classes);
@@ -181,9 +186,7 @@ function Sidebar() {
     setSteps([]);
   };
 
-  useEffect(() => {
-    
-  }, [steps, currentAlgorithm]);
+  useEffect(() => {}, [steps, currentAlgorithm]);
 
   return (
     <aside className="w-full h-full bg-white border-r space-y-4 border-slate-200 flex flex-col p-4 gap-4 overflow-y-auto">
@@ -194,7 +197,10 @@ function Sidebar() {
           Algorithm
         </h3>
 
-        <Select.Root value={currentAlgorithm} onValueChange={handleAlgorithmChange}>
+        <Select.Root
+          value={currentAlgorithm as GraphAlgorithm}
+          onValueChange={handleAlgorithmChange}
+        >
           <Select.Trigger
             className="w-full flex items-center justify-between px-3 py-2 bg-gray-100 border border-slate-300 rounded-lg text-sm text-slate-700 hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={isAnimating}
@@ -210,8 +216,8 @@ function Sidebar() {
               {ALGORITHM_OPTIONS.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   <div>
-                    <div className="font-medium">{option.label}</div>
-                    <div className="text-xs text-slate-500">
+                    <div className="text-left font-medium">{option.label}</div>
+                    <div className="text-xs text-slate-400">
                       {option.value === "connected-components"
                         ? "Find graph components"
                         : "Find cycle visiting all edges"}
