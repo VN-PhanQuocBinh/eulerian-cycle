@@ -8,6 +8,12 @@ import {
   TableHead,
   TableCell,
 } from "@/components/ui/table";
+import { CopyButton } from "@/components/copy-button";
+
+const arrayToString = (arr: string[]) => {
+  let result: string = arr.join(", ");
+  return "[" + result + "]";
+};
 
 interface Props {
   steps: Step[];
@@ -24,16 +30,16 @@ export function EulerianCycleStepsTable({ steps, currentStepIndex }: Props) {
   }
 
   return (
-    <div className="overflow-x-auto">
-      <Table>
-        <TableHeader>
-          <TableRow className="bg-slate-100 border-b border-slate-200">
-            <TableHead className="w-10">Step</TableHead>
-            <TableHead className="w-36">Action</TableHead>
-            <TableHead className="">Element</TableHead>
-            <TableHead className="">Stack</TableHead>
-            <TableHead className="">Circuit</TableHead>
-            <TableHead className="">Message</TableHead>
+    <div className="bg-white p-4">
+      <Table className="">
+        <TableHeader className="">
+          <TableRow className="top-0  border-b border-blue-200">
+            <TableHead className="w-10 bg-gray-100 text-blue-800">Step</TableHead>
+            <TableHead className="w-36 bg-gray-100 text-blue-800">Action</TableHead>
+            <TableHead className="bg-gray-100 text-blue-800">Element</TableHead>
+            <TableHead className="bg-gray-100 text-blue-800">Stack</TableHead>
+            <TableHead className="bg-gray-100 text-blue-800">Circuit</TableHead>
+            <TableHead className="bg-gray-100 text-blue-800">Explain</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -72,16 +78,16 @@ export function EulerianCycleStepsTable({ steps, currentStepIndex }: Props) {
                 {/* Element */}
                 <TableCell className="px-3 py-2">
                   {element.type === "node" ? (
-                    <span className=" text-gray-700 bg-slate-100 px-2 py-0.5 rounded">
+                    <span className="size-5 text-gray-700 bg-slate-100 px-2 py-0.5 rounded">
                       {element.label}
                     </span>
                   ) : (
                     <div className="flex items-center gap-1">
-                      <span className=" text-gray-700 bg-slate-100 px-1.5 py-0.5 rounded text-xs">
+                      <span className="size-5 text-gray-700 bg-slate-100 text-center rounded text-xs">
                         {element.source.label}
                       </span>
                       <ArrowRight size={12} className="text-gray-400" />
-                      <span className=" text-gray-700 bg-slate-100 px-1.5 py-0.5 rounded text-xs">
+                      <span className="size-5 text-gray-700 bg-slate-100 text-center rounded text-xs">
                         {element.target.label}
                       </span>
                     </div>
@@ -90,31 +96,60 @@ export function EulerianCycleStepsTable({ steps, currentStepIndex }: Props) {
 
                 {/* Stack */}
                 <TableCell className="px-3 py-2">
-                  <div className="flex gap-1 flex-wrap max-w-[150px]">
+                  <div className="flex items-center max-w-[150px]">
                     {step.current.stack && step.current.stack.length > 0 ? (
-                      step.current.stack.map((nodeId, idx) => (
-                        <span
-                          key={idx}
-                          className=" text-purple-700 bg-purple-100 px-1.5 py-0.5 rounded text-xs"
-                        >
-                          {nodeId}
-                        </span>
-                      ))
+                      <>
+                        <div className="flex-1 flex items-center gap-2 flex-wrap">
+                          {step.current.stack.map((node, idx) => (
+                            <span
+                              key={idx}
+                              className="size-5 text-purple-700 bg-purple-100 px-1.5 py-0.5 rounded text-xs"
+                            >
+                              {node.label}
+                            </span>
+                          ))}
+                        </div>
+                        <CopyButton
+                          text={arrayToString(step.current.stack.map((node) => node.label))}
+                        />
+                      </>
                     ) : (
-                      <span className="text-gray-400">[ ]</span>
+                      <span className="text-gray-400 italic">Empty stack</span>
                     )}
                   </div>
                 </TableCell>
 
                 {/* Circuit */}
                 <TableCell className="px-3 py-2">
-                  <div className="max-w-[200px]">
+                  {/* <div className="max-w-[200px]">
                     {step.current.circuit && step.current.circuit.length > 0 ? (
                       <span className=" text-green-700 text-xs">
-                        {step.current.circuit.join(" → ")}
+                        {step.current.circuit.map((node) => node.label).join(" → ")}
                       </span>
                     ) : (
-                      <span className="text-gray-400">[ ]</span>
+                      <span className="text-gray-400 italic">Empty circuit</span>
+                    )}
+                  </div> */}
+
+                  <div className="flex items-center max-w-[200px]">
+                    {step.current.circuit && step.current.circuit.length > 0 ? (
+                      <>
+                        <div className="flex-1 flex items-center gap-2 flex-wrap">
+                          {step.current.circuit.map((node, idx) => (
+                            <span
+                              key={idx}
+                              className="size-5 text-orange-700 bg-orange-100 px-1.5 py-0.5 rounded text-xs"
+                            >
+                              {node.label}
+                            </span>
+                          ))}
+                        </div>
+                        <CopyButton
+                          text={arrayToString(step.current.circuit.map((node) => node.label))}
+                        />
+                      </>
+                    ) : (
+                      <span className="text-gray-400 italic">Empty circuit</span>
                     )}
                   </div>
                 </TableCell>

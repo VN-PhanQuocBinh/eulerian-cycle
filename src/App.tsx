@@ -24,7 +24,7 @@ function App() {
                 <ResizablePanelGroup orientation="vertical">
                   <ResizablePanel defaultSize="75%" minSize="25%" className="p-4">
                     <GraphCanvas />
-                    <DebugPanel />
+                    {/* <DebugPanel /> */}
                   </ResizablePanel>
 
                   <ResizableHandle withHandle className="bg-slate-300 hover:bg-slate-400" />

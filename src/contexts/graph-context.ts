@@ -562,22 +562,6 @@ export const useGraphStore = create<GraphState>()(
           const currentNodeNeighbors = adjacencyList.get(currentNode.id) || [];
 
           if (currentNodeNeighbors.length > 0) {
-            steps.push({
-              prev: {
-                classes: cyInstance.getElementById(currentNode.id).classes(),
-              },
-              current: {
-                element: {
-                  type: "node",
-                  id: currentNode.id,
-                  label: currentNode.label,
-                },
-                action: "explore",
-                message: `Exploring from node ${currentNode.label}`,
-                classes: ["exploring"],
-              },
-            });
-
             const nextNode = currentNodeNeighbors.pop()!;
 
             let processingEdge = cyInstance.edges(
@@ -599,7 +583,26 @@ export const useGraphStore = create<GraphState>()(
             console.log("Edge ID:", edgeId);
             console.log("Already Visited Edges:", visitedEdges.has(edgeId!));
             console.log("Stack:", stack);
+            console.log("Circuit:", circuit);
             console.groupEnd();
+
+            steps.push({
+              prev: {
+                classes: cyInstance.getElementById(currentNode.id).classes(),
+              },
+              current: {
+                element: {
+                  type: "node",
+                  id: currentNode.id,
+                  label: currentNode.label,
+                },
+                action: "explore",
+                message: `Exploring from node ${currentNode.label}`,
+                classes: ["exploring"],
+                stack: [...stack, nextNode],
+                circuit: [...circuit],
+              },
+            });
 
             if (!edgeId) continue;
 
@@ -623,13 +626,15 @@ export const useGraphStore = create<GraphState>()(
                 action: "traverse",
                 message: `Traversing edge from ${currentNode.label} to ${nextNode.label}`,
                 classes: ["in-cycle"],
+                stack: [...stack, nextNode],
+                circuit: [...circuit],
               },
             });
 
             visitedEdges.add(edgeId);
             stack.push(nextNode);
           } else {
-            // if (!circuit.includes(currentNode)) {
+            circuit.push(stack.pop()!);
             steps.push({
               prev: {
                 classes: cyInstance.getElementById(currentNode.id).classes(),
@@ -643,11 +648,10 @@ export const useGraphStore = create<GraphState>()(
                 action: "add-to-circuit",
                 message: `Added ${currentNode.label} to circuit`,
                 classes: ["in-cycle"],
+                stack: [...stack],
+                circuit: [...circuit],
               },
             });
-            // }
-
-            circuit.push(stack.pop()!);
           }
         }
 

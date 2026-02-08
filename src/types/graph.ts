@@ -64,8 +64,8 @@ export type CurrentStep = {
   action: StepAction;
   classes: string[];
   message: string;
-  stack?: string[];
-  circuit?: string[];
+  stack?: GraphNode[];
+  circuit?: GraphNode[];
 };
 export type PrevStep = Pick<CurrentStep, "classes" | "stack" | "circuit">;
 
