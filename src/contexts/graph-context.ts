@@ -5,11 +5,12 @@ import type {
   GraphNode,
   GraphEdge,
   GraphState,
-  Step,
+  StoredStep,
   ConnectedComponentsResult,
   GraphData,
 } from "@/types/graph";
 import { COMPONENT_COLORS } from "@/types/styles";
+import { c } from "node_modules/vite/dist/node/types.d-aGj9QkWt";
 
 export const useGraphStore = create<GraphState>()(
   devtools(
@@ -404,17 +405,26 @@ export const useGraphStore = create<GraphState>()(
             // Record step for visiting node
             steps.push({
               prev: {
-                classes: cyInstance.getElementById(current).classes(),
+                elements: [
+                  {
+                    type: "node",
+                    id: current,
+                    label: cyInstance.getElementById(current).data("label"),
+                    classes: cyInstance.getElementById(current).classes(),
+                  },
+                ],
               },
               current: {
-                element: {
-                  type: "node",
-                  id: current,
-                  label: cyInstance.getElementById(current).data("label"),
-                },
+                elements: [
+                  {
+                    type: "node",
+                    id: current,
+                    label: cyInstance.getElementById(current).data("label"),
+                    classes: [`component-${componentIndex % COMPONENT_COLORS.length}`],
+                  },
+                ],
                 action: "visit",
                 message: [`Visited node ${current}`],
-                classes: [`component-${componentIndex % COMPONENT_COLORS.length}`],
               },
             });
 
@@ -436,29 +446,44 @@ export const useGraphStore = create<GraphState>()(
 
                 steps.push({
                   prev: {
-                    classes: processingEdge[0].classes(),
+                    elements: [
+                      {
+                        type: "edge",
+                        id: processingEdge[0].id(),
+                        source: {
+                          type: "node",
+                          id: current,
+                          label: cyInstance.getElementById(current).data("label"),
+                        },
+                        target: {
+                          type: "node",
+                          id: neighbor.id,
+                          label: cyInstance.getElementById(neighbor.id).data("label"),
+                        },
+                        classes: processingEdge[0].classes(),
+                      },
+                    ],
                   },
                   current: {
-                    // sourceElement: current,
-                    // targetElement: neighbor,
-                    // elementType: "edge",
-                    element: {
-                      type: "edge",
-                      id: processingEdge[0].id(),
-                      source: {
-                        type: "node",
-                        id: current,
-                        label: cyInstance.getElementById(current).data("label"),
+                    elements: [
+                      {
+                        type: "edge",
+                        id: processingEdge[0].id(),
+                        source: {
+                          type: "node",
+                          id: current,
+                          label: cyInstance.getElementById(current).data("label"),
+                        },
+                        target: {
+                          type: "node",
+                          id: neighbor.id,
+                          label: cyInstance.getElementById(neighbor.id).data("label"),
+                        },
+                        classes: [`component-${componentIndex % COMPONENT_COLORS.length}`],
                       },
-                      target: {
-                        type: "node",
-                        id: neighbor.id,
-                        label: cyInstance.getElementById(neighbor.id).data("label"),
-                      },
-                    },
+                    ],
                     action: "visit",
                     message: [`Visited edge from ${current} to ${neighbor.id}`],
-                    classes: [`component-${componentIndex % COMPONENT_COLORS.length}`],
                   },
                 });
 
@@ -534,9 +559,138 @@ export const useGraphStore = create<GraphState>()(
         return { exists: true };
       },
 
+      // findEulerianCycle: () => {
+      //   const { cyInstance, nodes, isDirected, getAdjacencyList, checkEulerianCycle } = get();
+      //   const steps: StoredStep[] = [];
+
+      //   // Logic to find Eulerian Cycle
+      //   if (nodes.length === 0 || !cyInstance) {
+      //     return { cycle: null, steps: [] };
+      //   }
+
+      //   const check = checkEulerianCycle();
+      //   if (!check.exists) {
+      //     return { cycle: null, steps: [], message: check.reason };
+      //   }
+
+      //   const adjacencyList = getAdjacencyList();
+
+      //   // Hierholzer's Algorithm
+      //   const circuit: GraphNode[] = [];
+      //   const stack: GraphNode[] = [nodes[0]];
+      //   const visitedEdges = new Set<string>();
+
+      //   while (stack.length > 0) {
+      //     const currentNode = stack[stack.length - 1];
+      //     const currentNodeNeighbors = adjacencyList.get(currentNode.id) || [];
+
+      //     if (currentNodeNeighbors.length > 0) {
+      //       const nextNode = currentNodeNeighbors.pop()!;
+
+      //       let processingEdge = cyInstance.edges(
+      //         `edge[source = "${currentNode.id}"][target = "${nextNode.id}"]`,
+      //       );
+      //       if (processingEdge.length === 0 && !isDirected) {
+      //         processingEdge = cyInstance.edges(
+      //           `edge[source = "${nextNode.id}"][target = "${currentNode.id}"]`,
+      //         );
+      //       }
+
+      //       const edgeId = Array.from(processingEdge)
+      //         .find((edge) => !visitedEdges.has(edge.id()))
+      //         ?.id();
+
+      //       console.group("Debug Info");
+      //       console.log("Current Node:", currentNode);
+      //       console.log("Next Node:", nextNode);
+      //       console.log("Edge ID:", edgeId);
+      //       console.log("Already Visited Edges:", visitedEdges.has(edgeId!));
+      //       console.log("Stack:", stack);
+      //       console.log("Circuit:", circuit);
+      //       console.groupEnd();
+
+      //       steps.push({
+      //         prev: {
+      //           classes: cyInstance.getElementById(currentNode.id).classes(),
+      //         },
+      //         current: {
+      //           element: {
+      //             type: "node",
+      //             id: currentNode.id,
+      //             label: currentNode.label,
+      //           },
+      //           action: "explore",
+      //           message: [`Exploring from node ${currentNode.label}`],
+      //           classes: ["exploring"],
+      //           stack: [...stack, nextNode],
+      //           circuit: [...circuit],
+      //         },
+      //       });
+
+      //       if (!edgeId) continue;
+
+      //       if (!isDirected) {
+      //         const nextNodeNeighbors = adjacencyList.get(nextNode.id) || [];
+      //         const index = nextNodeNeighbors.indexOf(currentNode);
+      //         if (index !== -1) nextNodeNeighbors.splice(index, 1);
+      //       }
+
+      //       steps.push({
+      //         prev: {
+      //           classes: processingEdge[0].classes(),
+      //         },
+      //         current: {
+      //           element: {
+      //             type: "edge",
+      //             id: edgeId,
+      //             source: { type: "node", id: currentNode.id, label: currentNode.label },
+      //             target: { type: "node", id: nextNode.id, label: nextNode.label },
+      //           },
+      //           action: "traverse",
+      //           message: [`Traversing edge from ${currentNode.label} to ${nextNode.label}`],
+      //           classes: ["in-cycle"],
+      //           stack: [...stack, nextNode],
+      //           circuit: [...circuit],
+      //         },
+      //       });
+
+      //       visitedEdges.add(edgeId);
+      //       stack.push(nextNode);
+      //     } else {
+      //       circuit.push(stack.pop()!);
+      //       steps.push({
+      //         prev: {
+      //           classes: cyInstance.getElementById(currentNode.id).classes(),
+      //         },
+      //         current: {
+      //           element: {
+      //             type: "node",
+      //             id: currentNode.id,
+      //             label: currentNode.label,
+      //           },
+      //           action: "add-to-circuit",
+      //           message: [`Added ${currentNode.label} to circuit`],
+      //           classes: ["in-cycle"],
+      //           stack: [...stack],
+      //           circuit: [...circuit],
+      //         },
+      //       });
+      //     }
+      //   }
+
+      //   circuit.reverse();
+      //   console.log("Eulerian Circuit:", circuit);
+
+      //   return {
+      //     cycle: circuit,
+      //     steps: steps,
+      //     message: "Eulerian cycle found successfully.",
+      //   };
+      // },
+
       findEulerianCycle: () => {
         const { cyInstance, nodes, isDirected, getAdjacencyList, checkEulerianCycle } = get();
-        const steps: Step[] = [];
+        const steps: StoredStep[] = [];
 
         // Logic to find Eulerian Cycle
         if (nodes.length === 0 || !cyInstance) {
@@ -584,24 +738,6 @@ export const useGraphStore = create<GraphState>()(
             console.log("Circuit:", circuit);
             console.groupEnd();
 
-            steps.push({
-              prev: {
-                classes: cyInstance.getElementById(currentNode.id).classes(),
-              },
-              current: {
-                element: {
-                  type: "node",
-                  id: currentNode.id,
-                  label: currentNode.label,
-                },
-                action: "explore",
-                message: [`Exploring from node ${currentNode.label}`],
-                classes: ["exploring"],
-                stack: [...stack, nextNode],
-                circuit: [...circuit],
-              },
-            });
-
             if (!edgeId) continue;
 
             if (!isDirected) {
@@ -612,18 +748,30 @@ export const useGraphStore = create<GraphState>()(
 
             steps.push({
               prev: {
-                classes: processingEdge[0].classes(),
+                elements: [],
               },
               current: {
-                element: {
-                  type: "edge",
-                  id: edgeId,
-                  source: { type: "node", id: currentNode.id, label: currentNode.label },
-                  target: { type: "node", id: nextNode.id, label: nextNode.label },
-                },
+                elements: [
+                  {
+                    type: "node",
+                    id: currentNode.id,
+                    label: currentNode.label,
+                    classes: ["exploring"],
+                  },
+                  {
+                    type: "edge",
+                    id: edgeId,
+                    source: { type: "node", id: currentNode.id, label: currentNode.label },
+                    target: { type: "node", id: nextNode.id, label: nextNode.label },
+                    classes: ["in-cycle"],
+                  },
+                ],
                 action: "traverse",
-                message: [`Traversing edge from ${currentNode.label} to ${nextNode.label}`],
-                classes: ["in-cycle"],
+                message: [
+                  `Exploring from node ${currentNode.label}`,
+                  `Traversing edge from ${currentNode.label} to ${nextNode.label}`,
+                  `Marking edge (${currentNode.label}, ${nextNode.label}) as visited`,
+                ],
                 stack: [...stack, nextNode],
                 circuit: [...circuit],
               },
@@ -635,17 +783,30 @@ export const useGraphStore = create<GraphState>()(
             circuit.push(stack.pop()!);
             steps.push({
               prev: {
-                classes: cyInstance.getElementById(currentNode.id).classes(),
+                elements: [
+                  {
+                    type: "node",
+                    id: currentNode.id,
+                    label: currentNode.label,
+                    classes: cyInstance.getElementById(currentNode.id).classes(),
+                  },
+                ],
               },
               current: {
-                element: {
-                  type: "node",
-                  id: currentNode.id,
-                  label: currentNode.label,
-                },
+                elements: [
+                  {
+                    type: "node",
+                    id: currentNode.id,
+                    label: currentNode.label,
+                    classes: ["in-cycle"],
+                  },
+                ],
                 action: "add-to-circuit",
-                message: [`Added ${currentNode.label} to circuit`],
-                classes: ["in-cycle"],
+                message: [
+                  `Exploring from node ${currentNode.label}`,
+                  `No more neighbors to explore from ${currentNode.label}`,
+                  `Added ${currentNode.label} to circuit`,
+                ],
                 stack: [...stack],
                 circuit: [...circuit],
               },

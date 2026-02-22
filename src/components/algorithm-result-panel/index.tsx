@@ -8,8 +8,6 @@ function ResultPanel() {
 
   const currentStep = useRef<number>(-1);
 
-  console.log("Result table steps", steps);
-
   return (
     <div className="flex-1 max-h-full rounded-lg overflow-y-auto custom-scrollbar">
       {currentAlgorithm === "eulerian-cycle" && steps.length > 0 ? (

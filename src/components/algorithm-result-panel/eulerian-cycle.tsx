@@ -1,4 +1,4 @@
-import { Step } from "@/types/graph";
+import { StoredStep } from "@/types/graph";
 import { ArrowRight } from "lucide-react";
 import {
   Table,
@@ -16,7 +16,7 @@ const arrayToString = (arr: string[]) => {
 };
 
 interface Props {
-  steps: Step[];
+  steps: StoredStep[];
   currentStepIndex: number;
 }
 
@@ -35,8 +35,8 @@ export function EulerianCycleStepsTable({ steps, currentStepIndex }: Props) {
         <TableHeader className="">
           <TableRow className="top-0 border-b border-blue-200">
             <TableHead className="w-10 bg-gray-100 text-blue-800">Step</TableHead>
-            <TableHead className="w-36 bg-gray-100 text-blue-800">Action</TableHead>
-            <TableHead className="bg-gray-100 text-blue-800">Element</TableHead>
+            {/* <TableHead className="w-36 bg-gray-100 text-blue-800">Action</TableHead> */}
+            {/* <TableHead className="bg-gray-100 text-blue-800">Element</TableHead> */}
             <TableHead className="bg-gray-100 text-blue-800">Stack</TableHead>
             <TableHead className="bg-gray-100 text-blue-800">Circuit</TableHead>
             <TableHead className="bg-gray-100 text-blue-800">Explain</TableHead>
@@ -46,7 +46,7 @@ export function EulerianCycleStepsTable({ steps, currentStepIndex }: Props) {
           {steps.map((step, index) => {
             const isCurrentStep = index === currentStepIndex;
             const isPastStep = index < currentStepIndex;
-            const element = step.current.element;
+            const element = step.current.elements;
 
             return (
               <TableRow
@@ -64,7 +64,7 @@ export function EulerianCycleStepsTable({ steps, currentStepIndex }: Props) {
                 </TableCell>
 
                 {/* Action */}
-                <TableCell className="px-3 py-2">
+                {/* <TableCell className="px-3 py-2">
                   <span
                     className={`
                       px-2 py-0.5 rounded text-xs font-medium
@@ -73,10 +73,10 @@ export function EulerianCycleStepsTable({ steps, currentStepIndex }: Props) {
                   >
                     {formatAction(step.current.action)}
                   </span>
-                </TableCell>
+                </TableCell> */}
 
                 {/* Element */}
-                <TableCell className="px-3 py-2">
+                {/* <TableCell className="px-3 py-2">
                   {element.type === "node" ? (
                     <span className="size-5 text-gray-700 bg-slate-100 px-2 py-0.5 rounded">
                       {element.label}
@@ -92,7 +92,7 @@ export function EulerianCycleStepsTable({ steps, currentStepIndex }: Props) {
                       </span>
                     </div>
                   )}
-                </TableCell>
+                </TableCell> */}
 
                 {/* Stack */}
                 <TableCell className="px-3 py-2">
@@ -145,7 +145,7 @@ export function EulerianCycleStepsTable({ steps, currentStepIndex }: Props) {
                 </TableCell>
 
                 {/* Message */}
-                <TableCell className="px-3 py-2 text-gray-600">
+                <TableCell className="px-3 py-2 text-gray-600 text-left">
                   {step.current.message.map((msg, idx) => (
                     <div key={idx}>{msg}</div>
                   ))}

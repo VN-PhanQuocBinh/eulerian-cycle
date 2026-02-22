@@ -16,10 +16,13 @@ import { useEffect, useState, useRef } from "react";
 import { useDebounce } from "@/hooks/use-debounce";
 import { Slider } from "@/components/ui/slider";
 import { SelectItem, SelectContent, Select } from "@/components/ui/select";
-import type { GraphAlgorithm, Step, RunMode } from "@/types/graph";
+import type { GraphAlgorithm, RunMode, StoredStep } from "@/types/graph";
 import { cn } from "@/utils/cn";
 import { useToast } from "@/components/ui/toast";
 import { generateEdgeSelector } from "@/utils";
+import { GNode } from "@/core/models/gnode";
+import { GEdge } from "@/core/models/gedge";
+import { RenderedStep } from "@/types/graph";
 
 const ALGORITHM_OPTIONS: { label: string; value: GraphAlgorithm }[] = [
   { label: "Eulerian Cycle", value: "eulerian-cycle" },
@@ -38,35 +41,33 @@ function Sidebar() {
   const currentAlgorithm = useGraphStore((state) => state.currentAlgorithm);
   const setSteps = useGraphStore((state) => state.setSteps);
   const setCurrentAlgorithm = useGraphStore((state) => state.setCurrentAlgorithm);
+  const highlightNode = useGraphStore((state) => state.highlightNode);
+  const highlightEdge = useGraphStore((state) => state.highlightEdge);
   const saveGraph = useGraphStore((state) => state.saveGraph);
   const loadGraph = useGraphStore((state) => state.loadGraph);
   const findConnectedComponents = useGraphStore((state) => state.findConnectedComponents);
   const findEulerianCycle = useGraphStore((state) => state.findEulerianCycle);
-  const highlightNode = useGraphStore((state) => state.highlightNode);
-  const highlightEdge = useGraphStore((state) => state.highlightEdge);
   const resetGraph = useGraphStore((state) => state.resetGraph);
 
   // Local state
   const { showToast } = useToast();
-  // const [currentAlgorithm, setCurrentAlgorithm] = useState<GraphAlgorithm>("eulerian-cycle");
   const [runMode, setRunMode] = useState<RunMode>("continuous");
   const [speed, setSpeed] = useState(100);
   const debouncedSpeed = useDebounce(speed, 300);
-  // const [steps, setSteps] = useState<Step[]>([]);
   const currentStep = useRef(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [canBackward, setCanBackward] = useState(true);
   const [canForward, setCanForward] = useState(true);
 
-  console.log(steps);
+  console.log(steps)
 
   // Load steps when algorithm or graph changes
   useEffect(() => {
     switch (currentAlgorithm) {
       case "connected-components": {
         const { steps } = findConnectedComponents();
-
         setSteps(steps || []);
+
         break;
       }
       case "eulerian-cycle": {
@@ -85,11 +86,13 @@ function Sidebar() {
       const step = steps[currentStep.current].current;
       console.log(step.message);
 
-      if (step.element.type === "node") {
-        highlightNode(step.element.id, step.classes, true);
-      } else if (step.element.type === "edge") {
-        highlightEdge(step.element.source.id, step.element.target.id, step.classes);
-      }
+      step.elements.forEach((element) => {
+        if (element.type === "node") {
+          highlightNode(element.id, element.classes, true);
+        } else if (element.type === "edge") {
+          highlightEdge(element.source.id, element.target.id, element.classes);
+        }
+      });
 
       currentStep.current++;
       setCanBackward(currentStep.current > 0);
@@ -101,25 +104,25 @@ function Sidebar() {
     if (currentStep.current > 0 && cyInstance) {
       const currentStepData = steps[currentStep.current - 1].current;
       const prevStepData = steps[currentStep.current - 1].prev;
+      const stepElements = currentStepData.elements;
 
-      if (currentStepData.element.type === "node") {
-        const revertNode = cyInstance.getElementById(currentStepData.element.id);
-        if (revertNode) {
-          revertNode.removeClass(currentStepData.classes);
-          revertNode.addClass(prevStepData.classes);
+      stepElements.forEach((element, index) => {
+        if (element.type === "node") {
+          const revertNode = cyInstance.getElementById(element.id);
+          if (revertNode) {
+            revertNode.removeClass(element.classes);
+            revertNode.addClass(prevStepData.elements[index].classes);
+          }
+        } else if (element.type === "edge") {
+          const revertEdge = cyInstance.edges(
+            generateEdgeSelector(element.source.id, element.target.id),
+          );
+          if (revertEdge) {
+            revertEdge.removeClass(element.classes);
+            revertEdge.addClass(prevStepData.elements[index].classes);
+          }
         }
-      } else if (currentStepData.element.type === "edge") {
-        const revertEdge = cyInstance.edges(
-          generateEdgeSelector(
-            currentStepData.element.source.id,
-            currentStepData.element.target.id,
-          ),
-        );
-        if (revertEdge) {
-          revertEdge.removeClass(currentStepData.classes);
-          revertEdge.addClass(prevStepData.classes);
-        }
-      }
+      });
 
       currentStep.current -= 1;
       setCanBackward(currentStep.current > 0);
