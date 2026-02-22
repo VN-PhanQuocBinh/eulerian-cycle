@@ -26,26 +26,6 @@ export type StepAction =
   | "traverse"
   | "add-to-circuit";
 
-// export type BaseStep = {
-//   elementType: "node" | "edge";
-//   action: StepAction;
-//   classes: string[];
-//   message: string;
-//   stack?: string[];
-//   circuit?: string[];
-// };
-
-// export type NodeStep = BaseStep & {
-//   elementType: "node";
-//   elementId: string;
-// };
-
-// export type EdgeStep = BaseStep & {
-//   elementType: "edge";
-//   sourceElement: string;
-//   targetElement: string;
-// };
-
 export type StepNodeElement = {
   type: "node";
   id: string;
@@ -63,7 +43,7 @@ export type CurrentStep = {
   element: StepNodeElement | StepEdgeElement;
   action: StepAction;
   classes: string[];
-  message: string;
+  message: string[];
   stack?: GraphNode[];
   circuit?: GraphNode[];
 };

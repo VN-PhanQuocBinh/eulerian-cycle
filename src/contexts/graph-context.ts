@@ -413,7 +413,7 @@ export const useGraphStore = create<GraphState>()(
                   label: cyInstance.getElementById(current).data("label"),
                 },
                 action: "visit",
-                message: `Visited node ${current}`,
+                message: [`Visited node ${current}`],
                 classes: [`component-${componentIndex % COMPONENT_COLORS.length}`],
               },
             });
@@ -457,7 +457,7 @@ export const useGraphStore = create<GraphState>()(
                       },
                     },
                     action: "visit",
-                    message: `Visited edge from ${current} to ${neighbor.id}`,
+                    message: [`Visited edge from ${current} to ${neighbor.id}`],
                     classes: [`component-${componentIndex % COMPONENT_COLORS.length}`],
                   },
                 });
@@ -535,8 +535,7 @@ export const useGraphStore = create<GraphState>()(
       },
 
       findEulerianCycle: () => {
-        const { cyInstance, nodes, edges, isDirected, getAdjacencyList, checkEulerianCycle } =
-          get();
+        const { cyInstance, nodes, isDirected, getAdjacencyList, checkEulerianCycle } = get();
         const steps: Step[] = [];
 
         // Logic to find Eulerian Cycle
@@ -550,7 +549,6 @@ export const useGraphStore = create<GraphState>()(
         }
 
         const adjacencyList = getAdjacencyList();
-        console.log("Adjacency List:", adjacencyList);
 
         // Hierholzer's Algorithm
         const circuit: GraphNode[] = [];
@@ -597,7 +595,7 @@ export const useGraphStore = create<GraphState>()(
                   label: currentNode.label,
                 },
                 action: "explore",
-                message: `Exploring from node ${currentNode.label}`,
+                message: [`Exploring from node ${currentNode.label}`],
                 classes: ["exploring"],
                 stack: [...stack, nextNode],
                 circuit: [...circuit],
@@ -624,7 +622,7 @@ export const useGraphStore = create<GraphState>()(
                   target: { type: "node", id: nextNode.id, label: nextNode.label },
                 },
                 action: "traverse",
-                message: `Traversing edge from ${currentNode.label} to ${nextNode.label}`,
+                message: [`Traversing edge from ${currentNode.label} to ${nextNode.label}`],
                 classes: ["in-cycle"],
                 stack: [...stack, nextNode],
                 circuit: [...circuit],
@@ -646,7 +644,7 @@ export const useGraphStore = create<GraphState>()(
                   label: currentNode.label,
                 },
                 action: "add-to-circuit",
-                message: `Added ${currentNode.label} to circuit`,
+                message: [`Added ${currentNode.label} to circuit`],
                 classes: ["in-cycle"],
                 stack: [...stack],
                 circuit: [...circuit],

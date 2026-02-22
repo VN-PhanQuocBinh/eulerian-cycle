@@ -33,7 +33,7 @@ export function EulerianCycleStepsTable({ steps, currentStepIndex }: Props) {
     <div className="bg-white p-4">
       <Table className="">
         <TableHeader className="">
-          <TableRow className="top-0  border-b border-blue-200">
+          <TableRow className="top-0 border-b border-blue-200">
             <TableHead className="w-10 bg-gray-100 text-blue-800">Step</TableHead>
             <TableHead className="w-36 bg-gray-100 text-blue-800">Action</TableHead>
             <TableHead className="bg-gray-100 text-blue-800">Element</TableHead>
@@ -121,16 +121,6 @@ export function EulerianCycleStepsTable({ steps, currentStepIndex }: Props) {
 
                 {/* Circuit */}
                 <TableCell className="px-3 py-2">
-                  {/* <div className="max-w-[200px]">
-                    {step.current.circuit && step.current.circuit.length > 0 ? (
-                      <span className=" text-green-700 text-xs">
-                        {step.current.circuit.map((node) => node.label).join(" → ")}
-                      </span>
-                    ) : (
-                      <span className="text-gray-400 italic">Empty circuit</span>
-                    )}
-                  </div> */}
-
                   <div className="flex items-center max-w-[200px]">
                     {step.current.circuit && step.current.circuit.length > 0 ? (
                       <>
@@ -155,7 +145,11 @@ export function EulerianCycleStepsTable({ steps, currentStepIndex }: Props) {
                 </TableCell>
 
                 {/* Message */}
-                <TableCell className="px-3 py-2 text-gray-600">{step.current.message}</TableCell>
+                <TableCell className="px-3 py-2 text-gray-600">
+                  {step.current.message.map((msg, idx) => (
+                    <div key={idx}>{msg}</div>
+                  ))}
+                </TableCell>
               </TableRow>
             );
           })}
