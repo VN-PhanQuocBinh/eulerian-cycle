@@ -67,7 +67,12 @@ export const useGraphStore = create<GraphState>()(
       setSpeed: (speed) => set({ speed }),
       nextStep: () => {
         const { currentStepIndex, steps } = get();
-        console.log("Next step called. Current index:", currentStepIndex, "Total steps:", steps.length);
+        console.log(
+          "Next step called. Current index:",
+          currentStepIndex,
+          "Total steps:",
+          steps.length,
+        );
         if (currentStepIndex < steps.length) {
           set({ currentStepIndex: currentStepIndex + 1 });
         }
@@ -389,7 +394,7 @@ export const useGraphStore = create<GraphState>()(
       },
 
       // ========== ALGORITHM IMPLEMENTATIONS ==========
-      findConnectedComponents: (): ConnectedComponentsResult => {
+      findConnectedComponents: (startNodeId: string): ConnectedComponentsResult => {
         const { nodes, cyInstance, getAdjacencyList } = get();
 
         const steps: ConnectedComponentsResult["steps"] = [];
@@ -573,7 +578,7 @@ export const useGraphStore = create<GraphState>()(
         return { exists: true };
       },
 
-      findEulerianCycle: () => {
+      findEulerianCycle: (startNodeId?: string) => {
         const { cyInstance, nodes, isDirected, getAdjacencyList, checkEulerianCycle } = get();
         const steps: StoredStep[] = [];
 
@@ -589,9 +594,24 @@ export const useGraphStore = create<GraphState>()(
 
         const adjacencyList = getAdjacencyList();
 
+        // Initialize starting point
+        let startIndex = 0;
+        if (startNodeId) {
+          const index = nodes.findIndex((n) => n.id === startNodeId);
+          if (index !== -1) {
+            startIndex = index;
+          } else {
+            return {
+              cycle: null,
+              steps: [],
+              message: `Start node ID ${startNodeId} not found. Starting from default node.`,
+            };
+          }
+        }
+
         // Hierholzer's Algorithm
         const circuit: GraphNode[] = [];
-        const stack: GraphNode[] = [nodes[0]];
+        const stack: GraphNode[] = [nodes[startIndex]];
         const visitedEdges = new Set<string>();
 
         while (stack.length > 0) {

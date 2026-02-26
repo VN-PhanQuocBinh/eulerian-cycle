@@ -144,12 +144,12 @@ export interface GraphState {
   loadGraph: () => Promise<string>;
 
   // Algorithm implementations
-  findConnectedComponents: () => {
+  findConnectedComponents: (startNodeId?: string) => {
     components: string[][];
     steps: StoredStep[];
   };
   checkEulerianCycle: () => { exists: boolean; reason?: string };
-  findEulerianCycle: () => { cycle: string[] | null; steps: Step[]; message?: string };
+  findEulerianCycle: (startNodeId?: string) => { cycle: string[] | null; steps: Step[]; message?: string };
 
   // Algorithm operations
   getAdjacencyList: () => Map<string, GraphNode[]>;
