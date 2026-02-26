@@ -1,5 +1,7 @@
 import type cytoscape from "cytoscape";
 import type { ToastHandler } from "@/components/ui/toast";
+import { GNode } from "@/core/models/gnode";
+import { GEdge } from "@/core/models/gedge";
 
 // Types
 export type GraphMode = "view" | "add-node" | "add-edge" | "delete";
@@ -39,26 +41,42 @@ export type StepEdgeElement = {
   target: StepNodeElement;
 };
 
-export type CurrentStep = {
-  element: StepNodeElement | StepEdgeElement;
+// This type is used for the current step's element,
+// which can be either a node or an edge,
+// and can be either a StepNodeElement/StepEdgeElement (from stored steps) or a GNode/GEdge (from rendered steps).
+type GenericStepType =
+  | Array<StepNodeElement | StepEdgeElement>
+  | StepNodeElement
+  | StepEdgeElement
+  | GEdge
+  | GNode;
+
+export type CurrentStep<T extends GenericStepType = StepNodeElement | StepEdgeElement> = {
+  elements: Array<T & { classes: string[] }>;
   action: StepAction;
-  classes: string[];
   message: string[];
   stack?: GraphNode[];
   circuit?: GraphNode[];
-};
-export type PrevStep = Pick<CurrentStep, "classes" | "stack" | "circuit">;
 
-export interface Step {
+  // Will set required after add pseudo code for connected components algorithm
+  highlightedPseudoCodeLineIds?: number[];
+};
+export type PrevStep = Pick<CurrentStep, "stack" | "circuit" | "elements">;
+
+interface Step<T extends GenericStepType = StepNodeElement | StepEdgeElement> {
   prev: PrevStep;
-  current: CurrentStep;
+  current: CurrentStep<T>;
 }
+
+// export type StoredStep = Step<StepNodeElement | StepEdgeElement>;
+export type StoredStep = Step<StepNodeElement | StepEdgeElement>;
+export type RenderedStep = Step<GNode | GEdge>;
 
 export type RunMode = "step-by-step" | "continuous";
 
 export interface ConnectedComponentsResult {
   components: string[][];
-  steps: Step[];
+  steps: StoredStep[];
 }
 
 export interface GraphData {
@@ -79,7 +97,9 @@ export interface GraphState {
 
   // Algorithm state
   currentAlgorithm: GraphAlgorithm | null;
-  steps: Step[];
+  steps: StoredStep[];
+  currentStepIndex: number;
+  speed: number;
 
   // Actions
   setMode: (mode: GraphMode) => void;
@@ -89,9 +109,14 @@ export interface GraphState {
   getCurrentNodesData: () => GraphNode[];
   getCurrentEdgesData: () => GraphEdge[];
 
+  setCurrentStepIndex: (index: number) => void;
+  setSpeed: (speed: number) => void;
+  nextStep: () => void;
+  prevStep: () => void;
+
   // Algorithm state operations
   setCurrentAlgorithm: (algorithm: GraphAlgorithm | null) => void;
-  setSteps: (steps: Step[]) => void;
+  setSteps: (steps: StoredStep[]) => void;
 
   // Toast handler
   toastHandler: ToastHandler;
@@ -121,7 +146,7 @@ export interface GraphState {
   // Algorithm implementations
   findConnectedComponents: () => {
     components: string[][];
-    steps: Step[];
+    steps: StoredStep[];
   };
   checkEulerianCycle: () => { exists: boolean; reason?: string };
   findEulerianCycle: () => { cycle: string[] | null; steps: Step[]; message?: string };
