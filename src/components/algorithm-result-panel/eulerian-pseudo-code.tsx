@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { useGraphStore } from "@/contexts/graph-context";
 import { BASE_ANIMATION_SPEED } from "@/components/layouts/sidebar";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 interface PseudoCodeLine {
   id: number;
@@ -16,6 +16,7 @@ interface PseudoCodeViewerProps {
 
 export function PseudoCodeViewer({ lines, className }: PseudoCodeViewerProps) {
   const currentStepIndex = useGraphStore((state) => state.currentStepIndex);
+  const speed = useGraphStore((state) => state.speed);
   const steps = useGraphStore((state) => state.steps);
   const [currentHighlightedIndex, setCurrentHighlightedIndex] = useState<number>(0);
 
@@ -28,19 +29,22 @@ export function PseudoCodeViewer({ lines, className }: PseudoCodeViewerProps) {
 
     let animationInterval: NodeJS.Timeout;
 
-    animationInterval = setInterval(() => {
-      setCurrentHighlightedIndex((prev) => {
-        if (prev >= currentLineIds.length - 1) {
-          clearInterval(animationInterval);
-          return 0;
-        }
+    animationInterval = setInterval(
+      () => {
+        setCurrentHighlightedIndex((prev) => {
+          if (prev >= currentLineIds.length - 1) {
+            clearInterval(animationInterval);
+            return 0;
+          }
 
-        return prev + 1;
-      });
-    }, BASE_ANIMATION_SPEED / currentLineIds.length);
+          return prev + 1;
+        });
+      },
+      BASE_ANIMATION_SPEED / currentLineIds.length / (speed / 100),
+    );
 
     return () => clearInterval(animationInterval);
-  }, [currentLineIds]);
+  }, [currentLineIds, speed]);
 
   return (
     <div

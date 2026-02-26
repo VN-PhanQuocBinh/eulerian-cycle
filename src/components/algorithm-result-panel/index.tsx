@@ -1,4 +1,3 @@
-import { useRef } from "react";
 import { useGraphStore } from "@/contexts/graph-context";
 import { EulerianCycleStepsTable } from "./eulerian-cycle";
 
@@ -6,12 +5,10 @@ function ResultPanel() {
   const currentAlgorithm = useGraphStore((state) => state.currentAlgorithm);
   const steps = useGraphStore((state) => state.steps);
 
-  const currentStep = useRef<number>(-1);
-
   return (
     <div className="flex-1 max-h-full overflow-y-auto custom-scrollbar">
       {currentAlgorithm === "eulerian-cycle" && steps.length > 0 ? (
-        <EulerianCycleStepsTable steps={steps} currentStepIndex={currentStep.current} />
+        <EulerianCycleStepsTable steps={steps} />
       ) : currentAlgorithm === "connected-components" && steps.length > 0 ? (
         <div className="p-3 text-xs text-slate-500 italic">
           Connected Components steps table coming soon...

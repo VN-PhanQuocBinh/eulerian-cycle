@@ -10,7 +10,6 @@ import type {
   GraphData,
 } from "@/types/graph";
 import { COMPONENT_COLORS } from "@/types/styles";
-import { c } from "node_modules/vite/dist/node/types.d-aGj9QkWt";
 
 export const useGraphStore = create<GraphState>()(
   devtools(
@@ -24,13 +23,11 @@ export const useGraphStore = create<GraphState>()(
       cyInstance: null,
       ehInstance: null,
 
-      // Animation state
-      isAnimating: false,
-
       // Algorithm state
       currentAlgorithm: "eulerian-cycle",
       steps: [],
       currentStepIndex: 0,
+      speed: 100,
 
       // Toast handler
       toastHandler: () => {},
@@ -67,8 +64,10 @@ export const useGraphStore = create<GraphState>()(
       setSteps: (steps) => set({ steps }),
 
       setCurrentStepIndex: (index) => set({ currentStepIndex: index }),
+      setSpeed: (speed) => set({ speed }),
       nextStep: () => {
         const { currentStepIndex, steps } = get();
+        console.log("Next step called. Current index:", currentStepIndex, "Total steps:", steps.length);
         if (currentStepIndex < steps.length) {
           set({ currentStepIndex: currentStepIndex + 1 });
         }

@@ -99,6 +99,7 @@ export interface GraphState {
   currentAlgorithm: GraphAlgorithm | null;
   steps: StoredStep[];
   currentStepIndex: number;
+  speed: number;
 
   // Actions
   setMode: (mode: GraphMode) => void;
@@ -109,6 +110,7 @@ export interface GraphState {
   getCurrentEdgesData: () => GraphEdge[];
 
   setCurrentStepIndex: (index: number) => void;
+  setSpeed: (speed: number) => void;
   nextStep: () => void;
   prevStep: () => void;
 
