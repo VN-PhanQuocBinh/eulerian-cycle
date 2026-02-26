@@ -12,24 +12,21 @@ import {
   SkipBack,
 } from "lucide-react";
 import { useGraphStore } from "@/contexts/graph-context";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useDebounce } from "@/hooks/use-debounce";
 import { Slider } from "@/components/ui/slider";
 import { SelectItem, SelectContent, Select } from "@/components/ui/select";
-import type { GraphAlgorithm, RunMode, StoredStep } from "@/types/graph";
+import type { GraphAlgorithm, RunMode } from "@/types/graph";
 import { cn } from "@/utils/cn";
 import { useToast } from "@/components/ui/toast";
 import { generateEdgeSelector } from "@/utils";
-import { GNode } from "@/core/models/gnode";
-import { GEdge } from "@/core/models/gedge";
-import { RenderedStep } from "@/types/graph";
 
 const ALGORITHM_OPTIONS: { label: string; value: GraphAlgorithm }[] = [
   { label: "Eulerian Cycle", value: "eulerian-cycle" },
   { label: "Connected Components", value: "connected-components" },
 ];
 
-const BASE_ANIMATION_SPEED = 500; // in milliseconds
+export const BASE_ANIMATION_SPEED = 2000; // in milliseconds
 
 function Sidebar() {
   // Graph store
@@ -40,7 +37,10 @@ function Sidebar() {
   const steps = useGraphStore((state) => state.steps);
   const currentAlgorithm = useGraphStore((state) => state.currentAlgorithm);
   const setSteps = useGraphStore((state) => state.setSteps);
+  const nextStepStore = useGraphStore((state) => state.nextStep);
+  const prevStepStore = useGraphStore((state) => state.prevStep);
   const setCurrentAlgorithm = useGraphStore((state) => state.setCurrentAlgorithm);
+  const setCurrentStepIndex = useGraphStore((state) => state.setCurrentStepIndex);
   const highlightNode = useGraphStore((state) => state.highlightNode);
   const highlightEdge = useGraphStore((state) => state.highlightEdge);
   const saveGraph = useGraphStore((state) => state.saveGraph);
@@ -50,16 +50,13 @@ function Sidebar() {
   const resetGraph = useGraphStore((state) => state.resetGraph);
 
   // Local state
-  const { showToast } = useToast();
+  const showToast = useToast().showToast;
   const [runMode, setRunMode] = useState<RunMode>("continuous");
   const [speed, setSpeed] = useState(100);
   const debouncedSpeed = useDebounce(speed, 300);
-  const currentStep = useRef(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [canBackward, setCanBackward] = useState(true);
   const [canForward, setCanForward] = useState(true);
-
-  console.log(steps)
 
   // Load steps when algorithm or graph changes
   useEffect(() => {
@@ -81,37 +78,56 @@ function Sidebar() {
   }, [edges, nodes, isDirected, currentAlgorithm]);
 
   // Step controls
-  const nextStep = () => {
-    if (currentStep.current < steps.length) {
-      const step = steps[currentStep.current].current;
-      console.log(step.message);
+  const nextStep = useCallback(() => {
+    const currentStepValue = useGraphStore.getState().currentStepIndex;
 
-      step.elements.forEach((element) => {
-        if (element.type === "node") {
-          highlightNode(element.id, element.classes, true);
-        } else if (element.type === "edge") {
-          highlightEdge(element.source.id, element.target.id, element.classes);
-        }
+    if (currentStepValue >= steps.length) {
+      showToast?.({
+        message: "No more steps available. Please reset or run a different algorithm.",
+        type: "info",
       });
-
-      currentStep.current++;
-      setCanBackward(currentStep.current > 0);
-      setCanForward(currentStep.current < steps.length);
+      return;
     }
-  };
 
-  const previousStep = () => {
-    if (currentStep.current > 0 && cyInstance) {
-      const currentStepData = steps[currentStep.current - 1].current;
-      const prevStepData = steps[currentStep.current - 1].prev;
-      const stepElements = currentStepData.elements;
+    const step = steps[currentStepValue].current;
 
-      stepElements.forEach((element, index) => {
+    step.elements.forEach((element) => {
+      if (element.type === "node") {
+        highlightNode(element.id, element.classes, true);
+      } else if (element.type === "edge") {
+        highlightEdge(element.source.id, element.target.id, element.classes);
+      }
+    });
+
+    nextStepStore();
+    setCanBackward(currentStepValue > 0);
+    setCanForward(currentStepValue + 1 < steps.length);
+  }, [steps, highlightNode, highlightEdge, nextStepStore]);
+
+  const previousStep = useCallback(() => {
+    const currentStepValue = useGraphStore.getState().currentStepIndex;
+
+    if (currentStepValue > 0 && cyInstance) {
+      const currentStepData = steps[currentStepValue - 1].current;
+      const prevStepData = steps[currentStepValue - 1].prev;
+      const currentStepElements = currentStepData.elements;
+      const prevStepElements = prevStepData.elements;
+
+      if (
+        !prevStepData ||
+        !currentStepElements ||
+        currentStepElements.length !== prevStepElements.length
+      ) {
+        console.error("Mismatched step elements length");
+        return;
+      }
+
+      currentStepElements.forEach((element, index) => {
         if (element.type === "node") {
           const revertNode = cyInstance.getElementById(element.id);
           if (revertNode) {
             revertNode.removeClass(element.classes);
-            revertNode.addClass(prevStepData.elements[index].classes);
+            revertNode.addClass(prevStepElements[index].classes);
           }
         } else if (element.type === "edge") {
           const revertEdge = cyInstance.edges(
@@ -119,16 +135,16 @@ function Sidebar() {
           );
           if (revertEdge) {
             revertEdge.removeClass(element.classes);
-            revertEdge.addClass(prevStepData.elements[index].classes);
+            revertEdge.addClass(prevStepElements[index].classes);
           }
         }
       });
 
-      currentStep.current -= 1;
-      setCanBackward(currentStep.current > 0);
-      setCanForward(currentStep.current < steps.length);
+      prevStepStore();
+      setCanBackward(currentStepValue > 0);
+      setCanForward(currentStepValue < steps.length);
     }
-  };
+  }, [steps, cyInstance, prevStepStore]);
 
   // Animation effect
   useEffect(() => {
@@ -137,7 +153,9 @@ function Sidebar() {
     if (runMode === "continuous" && steps?.length > 0 && isAnimating) {
       animationInterval = setInterval(
         () => {
-          if (currentStep.current < steps.length) {
+          const currentStepValue = useGraphStore.getState().currentStepIndex;
+
+          if (currentStepValue < steps.length) {
             nextStep();
           } else {
             clearInterval(animationInterval);
@@ -149,13 +167,13 @@ function Sidebar() {
     }
 
     return () => {
-      if (animationInterval) {
-        clearInterval(animationInterval);
-      }
+      clearInterval(animationInterval);
     };
   }, [isAnimating, runMode, steps, debouncedSpeed]);
 
   const handleToggleRun = async () => {
+    const currentStepValue = useGraphStore.getState().currentStepIndex;
+
     if (isAnimating) {
       // Pause animation
       setIsAnimating(false);
@@ -169,7 +187,7 @@ function Sidebar() {
         return;
       }
 
-      if (currentStep.current >= steps.length) {
+      if (currentStepValue >= steps.length) {
         handleReset();
       }
 
@@ -184,7 +202,7 @@ function Sidebar() {
 
   const handleReset = () => {
     resetGraph();
-    currentStep.current = 0;
+    setCurrentStepIndex(0);
     setIsAnimating(false);
     setSteps([]);
   };

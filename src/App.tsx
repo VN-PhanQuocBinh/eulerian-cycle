@@ -1,7 +1,7 @@
 import GraphCanvas from "./components/graph-canvas";
 import Sidebar from "./components/layouts/sidebar";
+import { BottomPanel } from "./components/layouts/bottom-panel";
 import { NodeInputProvider } from "./components/ui/node-input";
-import DebugPanel from "./components/debug-panel";
 import { ToastProvider } from "./components/ui/toast";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 
@@ -31,7 +31,7 @@ function App() {
 
                   <ResizablePanel defaultSize="25%" minSize="25%">
                     {/* <div className="w-full">Đang phát triển</div> */}
-                    <ResultPanel />
+                    <BottomPanel />
                   </ResizablePanel>
                 </ResizablePanelGroup>
               </NodeInputProvider>

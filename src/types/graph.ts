@@ -57,6 +57,9 @@ export type CurrentStep<T extends GenericStepType = StepNodeElement | StepEdgeEl
   message: string[];
   stack?: GraphNode[];
   circuit?: GraphNode[];
+
+  // Will set required after add pseudo code for connected components algorithm
+  highlightedPseudoCodeLineIds?: number[];
 };
 export type PrevStep = Pick<CurrentStep, "stack" | "circuit" | "elements">;
 
@@ -95,6 +98,7 @@ export interface GraphState {
   // Algorithm state
   currentAlgorithm: GraphAlgorithm | null;
   steps: StoredStep[];
+  currentStepIndex: number;
 
   // Actions
   setMode: (mode: GraphMode) => void;
@@ -103,6 +107,10 @@ export interface GraphState {
   setEhInstance: (instance: any) => void;
   getCurrentNodesData: () => GraphNode[];
   getCurrentEdgesData: () => GraphEdge[];
+
+  setCurrentStepIndex: (index: number) => void;
+  nextStep: () => void;
+  prevStep: () => void;
 
   // Algorithm state operations
   setCurrentAlgorithm: (algorithm: GraphAlgorithm | null) => void;
