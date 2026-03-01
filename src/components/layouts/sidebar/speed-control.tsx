@@ -25,11 +25,6 @@ function SpeedControl({ speed, disabled, setSpeed }: SpeedControlProps) {
         <span>Slow</span>
         <span>Fast</span>
       </div>
-      {disabled && (
-        <p className="text-xs text-slate-500 italic mt-1">
-          Speed control disabled in step-by-step mode
-        </p>
-      )}
     </section>
   );
 }

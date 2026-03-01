@@ -1,8 +1,8 @@
 import { useGraphStore } from "@/contexts/graph-context";
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useDebounce } from "@/hooks/use-debounce";
 import {
-  AlgorithmsSelect,
+  RunConfigSelect,
   RunModeSelect,
   SpeedControl,
   FileOperation,
@@ -14,6 +14,11 @@ import { generateEdgeSelector } from "@/utils";
 
 export const BASE_ANIMATION_SPEED = 2000; // in milliseconds
 
+const ALGORITHM_OPTIONS: { label: string; value: GraphAlgorithm }[] = [
+  { label: "Eulerian Cycle", value: "eulerian-cycle" },
+  { label: "Connected Components", value: "connected-components" },
+];
+
 function Sidebar() {
   // Graph store
   const isDirected = useGraphStore((state) => state.isDirected);
@@ -23,6 +28,8 @@ function Sidebar() {
   const steps = useGraphStore((state) => state.steps);
   const currentAlgorithm = useGraphStore((state) => state.currentAlgorithm);
   const speed = useGraphStore((state) => state.speed);
+  const isAnimating = useGraphStore((state) => state.isAnimating);
+  const setIsAnimating = useGraphStore((state) => state.setIsAnimating);
   const setSteps = useGraphStore((state) => state.setSteps);
   const nextStepStore = useGraphStore((state) => state.nextStep);
   const prevStepStore = useGraphStore((state) => state.prevStep);
@@ -39,9 +46,26 @@ function Sidebar() {
   const showToast = useToast().showToast;
   const [runMode, setRunMode] = useState<RunMode>("continuous");
   const debouncedSpeed = useDebounce(speed, 300);
-  const [isAnimating, setIsAnimating] = useState(false);
+  // const [isAnimating, setIsAnimating] = useState(false);
   const [canBackward, setCanBackward] = useState(true);
   const [canForward, setCanForward] = useState(true);
+  const startNodeOptions = useMemo(
+    () => nodes.map((node) => ({ label: node.label, value: node.id })),
+    [nodes],
+  );
+  const [startNodeId, setStartNodeId] = useState<string>("");
+
+  // Ensure startNodeId is valid when nodes change
+  useEffect(() => {
+    if (nodes.length > 0) {
+      const nodeExists = nodes.some((node) => node.id === startNodeId);
+      if (!startNodeId || !nodeExists) {
+        setStartNodeId(nodes[0].id);
+      }
+    } else {
+      setStartNodeId("");
+    }
+  }, [nodes]);
 
   const highlightElement = useCallback(
     (element: StoredStep["current"]["elements"][number]) => {
@@ -64,18 +88,20 @@ function Sidebar() {
         break;
       }
       case "eulerian-cycle": {
-        const { steps } = findEulerianCycle();
+        const { steps } = findEulerianCycle(startNodeId);
         setSteps(steps || []);
         break;
       }
       default:
         setSteps([]);
     }
-  }, [edges, nodes, isDirected, currentAlgorithm]);
+  }, [edges, nodes, startNodeId, isDirected, currentAlgorithm]);
 
   // Step controls
   const nextStep = useCallback(() => {
-    const currentStepValue = useGraphStore.getState().currentStepIndex;
+
+    const currentStepValue = useGraphStore.getState().currentStepIndex + 1;
+    nextStepStore();
 
     if (currentStepValue >= steps.length) {
       showToast?.({
@@ -88,7 +114,6 @@ function Sidebar() {
     const step = steps[currentStepValue].current;
 
     step.elements.forEach(highlightElement);
-    nextStepStore();
 
     setCanBackward(currentStepValue > 0);
     setCanForward(currentStepValue + 1 < steps.length);
@@ -195,7 +220,7 @@ function Sidebar() {
 
   const handleReset = () => {
     resetGraph();
-    setCurrentStepIndex(0);
+    setCurrentStepIndex(-1);
     setIsAnimating(false);
     setSteps([]);
 
@@ -206,10 +231,20 @@ function Sidebar() {
   return (
     <aside className="w-full h-full bg-white border-r space-y-4 border-slate-200 flex flex-col p-4 gap-4 overflow-y-auto">
       {/* ALGORITHM SELECTION */}
-      <AlgorithmsSelect
-        currentAlgorithm={currentAlgorithm || "eulerian-cycle"}
+      <RunConfigSelect<GraphAlgorithm>
+        title="Algorithm"
+        options={ALGORITHM_OPTIONS}
+        currentValue={currentAlgorithm || "eulerian-cycle"}
         isAnimating={isAnimating}
         onSelect={handleAlgorithmChange}
+      />
+
+      <RunConfigSelect
+        title="Starting Node"
+        options={startNodeOptions}
+        currentValue={startNodeId}
+        isAnimating={isAnimating}
+        onSelect={setStartNodeId}
       />
 
       {/* RUN MODE */}

@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { useGraphStore } from "@/contexts/graph-context";
 import { BASE_ANIMATION_SPEED } from "@/components/layouts/sidebar";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 interface PseudoCodeLine {
   id: number;
@@ -18,33 +18,51 @@ export function PseudoCodeViewer({ lines, className }: PseudoCodeViewerProps) {
   const currentStepIndex = useGraphStore((state) => state.currentStepIndex);
   const speed = useGraphStore((state) => state.speed);
   const steps = useGraphStore((state) => state.steps);
+
   const [currentHighlightedIndex, setCurrentHighlightedIndex] = useState<number>(0);
+  const [currentHighlightedIds, setCurrentHighlightedIds] = useState<number[]>([]);
 
-  const currentLineIds = steps[currentStepIndex]?.current?.highlightedPseudoCodeLineIds || [];
-
+  // Reset khi step thay đổi
   useEffect(() => {
-    if (!currentLineIds || currentLineIds.length === 0) {
+    setCurrentHighlightedIndex(0);
+    setCurrentHighlightedIds([]);
+  }, [currentStepIndex]);
+
+  // Animate qua từng line trong step hiện tại
+  useEffect(() => {
+
+    if (currentStepIndex < 0) {
+      setCurrentHighlightedIds([]);
       return;
     }
 
-    let animationInterval: NodeJS.Timeout;
+    const currentLineIds = steps[currentStepIndex]?.current.highlightedPseudoCodeLineIds || [];
 
-    animationInterval = setInterval(
-      () => {
-        setCurrentHighlightedIndex((prev) => {
-          if (prev >= currentLineIds.length - 1) {
-            clearInterval(animationInterval);
-            return 0;
-          }
+    if (!currentLineIds || currentLineIds.length === 0) {
+      setCurrentHighlightedIds([]);
+      return;
+    }
 
-          return prev + 1;
-        });
-      },
-      BASE_ANIMATION_SPEED / currentLineIds.length / (speed / 100),
-    );
+    // Nếu đã hết lines trong step này, hiện tất cả
+    if (currentHighlightedIndex >= currentLineIds.length) {
+      return;
+    }
 
-    return () => clearInterval(animationInterval);
-  }, [currentLineIds, speed]);
+    const duration =
+      (BASE_ANIMATION_SPEED - 100) / (speed / 100) / (currentLineIds.length + 1 || 1);
+
+    const timer = setTimeout(() => {
+
+      const lineToHighlight = currentLineIds[currentHighlightedIndex];
+      const newIds = Array.isArray(lineToHighlight) ? lineToHighlight : [lineToHighlight];
+
+      // Accumulate: giữ lại các dòng đã highlight trước đó
+      setCurrentHighlightedIds(() => [...newIds]);
+      setCurrentHighlightedIndex((prev) => prev + 1);
+    }, duration);
+
+    return () => clearTimeout(timer);
+  }, [currentStepIndex, currentHighlightedIndex, speed, steps]);
 
   return (
     <div
@@ -57,22 +75,19 @@ export function PseudoCodeViewer({ lines, className }: PseudoCodeViewerProps) {
         {lines.map((line) => (
           <div
             key={line.id}
-            className={cn(
-              "py-1.5 px-3 rounded transition-colors duration-200 flex",
-              line.id === currentLineIds[currentHighlightedIndex] &&
-                "bg-primary/10 border-l-2 border-primary",
-            )}
+            className={cn("py-1.5 px-3 rounded transition-colors duration-200 flex", {
+              "bg-primary/10": currentHighlightedIds.includes(line.id),
+            })}
           >
-            <span className="inline-block w-8 text-slate-400 select-none mr-4 flex-shrink-0">
+            <span className="inline-block w-8 text-slate-400 select-none mr-4 shrink-0">
               {line.id}
             </span>
             <span
-              className={cn(
-                "text-slate-900 dark:text-slate-300",
-                line.id === currentLineIds[currentHighlightedIndex] &&
-                  "font-semibold text-slate-900 dark:text-slate-100",
-                "font-semibold text-slate-900 dark:text-slate-100",
-              )}
+              className={cn("text-slate-900 dark:text-slate-300", {
+                "font-semibold text-slate-900 dark:text-slate-100": currentHighlightedIds.includes(
+                  line.id,
+                ),
+              })}
               style={{ paddingLeft: `${line.indent * 24}px` }}
             >
               {line.text}

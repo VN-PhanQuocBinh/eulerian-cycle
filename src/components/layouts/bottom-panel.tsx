@@ -1,6 +1,6 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import ResultPanel from "../algorithm-result-panel";
-import { PseudoCodeViewer, HIERHOLZER_PSEUDOCODE } from "../algorithm-result-panel/eulerian-pseudo-code";
+import ResultPanel from "./algorithm-result-panel";
+import { PseudoCodeViewer, HIERHOLZER_PSEUDOCODE } from "./algorithm-result-panel/eulerian-pseudo-code";
 
 export function BottomPanel() {
   return (

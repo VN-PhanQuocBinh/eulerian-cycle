@@ -59,7 +59,7 @@ export type CurrentStep<T extends GenericStepType = StepNodeElement | StepEdgeEl
   circuit?: GraphNode[];
 
   // Will set required after add pseudo code for connected components algorithm
-  highlightedPseudoCodeLineIds?: number[];
+  highlightedPseudoCodeLineIds?: Array<number | Array<number>>;
 };
 export type PrevStep = Pick<CurrentStep, "stack" | "circuit" | "elements">;
 
@@ -98,6 +98,7 @@ export interface GraphState {
   // Algorithm state
   currentAlgorithm: GraphAlgorithm | null;
   steps: StoredStep[];
+  isAnimating: boolean;
   currentStepIndex: number;
   speed: number;
 
@@ -109,6 +110,7 @@ export interface GraphState {
   getCurrentNodesData: () => GraphNode[];
   getCurrentEdgesData: () => GraphEdge[];
 
+  setIsAnimating: (isAnimating: boolean) => void;
   setCurrentStepIndex: (index: number) => void;
   setSpeed: (speed: number) => void;
   nextStep: () => void;
@@ -144,12 +146,16 @@ export interface GraphState {
   loadGraph: () => Promise<string>;
 
   // Algorithm implementations
-  findConnectedComponents: () => {
+  findConnectedComponents: (startNodeId?: string) => {
     components: string[][];
     steps: StoredStep[];
   };
   checkEulerianCycle: () => { exists: boolean; reason?: string };
-  findEulerianCycle: () => { cycle: string[] | null; steps: Step[]; message?: string };
+  findEulerianCycle: (startNodeId?: string) => {
+    cycle: string[] | null;
+    steps: Step[];
+    message?: string;
+  };
 
   // Algorithm operations
   getAdjacencyList: () => Map<string, GraphNode[]>;
