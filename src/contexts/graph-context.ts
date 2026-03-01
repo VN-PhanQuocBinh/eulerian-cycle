@@ -24,7 +24,7 @@ export const useGraphStore = create<GraphState>()(
       ehInstance: null,
 
       // Algorithm state
-      currentAlgorithm: "eulerian-cycle",
+      currentAlgorithm: "connected-components",
       isAnimating: false,
       steps: [],
       currentStepIndex: -1,
@@ -423,6 +423,8 @@ export const useGraphStore = create<GraphState>()(
             const current = queue.shift()!;
             component.push(current);
 
+            const currentNode = cyInstance.getElementById(current);
+
             // Record step for visiting node
             steps.push({
               prev: {
@@ -430,8 +432,8 @@ export const useGraphStore = create<GraphState>()(
                   {
                     type: "node",
                     id: current,
-                    label: cyInstance.getElementById(current).data("label"),
-                    classes: cyInstance.getElementById(current).classes(),
+                    label: currentNode.data("label"),
+                    classes: currentNode.classes(),
                   },
                 ],
               },
@@ -440,12 +442,12 @@ export const useGraphStore = create<GraphState>()(
                   {
                     type: "node",
                     id: current,
-                    label: cyInstance.getElementById(current).data("label"),
+                    label: currentNode.data("label"),
                     classes: [`component-${componentIndex % COMPONENT_COLORS.length}`],
                   },
                 ],
                 action: "visit",
-                message: [`Visited node ${current}`],
+                message: [`Visited node ${currentNode.data("label")}`],
               },
             });
 
@@ -454,6 +456,7 @@ export const useGraphStore = create<GraphState>()(
             for (const neighbor of neighbors) {
               if (!visited.has(neighbor.id)) {
                 visited.add(neighbor.id);
+                const neighborNode = cyInstance.getElementById(neighbor.id);
 
                 // Highlight edge being explored
                 let processingEdge = cyInstance.edges(
@@ -474,12 +477,12 @@ export const useGraphStore = create<GraphState>()(
                         source: {
                           type: "node",
                           id: current,
-                          label: cyInstance.getElementById(current).data("label"),
+                          label: currentNode.data("label"),
                         },
                         target: {
                           type: "node",
                           id: neighbor.id,
-                          label: cyInstance.getElementById(neighbor.id).data("label"),
+                          label: neighborNode.data("label"),
                         },
                         classes: processingEdge[0].classes(),
                       },
@@ -493,18 +496,18 @@ export const useGraphStore = create<GraphState>()(
                         source: {
                           type: "node",
                           id: current,
-                          label: cyInstance.getElementById(current).data("label"),
+                          label: currentNode.data("label"),
                         },
                         target: {
                           type: "node",
                           id: neighbor.id,
-                          label: cyInstance.getElementById(neighbor.id).data("label"),
+                          label: neighborNode.data("label"),
                         },
                         classes: [`component-${componentIndex % COMPONENT_COLORS.length}`],
                       },
                     ],
                     action: "visit",
-                    message: [`Visited edge from ${current} to ${neighbor.id}`],
+                    message: [`Visited edge from ${currentNode.data("label")} to ${neighborNode.data("label")}`],
                   },
                 });
 
