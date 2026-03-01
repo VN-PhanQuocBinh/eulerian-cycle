@@ -25,8 +25,9 @@ export const useGraphStore = create<GraphState>()(
 
       // Algorithm state
       currentAlgorithm: "eulerian-cycle",
+      isAnimating: false,
       steps: [],
-      currentStepIndex: 0,
+      currentStepIndex: -1,
       speed: 100,
 
       // Toast handler
@@ -63,16 +64,17 @@ export const useGraphStore = create<GraphState>()(
       setCurrentAlgorithm: (algorithm) => set({ currentAlgorithm: algorithm }),
       setSteps: (steps) => set({ steps }),
 
+      setIsAnimating: (isAnimating) => set({ isAnimating }),
       setCurrentStepIndex: (index) => set({ currentStepIndex: index }),
       setSpeed: (speed) => set({ speed }),
       nextStep: () => {
         const { currentStepIndex, steps } = get();
-        console.log(
-          "Next step called. Current index:",
-          currentStepIndex,
-          "Total steps:",
-          steps.length,
-        );
+        // console.log(
+        //   "Next step called. Current index:",
+        //   currentStepIndex,
+        //   "Total steps:",
+        //   steps.length,
+        // );
         if (currentStepIndex < steps.length) {
           set({ currentStepIndex: currentStepIndex + 1 });
         }
@@ -595,24 +597,43 @@ export const useGraphStore = create<GraphState>()(
         const adjacencyList = getAdjacencyList();
 
         // Initialize starting point
+
+        if (!startNodeId) {
+          return {
+            cycle: null,
+            steps: [],
+            message: `Start node ID ${startNodeId} not found. Starting from default node.`,
+          };
+        }
+
         let startIndex = 0;
-        if (startNodeId) {
-          const index = nodes.findIndex((n) => n.id === startNodeId);
-          if (index !== -1) {
-            startIndex = index;
-          } else {
-            return {
-              cycle: null,
-              steps: [],
-              message: `Start node ID ${startNodeId} not found. Starting from default node.`,
-            };
-          }
+        const startNodeIndex = nodes.findIndex((n) => n.id === startNodeId);
+        if (startNodeIndex !== -1) {
+          startIndex = startNodeIndex;
+        } else {
         }
 
         // Hierholzer's Algorithm
         const circuit: GraphNode[] = [];
         const stack: GraphNode[] = [nodes[startIndex]];
         const visitedEdges = new Set<string>();
+
+        steps.push({
+          prev: {
+            elements: [],
+          },
+          current: {
+            elements: [],
+            highlightedPseudoCodeLineIds: [[2, 3, 4], 5],
+            action: "traverse",
+            message: [
+              "Copy Graph and initialize stack",
+              `Initializing stack with starting node ${nodes[startIndex].label}`,
+            ],
+            stack: [nodes[startIndex]],
+            circuit: [],
+          },
+        });
 
         while (stack.length > 0) {
           const currentNode = stack[stack.length - 1];
@@ -685,7 +706,7 @@ export const useGraphStore = create<GraphState>()(
                     classes: ["in-cycle"],
                   },
                 ],
-                highlightedPseudoCodeLineIds: [7, 9, 10, 11],
+                highlightedPseudoCodeLineIds: [[6, 7], 8, [9, 10], 11],
                 action: "traverse",
                 message: [
                   `Exploring from node ${currentNode.label}`,
@@ -721,7 +742,7 @@ export const useGraphStore = create<GraphState>()(
                     classes: ["in-cycle"],
                   },
                 ],
-                highlightedPseudoCodeLineIds: [7, 13, 14],
+                highlightedPseudoCodeLineIds: [[6, 7], 12, 13, 14],
                 action: "add-to-circuit",
                 message: [
                   `Exploring from node ${currentNode.label}`,
@@ -736,6 +757,23 @@ export const useGraphStore = create<GraphState>()(
         }
 
         circuit.reverse();
+
+        steps.push({
+          prev: {
+            elements: [],
+          },
+          current: {
+            elements: [],
+            highlightedPseudoCodeLineIds: [15, 16],
+            action: "traverse",
+            message: [
+              "Reverse the circuit to get correct order",
+              `Eulerian cycle found successfully.`,
+            ],
+            stack: [],
+            circuit: [...circuit],
+          },
+        });
 
         return {
           cycle: circuit,

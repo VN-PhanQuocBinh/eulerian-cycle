@@ -28,6 +28,8 @@ function Sidebar() {
   const steps = useGraphStore((state) => state.steps);
   const currentAlgorithm = useGraphStore((state) => state.currentAlgorithm);
   const speed = useGraphStore((state) => state.speed);
+  const isAnimating = useGraphStore((state) => state.isAnimating);
+  const setIsAnimating = useGraphStore((state) => state.setIsAnimating);
   const setSteps = useGraphStore((state) => state.setSteps);
   const nextStepStore = useGraphStore((state) => state.nextStep);
   const prevStepStore = useGraphStore((state) => state.prevStep);
@@ -44,7 +46,7 @@ function Sidebar() {
   const showToast = useToast().showToast;
   const [runMode, setRunMode] = useState<RunMode>("continuous");
   const debouncedSpeed = useDebounce(speed, 300);
-  const [isAnimating, setIsAnimating] = useState(false);
+  // const [isAnimating, setIsAnimating] = useState(false);
   const [canBackward, setCanBackward] = useState(true);
   const [canForward, setCanForward] = useState(true);
   const startNodeOptions = useMemo(
@@ -97,7 +99,9 @@ function Sidebar() {
 
   // Step controls
   const nextStep = useCallback(() => {
-    const currentStepValue = useGraphStore.getState().currentStepIndex;
+
+    const currentStepValue = useGraphStore.getState().currentStepIndex + 1;
+    nextStepStore();
 
     if (currentStepValue >= steps.length) {
       showToast?.({
@@ -110,7 +114,6 @@ function Sidebar() {
     const step = steps[currentStepValue].current;
 
     step.elements.forEach(highlightElement);
-    nextStepStore();
 
     setCanBackward(currentStepValue > 0);
     setCanForward(currentStepValue + 1 < steps.length);
@@ -217,7 +220,7 @@ function Sidebar() {
 
   const handleReset = () => {
     resetGraph();
-    setCurrentStepIndex(0);
+    setCurrentStepIndex(-1);
     setIsAnimating(false);
     setSteps([]);
 

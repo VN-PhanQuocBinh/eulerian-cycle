@@ -49,9 +49,12 @@ export function EulerianCycleStepsTable({ steps }: Props) {
             const isPastStep = index < currentStepIndex;
             const elements = step.current.elements;
 
-            const currentNode: StepNodeElement = elements.filter((el) => el.type === "node")[0];
-            const nextNode: StepNodeElement = elements.filter((el) => el.type === "edge")[0]
-              ?.target;
+            const currentNode: StepNodeElement | undefined = elements.filter(
+              (el) => el.type === "node",
+            )[0];
+            const nextNode: StepNodeElement | undefined = elements.filter(
+              (el) => el.type === "edge",
+            )[0]?.target;
 
             return (
               <TableRow
@@ -67,9 +70,13 @@ export function EulerianCycleStepsTable({ steps }: Props) {
 
                 {/* Element */}
                 <TableCell className="px-3 py-2 text-center">
-                  <span className="size-5 text-gray-700 bg-slate-100 px-2 py-0.5 rounded">
-                    {currentNode.label}
-                  </span>
+                  {currentNode ? (
+                    <span className="size-5 text-gray-700 bg-slate-100 px-2 py-0.5 rounded">
+                      {currentNode.label}
+                    </span>
+                  ) : (
+                    <span className="text-gray-400 italic">_</span>
+                  )}
                 </TableCell>
 
                 {/* Element */}

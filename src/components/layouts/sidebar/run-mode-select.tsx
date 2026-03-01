@@ -1,4 +1,3 @@
-import { FastForward } from "lucide-react";
 import { cn } from "@/utils/cn";
 
 export type RunMode = "continuous" | "step-by-step";
@@ -14,7 +13,6 @@ function RunModeSelect({ className, currentRunMode, isAnimating, onSelect }: Run
   return (
     <section className={cn("", className)}>
       <h3 className="text-base font-semibold text-slate-700 mb-2 flex items-center gap-2">
-        <FastForward size={16} />
         Run Mode
       </h3>
       <div className="space-y-2 pl-2">
