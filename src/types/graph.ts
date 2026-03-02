@@ -57,6 +57,7 @@ export type CurrentStep<T extends GenericStepType = StepNodeElement | StepEdgeEl
   message: string[];
   stack?: GraphNode[];
   circuit?: GraphNode[];
+  visited?: Set<string>;
 
   // Will set required after add pseudo code for connected components algorithm
   highlightedPseudoCodeLineIds?: Array<number | Array<number>>;
@@ -77,6 +78,7 @@ export type RunMode = "step-by-step" | "continuous";
 export interface ConnectedComponentsResult {
   components: string[][];
   steps: StoredStep[];
+  message: string;
 }
 
 export interface GraphData {
@@ -149,6 +151,7 @@ export interface GraphState {
   findConnectedComponents: (startNodeId?: string) => {
     components: string[][];
     steps: StoredStep[];
+    message: string;
   };
   checkEulerianCycle: () => { exists: boolean; reason?: string };
   findEulerianCycle: (startNodeId?: string) => {

@@ -397,14 +397,23 @@ export const useGraphStore = create<GraphState>()(
 
       // ========== ALGORITHM IMPLEMENTATIONS ==========
       findConnectedComponents: (startNodeId: string): ConnectedComponentsResult => {
-        const { nodes, cyInstance, getAdjacencyList } = get();
+        const startNodeExists = get().nodes.some((n) => n.id === startNodeId);
+        if (!startNodeExists) {
+          return {
+            components: [],
+            steps: [],
+            message: `Start node ID "${startNodeId}" not found. Starting from default node.`,
+          };
+        }
 
+        const { nodes, cyInstance, getAdjacencyList } = get();
         const steps: ConnectedComponentsResult["steps"] = [];
 
         if (nodes.length === 0 || !cyInstance) {
           return {
             components: [],
             steps: [],
+            message: "Graph is empty. Please add nodes and edges to run the algorithm.",
           };
         }
 
@@ -412,18 +421,51 @@ export const useGraphStore = create<GraphState>()(
         const visited = new Set<string>();
         const components: string[][] = [];
 
-        // BFS with animation
-        const animatedBFS = (startNode: string, componentIndex: number): string[] => {
-          const queue: string[] = [startNode];
-          const component: string[] = [];
+        steps.push({
+          prev: {
+            elements: [],
+          },
+          current: {
+            elements: [],
+            action: "component-complete",
+            message: ["Initialize visited set and components list."],
+            visited,
+            highlightedPseudoCodeLineIds: [1],
+          },
+        });
 
-          visited.add(startNode);
+        // BFS with animation
+        const animatedBFS = (startNodeId: string, componentIndex: number): string[] => {
+          const queue: string[] = [startNodeId];
+          const component: string[] = [];
+          const startNodeElement = cyInstance.getElementById(startNodeId);
+
+          visited.add(startNodeId);
+
+          steps.push({
+            prev: {
+              elements: [],
+            },
+            current: {
+              elements: [],
+              action: "traverse",
+              message: [
+                `Starting new component from node ${startNodeElement.data("label")}.`,
+                `Initialize queue with ${startNodeElement.data("label")} and empty component list.`,
+                `Mark ${startNodeElement.data("label")} as visited and enqueue it.`,
+                "Exploring neighbors and building component...",
+              ],
+              visited,
+              highlightedPseudoCodeLineIds: [14, [15, 16], 2, 3],
+            },
+          });
 
           while (queue.length > 0) {
             const current = queue.shift()!;
             component.push(current);
 
             const currentNode = cyInstance.getElementById(current);
+            const neighbors = adjacencyList.get(current) || [];
 
             // Record step for visiting node
             steps.push({
@@ -448,10 +490,10 @@ export const useGraphStore = create<GraphState>()(
                 ],
                 action: "visit",
                 message: [`Visited node ${currentNode.data("label")}`],
+                visited,
+                highlightedPseudoCodeLineIds: [4, [5, 6]],
               },
             });
-
-            const neighbors = adjacencyList.get(current) || [];
 
             for (const neighbor of neighbors) {
               if (!visited.has(neighbor.id)) {
@@ -507,7 +549,11 @@ export const useGraphStore = create<GraphState>()(
                       },
                     ],
                     action: "visit",
-                    message: [`Visited edge from ${currentNode.data("label")} to ${neighborNode.data("label")}`],
+                    message: [
+                      `Visited edge from ${currentNode.data("label")} to ${neighborNode.data("label")}`,
+                    ],
+                    visited,
+                    highlightedPseudoCodeLineIds: [7, [8, 9], 10],
                   },
                 });
 
@@ -520,6 +566,10 @@ export const useGraphStore = create<GraphState>()(
           return component;
         };
 
+        // Start BFS from the first unvisited node
+        const component = animatedBFS(startNodeId, 0);
+        components.push(component);
+
         // Main algorithm loop
         for (let i = 0; i < nodes.length; i++) {
           const node = nodes[i];
@@ -529,9 +579,23 @@ export const useGraphStore = create<GraphState>()(
           }
         }
 
+        steps.push({
+          prev: {
+            elements: [],
+          },
+          current: {
+            elements: [],
+            action: "traverse",
+            message: ["All nodes visited. Connected components identified."],
+            visited,
+            highlightedPseudoCodeLineIds: [18],
+          },
+        });
+
         return {
           components,
           steps,
+          message: `Found ${components.length} connected component(s).`,
         };
       },
 

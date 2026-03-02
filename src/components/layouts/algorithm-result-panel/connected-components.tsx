@@ -62,7 +62,6 @@ export function ConnectedComponentsStepsTable({ steps }: Props) {
           <TableRow className="border-b border-blue-200">
             <TableHead className="w-10 bg-gray-100 text-blue-800">Step</TableHead>
             <TableHead className="bg-gray-100 text-blue-800 text-center">Element</TableHead>
-            {/* <TableHead className="bg-gray-100 text-blue-800 text-center">Type</TableHead> */}
             <TableHead className="bg-gray-100 text-blue-800">Component</TableHead>
             <TableHead className="bg-gray-100 text-blue-800">Visited Nodes</TableHead>
             <TableHead className="bg-gray-100 text-blue-800">Explain</TableHead>
@@ -75,32 +74,47 @@ export function ConnectedComponentsStepsTable({ steps }: Props) {
             const element = step.current.elements[0];
 
             // Determine component index from classes
-            let componentIndex = 0;
+            let componentIndex = -1;
             if (element) {
               const componentClass = element.classes.find((cls) => cls.startsWith("component-"));
+
+              console.log(
+                "Component class:",
+                componentClass,
+                "step index:",
+                index,
+                "color index:",
+                componentIndex % COMPONENT_COLORS.length,
+              );
+
               if (componentClass) {
                 componentIndex = parseInt(componentClass.split("-")[1]);
               }
             }
 
-            const componentColor = COMPONENT_COLORS[componentIndex % COMPONENT_COLORS.length];
+            const componentColor =
+              componentIndex >= 0
+                ? COMPONENT_COLORS[componentIndex % COMPONENT_COLORS.length]
+                : "transparent";
 
+            const visitedNodes = Array.from(step.current.visited || new Set<string>()).map(
+              (nodeId) => {
+                const node = useGraphStore.getState().nodes.find((n) => n.id === nodeId);
+                return node ? node.label : nodeId;
+              },
+            );
             // Collect all visited nodes up to this step
-            const visitedNodes = new Set<string>();
-            for (let i = 0; i <= index; i++) {
-              const el = steps[i].current.elements[0];
-              if (el?.type === "node") {
-                visitedNodes.add(el.label);
-              }
-            }
+            // const visitedNodes = new Set<string>();
+            // for (let i = 0; i <= index; i++) {
+            //   const el = steps[i].current.elements[0];
+            //   if (el?.type === "node") {
+            //     visitedNodes.add(el.label);
+            //   }
+            // }
 
             return (
               <TableRow
                 key={index}
-                // className={`
-                //   ${isCurrentStep ? "bg-blue-50 border-l-4 border-l-blue-500" : ""}
-                //   ${isPastStep ? "bg-green-50/30" : ""}
-                // `}
                 className={cn("", {
                   "bg-blue-50 border-l-4 border-l-blue-500": isCurrentStep,
                   "bg-green-50/30": isPastStep,
@@ -131,40 +145,27 @@ export function ConnectedComponentsStepsTable({ steps }: Props) {
                   )}
                 </TableCell>
 
-                {/* Type */}
-                {/* <TableCell className="px-3 py-2 text-center">
-                  {element?.type === "node" ? (
-                    <span className="px-2 py-0.5 rounded text-xs bg-blue-100 text-blue-700">
-                      Node
-                    </span>
-                  ) : element?.type === "edge" ? (
-                    <span className="px-2 py-0.5 rounded text-xs bg-green-100 text-green-700">
-                      Edge
-                    </span>
-                  ) : (
-                    <span className="text-gray-400 italic">_</span>
-                  )}
-                </TableCell> */}
-
                 {/* Component */}
                 <TableCell className="px-3 py-2">
-                  <span
-                    className={cn("px-2 py-0.5 rounded bg-gray-100 font-medium")}
-                    style={{
-                      color: componentColor,
-                    }}
-                  >
-                    Component {componentIndex + 1}
-                  </span>
+                  {componentIndex >= 0 && (
+                    <span
+                      className={cn("px-2 py-0.5 rounded bg-gray-100 font-medium")}
+                      style={{
+                        color: componentColor,
+                      }}
+                    >
+                      Component {componentIndex + 1}
+                    </span>
+                  )}
                 </TableCell>
 
                 {/* Visited Nodes */}
                 <TableCell className="px-3 py-2">
                   <div className="flex items-center max-w-[200px]">
-                    {visitedNodes.size > 0 ? (
+                    {visitedNodes.length > 0 ? (
                       <>
                         <div className="flex-1 flex items-center gap-2 flex-wrap">
-                          {Array.from(visitedNodes).map((nodeLabel, idx) => (
+                          {visitedNodes.map((nodeLabel, idx) => (
                             <span
                               key={idx}
                               className="px-1.5 py-0.5 rounded text-xs text-gray-700 bg-gray-100"
@@ -173,7 +174,7 @@ export function ConnectedComponentsStepsTable({ steps }: Props) {
                             </span>
                           ))}
                         </div>
-                        <CopyButton text={arrayToString(Array.from(visitedNodes))} />
+                        <CopyButton text={arrayToString(visitedNodes)} />
                       </>
                     ) : (
                       <span className="text-gray-400 italic">No nodes visited</span>

@@ -82,7 +82,8 @@ function Sidebar() {
   useEffect(() => {
     switch (currentAlgorithm) {
       case "connected-components": {
-        const { steps } = findConnectedComponents();
+        const { steps, message } = findConnectedComponents(startNodeId);
+        console.log(message);
         setSteps(steps || []);
 
         break;
@@ -99,7 +100,6 @@ function Sidebar() {
 
   // Step controls
   const nextStep = useCallback(() => {
-
     const currentStepValue = useGraphStore.getState().currentStepIndex + 1;
     nextStepStore();
 
