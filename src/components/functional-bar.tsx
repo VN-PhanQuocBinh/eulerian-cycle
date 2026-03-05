@@ -1,7 +1,6 @@
 import { MousePointer2, PlusCircle, Trash2, SplinePointer } from "lucide-react";
-import { Tooltip } from "@/components/ui/tooltip";
-import { cn } from "@/utils/cn";
 import { useGraphStore } from "@/contexts/graph-context";
+import FunctionButton from "@/components/ui/function-button";
 
 function FunctionalBar() {
   const { mode, setMode, clearGraph } = useGraphStore();
@@ -12,56 +11,37 @@ function FunctionalBar() {
 
   return (
     <div className="absolute top-4 right-4 z-10 flex gap-2">
-      <Tooltip content="Chọn / Di chuyển">
-        <button
-          onClick={() => setMode("view")}
-          className={cn(
-            "flex justify-start items-center gap-2 bg-white p-3  rounded-lg shadow border text-sm hover:bg-slate-50 transition-all",
-            {
-              "bg-blue-600! text-white": mode === "view",
-            },
-          )}
-        >
-          <MousePointer2 size={18} />
-        </button>
-      </Tooltip>
+      <FunctionButton
+        onClick={() => setMode("view")}
+        tooltipContent="Chọn / Di chuyển"
+        icon={MousePointer2}
+        side="bottom"
+        active={mode === "view"}
+      />
 
-      <Tooltip content="Thêm cạnh">
-        <button
-          onClick={() => setMode("add-edge")}
-          className={cn(
-            "flex items-center gap-2 bg-white px-3 py-2 rounded-lg shadow border text-sm hover:bg-slate-50 transition-all",
-            {
-              "bg-blue-600! text-white": mode === "add-edge",
-            },
-          )}
-        >
-          <SplinePointer size={16} />
-        </button>
-      </Tooltip>
+      <FunctionButton
+        onClick={() => setMode("add-edge")}
+        tooltipContent="Thêm cạnh"
+        icon={SplinePointer}
+        side="bottom"
+        active={mode === "add-edge"}
+      />
 
-      <Tooltip content="Thêm đỉnh">
-        <button
-          onClick={() => setMode("add-node")}
-          className={cn(
-            "flex items-center gap-2 bg-white px-3 py-2 rounded-lg shadow border text-sm hover:bg-slate-50 transition-all",
-            {
-              "bg-blue-600! text-white": mode === "add-node",
-            },
-          )}
-        >
-          <PlusCircle size={16} />
-        </button>
-      </Tooltip>
+      <FunctionButton
+        onClick={() => setMode("add-node")}
+        tooltipContent="Thêm đỉnh"
+        icon={PlusCircle}
+        side="bottom"
+        active={mode === "add-node"}
+      />
 
-      <Tooltip content="Xóa hết đồ thị">
-        <button
-          onClick={handleClear}
-          className="flex items-center gap-2 bg-red-50 text-red-600 px-3 py-2 rounded-lg shadow border text-sm hover:bg-red-100 transition-all"
-        >
-          <Trash2 size={16} />
-        </button>
-      </Tooltip>
+      <FunctionButton
+        onClick={handleClear}
+        tooltipContent="Xóa hết đồ thị"
+        icon={Trash2}
+        side="bottom"
+        className="bg-red-50 text-red-600 hover:bg-red-100"
+      />
     </div>
   );
 }

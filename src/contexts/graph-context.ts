@@ -10,6 +10,7 @@ import type {
   GraphData,
 } from "@/types/graph";
 import { COMPONENT_COLORS } from "@/types/styles";
+import { ALGORITHM_LAYOUT_CONFIGS } from "@/configs/graph-layouts";
 
 export const useGraphStore = create<GraphState>()(
   devtools(
@@ -24,7 +25,7 @@ export const useGraphStore = create<GraphState>()(
       ehInstance: null,
 
       // Algorithm state
-      currentAlgorithm: "eulerian-cycle",
+      currentAlgorithm: "connected-components",
       isAnimating: false,
       steps: [],
       currentStepIndex: -1,
@@ -69,12 +70,6 @@ export const useGraphStore = create<GraphState>()(
       setSpeed: (speed) => set({ speed }),
       nextStep: () => {
         const { currentStepIndex, steps } = get();
-        // console.log(
-        //   "Next step called. Current index:",
-        //   currentStepIndex,
-        //   "Total steps:",
-        //   steps.length,
-        // );
         if (currentStepIndex < steps.length) {
           set({ currentStepIndex: currentStepIndex + 1 });
         }
@@ -234,6 +229,17 @@ export const useGraphStore = create<GraphState>()(
         });
       },
 
+      autoLayout: () => {
+        const { cyInstance, currentAlgorithm } = get();
+
+        if (!cyInstance || !currentAlgorithm) return;
+
+        const layoutConfig = ALGORITHM_LAYOUT_CONFIGS[currentAlgorithm];
+        if (layoutConfig) {
+          cyInstance.layout(layoutConfig).run();
+        }
+      },
+
       // File operations
       saveGraph: async () => {
         const { getCurrentEdgesData, getCurrentNodesData, toastHandler } = get();
@@ -307,6 +313,27 @@ export const useGraphStore = create<GraphState>()(
         } catch (error) {
           toastHandler({
             message: "Failed to parse graph file",
+            type: "error",
+          });
+        }
+      },
+
+      saveImage: async () => {
+        const { cyInstance, toastHandler } = get();
+        if (!cyInstance) return;
+        try {
+          const pngData = cyInstance.png({ full: true, bg: "white" });
+
+          await (window as any).ipcRenderer.saveImage(pngData);
+
+          toastHandler({
+            message: "Image saved successfully.",
+            type: "success",
+          });
+        } catch (error) {
+          console.error("Error saving image:", error);
+          toastHandler({
+            message: "Failed to save image.",
             type: "error",
           });
         }
@@ -397,14 +424,23 @@ export const useGraphStore = create<GraphState>()(
 
       // ========== ALGORITHM IMPLEMENTATIONS ==========
       findConnectedComponents: (startNodeId: string): ConnectedComponentsResult => {
-        const { nodes, cyInstance, getAdjacencyList } = get();
+        const startNodeExists = get().nodes.some((n) => n.id === startNodeId);
+        if (!startNodeExists) {
+          return {
+            components: [],
+            steps: [],
+            message: `Start node ID "${startNodeId}" not found. Starting from default node.`,
+          };
+        }
 
+        const { nodes, cyInstance, getAdjacencyList } = get();
         const steps: ConnectedComponentsResult["steps"] = [];
 
         if (nodes.length === 0 || !cyInstance) {
           return {
             components: [],
             steps: [],
+            message: "Graph is empty. Please add nodes and edges to run the algorithm.",
           };
         }
 
@@ -412,16 +448,51 @@ export const useGraphStore = create<GraphState>()(
         const visited = new Set<string>();
         const components: string[][] = [];
 
-        // BFS with animation
-        const animatedBFS = (startNode: string, componentIndex: number): string[] => {
-          const queue: string[] = [startNode];
-          const component: string[] = [];
+        steps.push({
+          prev: {
+            elements: [],
+          },
+          current: {
+            elements: [],
+            action: "component-complete",
+            message: ["Initialize visited set and components list."],
+            visited,
+            highlightedPseudoCodeLineIds: [12, 13],
+          },
+        });
 
-          visited.add(startNode);
+        // BFS with animation
+        const animatedBFS = (startNodeId: string, componentIndex: number): string[] => {
+          const queue: string[] = [startNodeId];
+          const component: string[] = [];
+          const startNodeElement = cyInstance.getElementById(startNodeId);
+
+          visited.add(startNodeId);
+
+          steps.push({
+            prev: {
+              elements: [],
+            },
+            current: {
+              elements: [],
+              action: "traverse",
+              message: [
+                `Starting new component from node ${startNodeElement.data("label")}.`,
+                `Initialize queue with ${startNodeElement.data("label")} and empty component list.`,
+                `Mark ${startNodeElement.data("label")} as visited and enqueue it.`,
+                "Exploring neighbors and building component...",
+              ],
+              visited,
+              highlightedPseudoCodeLineIds: [14, [15, 16], 2, 3],
+            },
+          });
 
           while (queue.length > 0) {
             const current = queue.shift()!;
             component.push(current);
+
+            const currentNode = cyInstance.getElementById(current);
+            const neighbors = adjacencyList.get(current) || [];
 
             // Record step for visiting node
             steps.push({
@@ -430,8 +501,8 @@ export const useGraphStore = create<GraphState>()(
                   {
                     type: "node",
                     id: current,
-                    label: cyInstance.getElementById(current).data("label"),
-                    classes: cyInstance.getElementById(current).classes(),
+                    label: currentNode.data("label"),
+                    classes: currentNode.classes(),
                   },
                 ],
               },
@@ -440,20 +511,21 @@ export const useGraphStore = create<GraphState>()(
                   {
                     type: "node",
                     id: current,
-                    label: cyInstance.getElementById(current).data("label"),
+                    label: currentNode.data("label"),
                     classes: [`component-${componentIndex % COMPONENT_COLORS.length}`],
                   },
                 ],
                 action: "visit",
-                message: [`Visited node ${current}`],
+                message: [`Visited node ${currentNode.data("label")}`],
+                visited,
+                highlightedPseudoCodeLineIds: [4, [5, 6]],
               },
             });
-
-            const neighbors = adjacencyList.get(current) || [];
 
             for (const neighbor of neighbors) {
               if (!visited.has(neighbor.id)) {
                 visited.add(neighbor.id);
+                const neighborNode = cyInstance.getElementById(neighbor.id);
 
                 // Highlight edge being explored
                 let processingEdge = cyInstance.edges(
@@ -474,12 +546,12 @@ export const useGraphStore = create<GraphState>()(
                         source: {
                           type: "node",
                           id: current,
-                          label: cyInstance.getElementById(current).data("label"),
+                          label: currentNode.data("label"),
                         },
                         target: {
                           type: "node",
                           id: neighbor.id,
-                          label: cyInstance.getElementById(neighbor.id).data("label"),
+                          label: neighborNode.data("label"),
                         },
                         classes: processingEdge[0].classes(),
                       },
@@ -493,18 +565,22 @@ export const useGraphStore = create<GraphState>()(
                         source: {
                           type: "node",
                           id: current,
-                          label: cyInstance.getElementById(current).data("label"),
+                          label: currentNode.data("label"),
                         },
                         target: {
                           type: "node",
                           id: neighbor.id,
-                          label: cyInstance.getElementById(neighbor.id).data("label"),
+                          label: neighborNode.data("label"),
                         },
                         classes: [`component-${componentIndex % COMPONENT_COLORS.length}`],
                       },
                     ],
                     action: "visit",
-                    message: [`Visited edge from ${current} to ${neighbor.id}`],
+                    message: [
+                      `Visited edge from ${currentNode.data("label")} to ${neighborNode.data("label")}`,
+                    ],
+                    visited,
+                    highlightedPseudoCodeLineIds: [7, [8, 9], 10],
                   },
                 });
 
@@ -517,6 +593,10 @@ export const useGraphStore = create<GraphState>()(
           return component;
         };
 
+        // Start BFS from the first unvisited node
+        const component = animatedBFS(startNodeId, 0);
+        components.push(component);
+
         // Main algorithm loop
         for (let i = 0; i < nodes.length; i++) {
           const node = nodes[i];
@@ -526,9 +606,23 @@ export const useGraphStore = create<GraphState>()(
           }
         }
 
+        steps.push({
+          prev: {
+            elements: [],
+          },
+          current: {
+            elements: [],
+            action: "traverse",
+            message: ["All nodes visited. Connected components identified."],
+            visited,
+            highlightedPseudoCodeLineIds: [18],
+          },
+        });
+
         return {
           components,
           steps,
+          message: `Found ${components.length} connected component(s).`,
         };
       },
 

@@ -4,13 +4,16 @@ import edgehandles from "cytoscape-edgehandles";
 import { useNodeInput } from "./ui/node-input";
 import type { EdgeHandlesInstance, EdgeHandlesOptions } from "cytoscape-edgehandles";
 import FunctionalBar from "./functional-bar";
+import ZoomBar from "./zoom-bar";
 // import AdjacencyListPanel from "./adjacency-list-panel";
 import { useGraphStore } from "@/contexts/graph-context";
 import type { GraphEdge, GraphNode } from "@/types/graph";
 import { useToast } from "./ui/toast";
 import { graphStyles } from "@/configs/graph";
+import dagre from "cytoscape-dagre";
 
 cytoscape.use(edgehandles);
+cytoscape.use(dagre);
 
 const GraphCanvas = () => {
   const { showToast } = useToast();
@@ -42,9 +45,15 @@ const GraphCanvas = () => {
       loadGraph();
     });
 
+    const removeSaveImageListener = (window as any).ipcRenderer?.onRequestSaveImage?.(() => {
+      const { saveImage } = useGraphStore.getState();
+      saveImage();
+    });
+
     return () => {
       if (removeSaveListener) removeSaveListener();
       if (removeLoadListener) removeLoadListener();
+      if (removeSaveImageListener) removeSaveImageListener();
     };
   }, []);
 
@@ -246,7 +255,7 @@ const GraphCanvas = () => {
       <div ref={containerRef} className="w-full h-full" />
 
       <FunctionalBar />
-      {/* <AdjacencyListPanel /> */}
+      <ZoomBar />
     </div>
   );
 };

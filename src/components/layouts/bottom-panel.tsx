@@ -1,6 +1,6 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import ResultPanel from "./algorithm-result-panel";
-import { PseudoCodeViewer, HIERHOLZER_PSEUDOCODE } from "./algorithm-result-panel/eulerian-pseudo-code";
+import { PseudoCodeViewer } from "./algorithm-result-panel/pseudo-code-viewer";
 
 export function BottomPanel() {
   return (
@@ -22,7 +22,7 @@ export function BottomPanel() {
       </TabsContent>
 
       <TabsContent value="pseudo-code" className="overflow-hidden">
-        <PseudoCodeViewer lines={HIERHOLZER_PSEUDOCODE} />
+        <PseudoCodeViewer />
       </TabsContent>
 
       <TabsContent value="reports">
