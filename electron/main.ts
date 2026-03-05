@@ -70,6 +70,13 @@ function createWindow() {
           },
         },
         {
+          label: "Save Graph as Image",
+          accelerator: "CmdOrCtrl+Shift+S",
+          click: async () => {
+            win?.webContents.send("request-save-image");
+          },
+        },
+        {
           type: "separator",
         },
         {
@@ -93,17 +100,17 @@ function createWindow() {
     //   ]
     // },
     {
-      label: 'View',
+      label: "View",
       submenu: [
-        { role: 'reload' },
-        { role: 'forceReload' },
-        { role: 'toggleDevTools' },
-        { type: 'separator' },
-        { role: 'resetZoom' },
-        { role: 'zoomIn' },
-        { role: 'zoomOut' }
-      ]
-    }
+        { role: "reload" },
+        { role: "forceReload" },
+        { role: "toggleDevTools" },
+        { type: "separator" },
+        { role: "resetZoom" },
+        { role: "zoomIn" },
+        { role: "zoomOut" },
+      ],
+    },
   ]);
 
   Menu.setApplicationMenu(menu);
@@ -133,7 +140,6 @@ ipcMain.handle("save-graph", async (_event, graphData: string) => {
 });
 
 ipcMain.handle("load-graph", async () => {
-  
   console.log("Handling load-graph request...");
   try {
     const { filePaths, canceled } = await dialog.showOpenDialog({
@@ -155,6 +161,22 @@ ipcMain.handle("load-graph", async () => {
   } catch (error) {
     return { success: false, error: (error as Error).message };
   }
+});
+
+ipcMain.handle("save-image", async (event, base64Data) => {
+  const { filePath } = await dialog.showSaveDialog({
+    title: "Export Graph as Image",
+    defaultPath: `graph-${Date.now()}.png`,
+    filters: [{ name: "Images", extensions: ["png", "jpg"] }],
+  });
+
+  if (filePath) {
+    // Chuyển base64 về Buffer để ghi file
+    const base64Image = base64Data.split(";base64,").pop();
+    fs.writeFile(filePath, base64Image, "base64");
+    return "Success";
+  }
+  return "Cancelled";
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common

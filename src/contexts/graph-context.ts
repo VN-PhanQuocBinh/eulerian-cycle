@@ -10,6 +10,7 @@ import type {
   GraphData,
 } from "@/types/graph";
 import { COMPONENT_COLORS } from "@/types/styles";
+import { ALGORITHM_LAYOUT_CONFIGS } from "@/configs/graph-layouts";
 
 export const useGraphStore = create<GraphState>()(
   devtools(
@@ -69,12 +70,6 @@ export const useGraphStore = create<GraphState>()(
       setSpeed: (speed) => set({ speed }),
       nextStep: () => {
         const { currentStepIndex, steps } = get();
-        // console.log(
-        //   "Next step called. Current index:",
-        //   currentStepIndex,
-        //   "Total steps:",
-        //   steps.length,
-        // );
         if (currentStepIndex < steps.length) {
           set({ currentStepIndex: currentStepIndex + 1 });
         }
@@ -234,6 +229,17 @@ export const useGraphStore = create<GraphState>()(
         });
       },
 
+      autoLayout: () => {
+        const { cyInstance, currentAlgorithm } = get();
+
+        if (!cyInstance || !currentAlgorithm) return;
+
+        const layoutConfig = ALGORITHM_LAYOUT_CONFIGS[currentAlgorithm];
+        if (layoutConfig) {
+          cyInstance.layout(layoutConfig).run();
+        }
+      },
+
       // File operations
       saveGraph: async () => {
         const { getCurrentEdgesData, getCurrentNodesData, toastHandler } = get();
@@ -307,6 +313,27 @@ export const useGraphStore = create<GraphState>()(
         } catch (error) {
           toastHandler({
             message: "Failed to parse graph file",
+            type: "error",
+          });
+        }
+      },
+
+      saveImage: async () => {
+        const { cyInstance, toastHandler } = get();
+        if (!cyInstance) return;
+        try {
+          const pngData = cyInstance.png({ full: true, bg: "white" });
+
+          await (window as any).ipcRenderer.saveImage(pngData);
+
+          toastHandler({
+            message: "Image saved successfully.",
+            type: "success",
+          });
+        } catch (error) {
+          console.error("Error saving image:", error);
+          toastHandler({
+            message: "Failed to save image.",
             type: "error",
           });
         }
@@ -430,7 +457,7 @@ export const useGraphStore = create<GraphState>()(
             action: "component-complete",
             message: ["Initialize visited set and components list."],
             visited,
-            highlightedPseudoCodeLineIds: [1],
+            highlightedPseudoCodeLineIds: [12, 13],
           },
         });
 

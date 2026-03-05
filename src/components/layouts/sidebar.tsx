@@ -228,6 +228,11 @@ function Sidebar() {
     setCanBackward(false);
   };
 
+  const handleStartNodeChange = (nodeId: string) => {
+    handleReset();
+    setStartNodeId(nodeId);
+  };
+
   return (
     <aside className="w-full h-full bg-white border-r space-y-4 border-slate-200 flex flex-col p-4 gap-4 overflow-y-auto">
       {/* ALGORITHM SELECTION */}
@@ -244,7 +249,7 @@ function Sidebar() {
         options={startNodeOptions}
         currentValue={startNodeId}
         isAnimating={isAnimating}
-        onSelect={setStartNodeId}
+        onSelect={handleStartNodeChange}
       />
 
       {/* RUN MODE */}

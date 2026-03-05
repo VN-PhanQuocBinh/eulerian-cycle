@@ -45,6 +45,13 @@ function createWindow() {
           }
         },
         {
+          label: "Save Graph as Image",
+          accelerator: "CmdOrCtrl+Shift+S",
+          click: async () => {
+            win == null ? void 0 : win.webContents.send("request-save-image");
+          }
+        },
+        {
           type: "separator"
         },
         {
@@ -121,6 +128,19 @@ ipcMain.handle("load-graph", async () => {
   } catch (error) {
     return { success: false, error: error.message };
   }
+});
+ipcMain.handle("save-image", async (event, base64Data) => {
+  const { filePath } = await dialog.showSaveDialog({
+    title: "Export Graph as Image",
+    defaultPath: `graph-${Date.now()}.png`,
+    filters: [{ name: "Images", extensions: ["png", "jpg"] }]
+  });
+  if (filePath) {
+    const base64Image = base64Data.split(";base64,").pop();
+    fs.writeFile(filePath, base64Image, "base64");
+    return "Success";
+  }
+  return "Cancelled";
 });
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {

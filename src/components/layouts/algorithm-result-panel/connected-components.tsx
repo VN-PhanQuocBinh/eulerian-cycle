@@ -1,4 +1,4 @@
-import { StepNodeElement, StoredStep } from "@/types/graph";
+import { StoredStep } from "@/types/graph";
 import {
   Table,
   TableHeader,
@@ -103,20 +103,12 @@ export function ConnectedComponentsStepsTable({ steps }: Props) {
                 return node ? node.label : nodeId;
               },
             );
-            // Collect all visited nodes up to this step
-            // const visitedNodes = new Set<string>();
-            // for (let i = 0; i <= index; i++) {
-            //   const el = steps[i].current.elements[0];
-            //   if (el?.type === "node") {
-            //     visitedNodes.add(el.label);
-            //   }
-            // }
 
             return (
               <TableRow
                 key={index}
                 className={cn("", {
-                  "bg-blue-50 border-l-4 border-l-blue-500": isCurrentStep,
+                  "bg-blue-50! border-l-4 border-l-blue-500": isCurrentStep,
                   "bg-green-50/30": isPastStep,
                 })}
               >
@@ -214,12 +206,12 @@ export function ConnectedComponentsStepsTable({ steps }: Props) {
               COMPONENT_COLORS[parseInt(componentIdx) % COMPONENT_COLORS.length];
 
             return (
-              <div key={componentIdx} className="flex items-center gap-2">
+              <div key={componentIdx} className="flex items-center">
                 <span className={cn("px-2 py-1 rounded text-gray-700 font-medium", componentColor)}>
                   Component {parseInt(componentIdx) + 1}
                 </span>
                 <span className="text-sm text-gray-600">
-                  : {Array.from(nodes).join(", ")} ({nodes.size} nodes)
+                  : {Array.from(nodes).join(", ")}
                 </span>
               </div>
             );

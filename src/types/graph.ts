@@ -143,9 +143,11 @@ export interface GraphState {
   clearGraph: () => void;
   resetGraph: () => void;
   drawGraphFromData: (data: GraphData) => void;
+  autoLayout: () => void;
 
   saveGraph: () => Promise<string>;
   loadGraph: () => Promise<string>;
+  saveImage: () => Promise<string>;
 
   // Algorithm implementations
   findConnectedComponents: (startNodeId?: string) => {
