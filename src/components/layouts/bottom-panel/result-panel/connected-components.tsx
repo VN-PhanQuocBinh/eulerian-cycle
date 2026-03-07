@@ -78,15 +78,6 @@ export function ConnectedComponentsStepsTable({ steps }: Props) {
             if (element) {
               const componentClass = element.classes.find((cls) => cls.startsWith("component-"));
 
-              console.log(
-                "Component class:",
-                componentClass,
-                "step index:",
-                index,
-                "color index:",
-                componentIndex % COMPONENT_COLORS.length,
-              );
-
               if (componentClass) {
                 componentIndex = parseInt(componentClass.split("-")[1]);
               }
@@ -210,9 +201,7 @@ export function ConnectedComponentsStepsTable({ steps }: Props) {
                 <span className={cn("px-2 py-1 rounded text-gray-700 font-medium", componentColor)}>
                   Component {parseInt(componentIdx) + 1}
                 </span>
-                <span className="text-sm text-gray-600">
-                  : {Array.from(nodes).join(", ")}
-                </span>
+                <span className="text-sm text-gray-600">: {Array.from(nodes).join(", ")}</span>
               </div>
             );
           })}

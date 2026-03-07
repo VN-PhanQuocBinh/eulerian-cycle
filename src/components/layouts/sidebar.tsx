@@ -7,6 +7,7 @@ import {
   SpeedControl,
   FileOperation,
   PrimaryControlButtons,
+  // GraphTypeSelect,
 } from "@/components/layouts/sidebar/index";
 import type { GraphAlgorithm, RunMode, StoredStep } from "@/types/graph";
 import { useToast } from "@/components/ui/toast";
@@ -29,6 +30,7 @@ function Sidebar() {
   const currentAlgorithm = useGraphStore((state) => state.currentAlgorithm);
   const speed = useGraphStore((state) => state.speed);
   const isAnimating = useGraphStore((state) => state.isAnimating);
+  const setIsDirected = useGraphStore((state) => state.setIsDirected);
   const setIsAnimating = useGraphStore((state) => state.setIsAnimating);
   const setSteps = useGraphStore((state) => state.setSteps);
   const nextStepStore = useGraphStore((state) => state.nextStep);
@@ -233,8 +235,20 @@ function Sidebar() {
     setStartNodeId(nodeId);
   };
 
+  const handleGraphTypeChange = (directed: boolean) => {
+    handleReset();
+    setIsDirected(directed);
+  };
+
   return (
     <aside className="w-full h-full bg-white border-r space-y-4 border-slate-200 flex flex-col p-4 gap-4 overflow-y-auto">
+      {/* GRAPH TYPE */}
+      {/* <GraphTypeSelect
+        isDirected={isDirected}
+        isAnimating={isAnimating}
+        onSelect={handleGraphTypeChange}
+      /> */}
+
       {/* ALGORITHM SELECTION */}
       <RunConfigSelect<GraphAlgorithm>
         title="Algorithm"

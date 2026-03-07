@@ -1,6 +1,7 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import ResultPanel from "./algorithm-result-panel";
-import { PseudoCodeViewer } from "./algorithm-result-panel/pseudo-code-viewer";
+import ResultPanel from "./bottom-panel/result-panel";
+import { PseudoCodeViewer } from "./bottom-panel/pseudo-code-viewer";
+import { GraphReport } from "./bottom-panel/graph-report";
 
 export function BottomPanel() {
   return (
@@ -25,8 +26,8 @@ export function BottomPanel() {
         <PseudoCodeViewer />
       </TabsContent>
 
-      <TabsContent value="reports">
-        <div className="p-3 text-xs text-slate-500 italic">Reports content coming soon...</div>
+      <TabsContent value="reports" className="overflow-hidden">
+        <GraphReport />
       </TabsContent>
     </Tabs>
   );

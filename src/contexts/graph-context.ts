@@ -619,6 +619,8 @@ export const useGraphStore = create<GraphState>()(
           },
         });
 
+        console.log("Final Connected Components:", components);
+
         return {
           components,
           steps,
