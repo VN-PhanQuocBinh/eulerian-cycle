@@ -20,6 +20,7 @@ const GraphCanvas = () => {
 
   const graphMode = useGraphStore((state) => state.mode);
   const edges = useGraphStore((state) => state.edges);
+  const isDirected = useGraphStore((state) => state.isDirected);
   const addNode = useGraphStore((state) => state.addNode);
   const updateNode = useGraphStore((state) => state.updateNode);
   const addEdge = useGraphStore((state) => state.addEdge);
@@ -56,6 +57,16 @@ const GraphCanvas = () => {
       if (removeSaveImageListener) removeSaveImageListener();
     };
   }, []);
+
+  useEffect(() => {
+    if (!cyRef.current) return;
+
+    if (isDirected) {
+      cyRef.current.edges().addClass("directed");
+    } else {
+      cyRef.current.edges().removeClass("directed");
+    }
+  }, [cyRef.current, isDirected]);
 
   // Set toast handler in graph store
   useEffect(() => {

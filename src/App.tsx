@@ -5,7 +5,7 @@ import { NodeInputProvider } from "./components/ui/node-input";
 import { ToastProvider } from "./components/ui/toast";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 
-import ResultPanel from "./components/layouts/algorithm-result-panel";
+import ResultPanel from "./components/layouts/bottom-panel";
 
 function App() {
   return (

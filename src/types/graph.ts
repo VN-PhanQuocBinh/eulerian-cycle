@@ -150,14 +150,14 @@ export interface GraphState {
   saveImage: () => Promise<string>;
 
   // Algorithm implementations
-  findConnectedComponents: (startNodeId?: string) => {
+  findConnectedComponents: (startNodeId: string) => {
     components: string[][];
     steps: StoredStep[];
     message: string;
   };
   checkEulerianCycle: () => { exists: boolean; reason?: string };
   findEulerianCycle: (startNodeId?: string) => {
-    cycle: string[] | null;
+    cycle: GraphNode[] | null;
     steps: Step[];
     message?: string;
   };

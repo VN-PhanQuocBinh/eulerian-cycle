@@ -1,6 +1,6 @@
 import { useGraphStore } from "@/contexts/graph-context";
-import { EulerianCycleStepsTable } from "./eulerian-cycle";
-import { ConnectedComponentsStepsTable } from "./connected-components";
+import { EulerianCycleStepsTable } from "./result-panel/eulerian-cycle";
+import { ConnectedComponentsStepsTable } from "./result-panel/connected-components";
 
 function ResultPanel() {
   const currentAlgorithm = useGraphStore((state) => state.currentAlgorithm);
