@@ -15,7 +15,7 @@ export interface GraphNode {
 }
 
 export interface GraphEdge {
-  id: `e-${string}-${string}`;
+  id: string;
   source: string;
   target: string;
 }

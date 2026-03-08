@@ -13,7 +13,7 @@ function FunctionalBar() {
     <div className="absolute top-4 right-4 z-10 flex gap-2">
       <FunctionButton
         onClick={() => setMode("view")}
-        tooltipContent="Chọn / Di chuyển"
+        tooltipContent="Select / Move"
         icon={MousePointer2}
         side="bottom"
         active={mode === "view"}
@@ -21,7 +21,7 @@ function FunctionalBar() {
 
       <FunctionButton
         onClick={() => setMode("add-edge")}
-        tooltipContent="Thêm cạnh"
+        tooltipContent="Add Edge"
         icon={SplinePointer}
         side="bottom"
         active={mode === "add-edge"}
@@ -29,7 +29,7 @@ function FunctionalBar() {
 
       <FunctionButton
         onClick={() => setMode("add-node")}
-        tooltipContent="Thêm đỉnh"
+        tooltipContent="Add Node"
         icon={PlusCircle}
         side="bottom"
         active={mode === "add-node"}
@@ -37,7 +37,7 @@ function FunctionalBar() {
 
       <FunctionButton
         onClick={handleClear}
-        tooltipContent="Xóa hết đồ thị"
+        tooltipContent="Clear Graph"
         icon={Trash2}
         side="bottom"
         className="bg-red-50 text-red-600 hover:bg-red-100"
