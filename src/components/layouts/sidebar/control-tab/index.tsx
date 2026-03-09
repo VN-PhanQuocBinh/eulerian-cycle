@@ -12,6 +12,7 @@ import {
 import type { GraphAlgorithm, RunMode, StoredStep } from "@/types/graph";
 import { useToast } from "@/components/ui/toast";
 import { generateEdgeSelector } from "@/utils";
+import { cn } from "@/utils/cn";
 
 export const BASE_ANIMATION_SPEED = 2000; // in milliseconds
 
@@ -20,7 +21,7 @@ const ALGORITHM_OPTIONS: { label: string; value: GraphAlgorithm }[] = [
   { label: "Connected Components", value: "connected-components" },
 ];
 
-function Sidebar() {
+function Sidebar({ className }: { className?: string }) {
   // Graph store
   const isDirected = useGraphStore((state) => state.isDirected);
   const edges = useGraphStore((state) => state.edges);
@@ -55,7 +56,7 @@ function Sidebar() {
     () => nodes.map((node) => ({ label: node.label, value: node.id })),
     [nodes],
   );
-  const [startNodeId, setStartNodeId] = useState<string>("");
+  const [startNodeId, setStartNodeId] = useState<string>(nodes[0]?.id || "");
 
   // Ensure startNodeId is valid when nodes change
   useEffect(() => {
@@ -119,7 +120,7 @@ function Sidebar() {
 
     setCanBackward(currentStepValue > 0);
     setCanForward(currentStepValue + 1 < steps.length);
-  }, [steps, isAnimating, runMode, debouncedSpeed, highlightElement, nextStepStore]);
+  }, [steps, isAnimating, runMode, highlightElement, nextStepStore]);
 
   const previousStep = useCallback(() => {
     const currentStepValue = useGraphStore.getState().currentStepIndex;
@@ -172,19 +173,16 @@ function Sidebar() {
       return;
     }
 
-    const animationInterval: NodeJS.Timeout = setInterval(
-      () => {
-        const currentStepValue = useGraphStore.getState().currentStepIndex;
+    const animationInterval: NodeJS.Timeout = setInterval(() => {
+      const currentStepValue = useGraphStore.getState().currentStepIndex;
 
-        if (currentStepValue < steps.length) {
-          nextStep();
-        } else {
-          clearInterval(animationInterval);
-          setIsAnimating(false);
-        }
-      },
-      BASE_ANIMATION_SPEED / (debouncedSpeed / 100),
-    );
+      if (currentStepValue < steps.length) {
+        nextStep();
+      } else {
+        clearInterval(animationInterval);
+        setIsAnimating(false);
+      }
+    }, BASE_ANIMATION_SPEED / debouncedSpeed);
 
     return () => {
       clearInterval(animationInterval);
@@ -241,7 +239,12 @@ function Sidebar() {
   };
 
   return (
-    <aside className="w-full h-full bg-white border-r space-y-4 border-slate-200 flex flex-col p-4 gap-4 overflow-y-auto">
+    <aside
+      className={cn(
+        "w-full h-full bg-white border-r space-y-4 border-slate-200 flex flex-col gap-4 overflow-y-auto",
+        className,
+      )}
+    >
       {/* GRAPH TYPE */}
       {/* <GraphTypeSelect
         isDirected={isDirected}

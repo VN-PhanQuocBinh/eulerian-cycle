@@ -15,7 +15,7 @@ export interface GraphNode {
 }
 
 export interface GraphEdge {
-  id: `e-${string}-${string}`;
+  id: string;
   source: string;
   target: string;
 }
@@ -56,6 +56,7 @@ export type CurrentStep<T extends GenericStepType = StepNodeElement | StepEdgeEl
   action: StepAction;
   message: string[];
   stack?: GraphNode[];
+  queue?: String[];
   circuit?: GraphNode[];
   visited?: Set<string>;
 

@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { useGraphStore } from "@/contexts/graph-context";
-import { BASE_ANIMATION_SPEED } from "@/components/layouts/sidebar";
+import { BASE_ANIMATION_SPEED } from "@/components/layouts/sidebar/control-tab";
 import { useEffect, useState } from "react";
 import { HIERHOLZER_PSEUDOCODE, CONNECTED_COMPONENTS_PSEUDOCODE } from "@/constant/pseudo-code";
 import { PseudoCodeLine } from "@/types/pseudo-code";
@@ -62,8 +62,7 @@ export function PseudoCodeViewer({ className }: PseudoCodeViewerProps) {
       return;
     }
 
-    const duration =
-      (BASE_ANIMATION_SPEED - 100) / (speed / 100) / (currentLineIds.length + 1 || 1);
+    const duration = (BASE_ANIMATION_SPEED - 100) / speed / (currentLineIds.length + 1 || 1);
 
     const timer = setTimeout(() => {
       const lineToHighlight = currentLineIds[currentHighlightedIndex];

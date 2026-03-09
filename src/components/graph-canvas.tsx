@@ -11,6 +11,7 @@ import type { GraphEdge, GraphNode } from "@/types/graph";
 import { useToast } from "./ui/toast";
 import { graphStyles } from "@/configs/graph";
 import dagre from "cytoscape-dagre";
+import { generateNodeId, generateEdgeId } from "@/utils/generate-id";
 
 cytoscape.use(edgehandles);
 cytoscape.use(dagre);
@@ -58,15 +59,15 @@ const GraphCanvas = () => {
     };
   }, []);
 
-  useEffect(() => {
-    if (!cyRef.current) return;
+  // useEffect(() => {
+  //   if (!cyRef.current) return;
 
-    if (isDirected) {
-      cyRef.current.edges().addClass("directed");
-    } else {
-      cyRef.current.edges().removeClass("directed");
-    }
-  }, [cyRef.current, isDirected]);
+  //   if (isDirected) {
+  //     cyRef.current.edges().addClass("directed");
+  //   } else {
+  //     cyRef.current.edges().removeClass("directed");
+  //   }
+  // }, [cyRef.current, isDirected]);
 
   // Set toast handler in graph store
   useEffect(() => {
@@ -104,11 +105,10 @@ const GraphCanvas = () => {
       ): cytoscape.ElementDefinition {
         // for edges between the specified source and target
         // return element object to be passed to cy.add() for edge
-        const uniqueId = `edge-${sourceNode.id()}-${targetNode.id()}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+        const uniqueId = generateEdgeId(sourceNode.id(), targetNode.id());
 
         return {
           data: {
-            // id: `e-${sourceNode.id()}-${targetNode.id()}`,
             id: uniqueId,
             source: sourceNode.id(),
             target: targetNode.id(),
@@ -178,8 +178,7 @@ const GraphCanvas = () => {
           x: event.renderedPosition.x,
           y: event.renderedPosition.y,
           onComplete: (label: string) => {
-            // const nodeId = generateNodeId();
-            const nodeId = `node_${label}`;
+            const nodeId = generateNodeId(label);
             addNode({ id: nodeId.toLowerCase(), label, x, y });
           },
         });

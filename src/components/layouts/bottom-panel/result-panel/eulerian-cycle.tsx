@@ -99,7 +99,7 @@ export function EulerianCycleStepsTable({ steps }: Props) {
                           {step.current.stack.map((node, idx) => (
                             <span
                               key={idx}
-                              className="size-5 text-purple-700 bg-purple-100 px-1.5 py-0.5 rounded text-xs"
+                              className="size-5 w-max text-purple-700 bg-purple-100 px-1.5 py-0.5 rounded text-xs"
                             >
                               {node.label}
                             </span>
@@ -124,7 +124,7 @@ export function EulerianCycleStepsTable({ steps }: Props) {
                           {step.current.circuit.map((node, idx) => (
                             <span
                               key={idx}
-                              className="size-5 text-orange-700 bg-orange-100 px-1.5 py-0.5 rounded text-xs"
+                              className="size-5 w-max text-orange-700 bg-orange-100 px-1.5 py-0.5 rounded text-xs"
                             >
                               {node.label}
                             </span>
@@ -143,7 +143,7 @@ export function EulerianCycleStepsTable({ steps }: Props) {
                 {/* Message */}
                 <TableCell className="px-3 py-2 text-gray-600 text-left">
                   {step.current.message.map((msg, idx) => (
-                    <div key={idx}>{msg}</div>
+                    <div key={idx}>- {msg}</div>
                   ))}
                 </TableCell>
               </TableRow>

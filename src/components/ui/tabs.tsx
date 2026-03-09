@@ -3,23 +3,22 @@
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import * as TabsPrimitive from "@radix-ui/react-tabs";
+import { forwardRef } from "react";
 
 import { cn } from "@/lib/utils";
 
-function Tabs({
-  className,
-  orientation = "horizontal",
-  ...props
-}: React.ComponentProps<typeof TabsPrimitive.Root>) {
-  return (
-    <TabsPrimitive.Root
-      data-slot="tabs"
-      data-orientation={orientation}
-      className={cn("gap-2 group/tabs flex data-[orientation=horizontal]:flex-col", className)}
-      {...props}
-    />
-  );
-}
+const Tabs = forwardRef<
+  React.ElementRef<typeof TabsPrimitive.Root>,
+  React.ComponentProps<typeof TabsPrimitive.Root>
+>(({ className, orientation = "horizontal", ...props }, ref) => (
+  <TabsPrimitive.Root
+    ref={ref}
+    data-slot="tabs"
+    data-orientation={orientation}
+    className={cn("gap-2 group/tabs flex data-[orientation=horizontal]:flex-col", className)}
+    {...props}
+  />
+));
 
 const tabsListVariants = cva(
   "rounded-lg p-[3px] group-data-horizontal/tabs:h-8 data-[variant=line]:rounded-none group/tabs-list text-muted-foreground inline-flex w-fit items-center justify-center group-data-vertical/tabs:h-fit group-data-vertical/tabs:flex-col",

@@ -1,4 +1,4 @@
-import { StoredStep } from "@/types/graph";
+import { GraphNode, StoredStep } from "@/types/graph";
 import {
   Table,
   TableHeader,
@@ -64,6 +64,7 @@ export function ConnectedComponentsStepsTable({ steps }: Props) {
             <TableHead className="bg-gray-100 text-blue-800 text-center">Element</TableHead>
             <TableHead className="bg-gray-100 text-blue-800">Component</TableHead>
             <TableHead className="bg-gray-100 text-blue-800">Visited Nodes</TableHead>
+            <TableHead className="bg-gray-100 text-blue-800">Queue</TableHead>
             <TableHead className="bg-gray-100 text-blue-800">Explain</TableHead>
           </TableRow>
         </TableHeader>
@@ -94,6 +95,12 @@ export function ConnectedComponentsStepsTable({ steps }: Props) {
                 return node ? node.label : nodeId;
               },
             );
+
+            const queueNodes = step.current.queue?.map((nodeId) => {
+              const node = useGraphStore.getState().nodes.find((n) => n.id === nodeId);
+
+              return node;
+            }) as Array<GraphNode>;
 
             return (
               <TableRow
@@ -165,10 +172,33 @@ export function ConnectedComponentsStepsTable({ steps }: Props) {
                   </div>
                 </TableCell>
 
+                {/* Queue */}
+                <TableCell className="px-3 py-2">
+                  <div className="flex items-center max-w-[150px]">
+                    {queueNodes && queueNodes.length > 0 ? (
+                      <>
+                        <div className="flex-1 flex items-center gap-2 flex-wrap">
+                          {queueNodes.map((node, idx) => (
+                            <span
+                              key={idx}
+                              className="size-5 w-max text-purple-700 bg-purple-100 px-1.5 py-0.5 rounded text-xs"
+                            >
+                              {node?.label}
+                            </span>
+                          ))}
+                        </div>
+                        <CopyButton text={arrayToString(queueNodes.map((node) => node?.label))} />
+                      </>
+                    ) : (
+                      <span className="text-gray-400 italic">Empty Queue</span>
+                    )}
+                  </div>
+                </TableCell>
+
                 {/* Message */}
                 <TableCell className="px-3 py-2 text-gray-600 text-left">
                   {step.current.message?.map((msg, idx) => (
-                    <div key={idx}>{msg}</div>
+                    <div key={idx}>- {msg}</div>
                   ))}
                 </TableCell>
               </TableRow>
@@ -176,37 +206,6 @@ export function ConnectedComponentsStepsTable({ steps }: Props) {
           })}
         </TableBody>
       </Table>
-
-      {/* Summary */}
-      <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-        <h3 className="font-semibold text-blue-900 mb-2">Summary</h3>
-        <p className="text-sm text-gray-700">
-          Total components found: <strong>{Object.keys(componentGroups).length}</strong>
-        </p>
-        <div className="mt-3 space-y-2">
-          {Object.entries(componentGroups).map(([componentIdx, componentSteps]) => {
-            const nodes = new Set<string>();
-            componentSteps.forEach((step) => {
-              const el = step.current.elements[0];
-              if (el?.type === "node") {
-                nodes.add(el.label);
-              }
-            });
-
-            const componentColor =
-              COMPONENT_COLORS[parseInt(componentIdx) % COMPONENT_COLORS.length];
-
-            return (
-              <div key={componentIdx} className="flex items-center">
-                <span className={cn("px-2 py-1 rounded text-gray-700 font-medium", componentColor)}>
-                  Component {parseInt(componentIdx) + 1}
-                </span>
-                <span className="text-sm text-gray-600">: {Array.from(nodes).join(", ")}</span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
     </div>
   );
 }
