@@ -19,6 +19,13 @@ function App() {
     }
   }, [isSidebarOpen]);
 
+  const handleResize = () => {
+    if (!sidebarPanelRef.current) return;
+
+    const isCollapsed = sidebarPanelRef.current.isCollapsed();
+    setIsSidebarOpen(!isCollapsed);
+  };
+
   return (
     <ToastProvider>
       <div className="flex h-screen w-screen bg-slate-100 overflow-hidden text-slate-900">
@@ -30,6 +37,7 @@ function App() {
             panelRef={sidebarPanelRef}
             collapsible
             collapsedSize={56}
+            onResize={handleResize}
           >
             <NewSidebar isOpen={isSidebarOpen} onOpenChange={setIsSidebarOpen} />
           </ResizablePanel>

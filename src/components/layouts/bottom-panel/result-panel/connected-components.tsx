@@ -1,4 +1,4 @@
-import { StoredStep } from "@/types/graph";
+import { GraphNode, StoredStep } from "@/types/graph";
 import {
   Table,
   TableHeader,
@@ -64,6 +64,7 @@ export function ConnectedComponentsStepsTable({ steps }: Props) {
             <TableHead className="bg-gray-100 text-blue-800 text-center">Element</TableHead>
             <TableHead className="bg-gray-100 text-blue-800">Component</TableHead>
             <TableHead className="bg-gray-100 text-blue-800">Visited Nodes</TableHead>
+            <TableHead className="bg-gray-100 text-blue-800">Queue</TableHead>
             <TableHead className="bg-gray-100 text-blue-800">Explain</TableHead>
           </TableRow>
         </TableHeader>
@@ -94,6 +95,12 @@ export function ConnectedComponentsStepsTable({ steps }: Props) {
                 return node ? node.label : nodeId;
               },
             );
+
+            const queueNodes = step.current.queue?.map((nodeId) => {
+              const node = useGraphStore.getState().nodes.find((n) => n.id === nodeId);
+
+              return node;
+            }) as Array<GraphNode>;
 
             return (
               <TableRow
@@ -161,6 +168,29 @@ export function ConnectedComponentsStepsTable({ steps }: Props) {
                       </>
                     ) : (
                       <span className="text-gray-400 italic">No nodes visited</span>
+                    )}
+                  </div>
+                </TableCell>
+
+                {/* Queue */}
+                <TableCell className="px-3 py-2">
+                  <div className="flex items-center max-w-[150px]">
+                    {queueNodes && queueNodes.length > 0 ? (
+                      <>
+                        <div className="flex-1 flex items-center gap-2 flex-wrap">
+                          {queueNodes.map((node, idx) => (
+                            <span
+                              key={idx}
+                              className="size-5 w-max text-purple-700 bg-purple-100 px-1.5 py-0.5 rounded text-xs"
+                            >
+                              {node?.label}
+                            </span>
+                          ))}
+                        </div>
+                        <CopyButton text={arrayToString(queueNodes.map((node) => node?.label))} />
+                      </>
+                    ) : (
+                      <span className="text-gray-400 italic">Empty Queue</span>
                     )}
                   </div>
                 </TableCell>

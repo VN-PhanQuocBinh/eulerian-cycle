@@ -56,6 +56,7 @@ export type CurrentStep<T extends GenericStepType = StepNodeElement | StepEdgeEl
   action: StepAction;
   message: string[];
   stack?: GraphNode[];
+  queue?: String[];
   circuit?: GraphNode[];
   visited?: Set<string>;
 

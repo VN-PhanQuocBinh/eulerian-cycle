@@ -21,7 +21,7 @@ export const ALGORITHM_LAYOUT_CONFIGS: Record<GraphAlgorithm, cytoscape.LayoutOp
     rankDir: "LR", // Trái sang Phải: Phù hợp để đọc tiến trình
     nodeSep: 60, // Khoảng cách giữa các node
     edgeSep: 100, // Khoảng cách giữa các cạnh (tránh đè đa cạnh)
-    rankSep: 60, // Khoảng cách giữa các tầng
+    rankSep: 10, // Khoảng cách giữa các tầng
     animate: true,
     animationDuration: 600,
     padding: 30,

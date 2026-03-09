@@ -56,7 +56,7 @@ function Sidebar({ className }: { className?: string }) {
     () => nodes.map((node) => ({ label: node.label, value: node.id })),
     [nodes],
   );
-  const [startNodeId, setStartNodeId] = useState<string>("");
+  const [startNodeId, setStartNodeId] = useState<string>(nodes[0]?.id || "");
 
   // Ensure startNodeId is valid when nodes change
   useEffect(() => {
@@ -173,19 +173,16 @@ function Sidebar({ className }: { className?: string }) {
       return;
     }
 
-    const animationInterval: NodeJS.Timeout = setInterval(
-      () => {
-        const currentStepValue = useGraphStore.getState().currentStepIndex;
+    const animationInterval: NodeJS.Timeout = setInterval(() => {
+      const currentStepValue = useGraphStore.getState().currentStepIndex;
 
-        if (currentStepValue < steps.length) {
-          nextStep();
-        } else {
-          clearInterval(animationInterval);
-          setIsAnimating(false);
-        }
-      },
-      BASE_ANIMATION_SPEED / debouncedSpeed,
-    );
+      if (currentStepValue < steps.length) {
+        nextStep();
+      } else {
+        clearInterval(animationInterval);
+        setIsAnimating(false);
+      }
+    }, BASE_ANIMATION_SPEED / debouncedSpeed);
 
     return () => {
       clearInterval(animationInterval);
@@ -242,7 +239,12 @@ function Sidebar({ className }: { className?: string }) {
   };
 
   return (
-    <aside className={cn("w-full h-full bg-white border-r space-y-4 border-slate-200 flex flex-col gap-4 overflow-y-auto", className)}>
+    <aside
+      className={cn(
+        "w-full h-full bg-white border-r space-y-4 border-slate-200 flex flex-col gap-4 overflow-y-auto",
+        className,
+      )}
+    >
       {/* GRAPH TYPE */}
       {/* <GraphTypeSelect
         isDirected={isDirected}

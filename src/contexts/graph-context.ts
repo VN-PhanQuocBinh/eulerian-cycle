@@ -456,7 +456,7 @@ export const useGraphStore = create<GraphState>()(
             elements: [],
             action: "component-complete",
             message: ["Initialize visited set and components list."],
-            visited,
+            visited: new Set(visited),
             highlightedPseudoCodeLineIds: [12, 13],
           },
         });
@@ -482,7 +482,8 @@ export const useGraphStore = create<GraphState>()(
                 `Mark ${startNodeElement.data("label")} as visited and enqueue it.`,
                 "Exploring neighbors and building component...",
               ],
-              visited,
+              visited: new Set(visited),
+              queue: [...queue],
               highlightedPseudoCodeLineIds: [14, [15, 16], 2, 3],
             },
           });
@@ -493,6 +494,7 @@ export const useGraphStore = create<GraphState>()(
 
             const currentNode = cyInstance.getElementById(current);
             const neighbors = adjacencyList.get(current) || [];
+            const untreatedNeighbors = neighbors.filter((n) => !visited.has(n.id));
 
             // Record step for visiting node
             steps.push({
@@ -516,8 +518,13 @@ export const useGraphStore = create<GraphState>()(
                   },
                 ],
                 action: "visit",
-                message: [`Visited node ${currentNode.data("label")}`],
-                visited,
+                message: [
+                  `Visited node ${currentNode.data("label")}`,
+                  `Find ${untreatedNeighbors.length} untreated neighbors.`,
+                ],
+
+                visited: new Set(visited),
+                queue: [...queue],
                 highlightedPseudoCodeLineIds: [4, [5, 6]],
               },
             });
@@ -536,6 +543,9 @@ export const useGraphStore = create<GraphState>()(
                     `[source="${neighbor.id}"][target="${current}"]`,
                   );
                 }
+
+                // Enqueue neighbor
+                queue.push(neighbor.id);
 
                 steps.push({
                   prev: {
@@ -578,14 +588,13 @@ export const useGraphStore = create<GraphState>()(
                     action: "visit",
                     message: [
                       `Visited edge from ${currentNode.data("label")} to ${neighborNode.data("label")}`,
+                      `Mark ${neighborNode.data("label")} as visited and enqueue it.`,
                     ],
-                    visited,
+                    visited: new Set(visited),
+                    queue: [...queue],
                     highlightedPseudoCodeLineIds: [7, [8, 9], 10],
                   },
                 });
-
-                // Enqueue neighbor
-                queue.push(neighbor.id);
               }
             }
           }
@@ -614,7 +623,7 @@ export const useGraphStore = create<GraphState>()(
             elements: [],
             action: "traverse",
             message: ["All nodes visited. Connected components identified."],
-            visited,
+            visited: new Set(visited),
             highlightedPseudoCodeLineIds: [18],
           },
         });
