@@ -5,10 +5,10 @@ import { GraphReport } from "./bottom-panel/graph-report";
 
 export function BottomPanel() {
   return (
-    <Tabs defaultValue="result" className="h-full tabs-bar p-2">
+    <Tabs defaultValue="steps" className="h-full tabs-bar p-2">
       <TabsList variant="line" className="">
-        <TabsTrigger value="result" className="px-4">
-          Result
+        <TabsTrigger value="steps" className="px-4">
+          Algorithim Steps
         </TabsTrigger>
         <TabsTrigger value="pseudo-code" className="px-4">
           Pseudo Code
@@ -18,7 +18,7 @@ export function BottomPanel() {
         </TabsTrigger>
       </TabsList>
 
-      <TabsContent value="result" className="overflow-hidden">
+      <TabsContent value="steps" className="overflow-hidden">
         <ResultPanel />
       </TabsContent>
 

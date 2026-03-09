@@ -143,7 +143,7 @@ export function EulerianCycleStepsTable({ steps }: Props) {
                 {/* Message */}
                 <TableCell className="px-3 py-2 text-gray-600 text-left">
                   {step.current.message.map((msg, idx) => (
-                    <div key={idx}>{msg}</div>
+                    <div key={idx}>- {msg}</div>
                   ))}
                 </TableCell>
               </TableRow>

@@ -1,6 +1,5 @@
 import GraphCanvas from "./components/graph-canvas";
-import Sidebar from "./components/layouts/sidebar";
-import { NewSidebar } from "./components/layouts/sidebar/new-sidebar";
+import { NewSidebar } from "./components/layouts/new-sidebar";
 import { BottomPanel } from "./components/layouts/bottom-panel";
 import { NodeInputProvider } from "./components/ui/node-input";
 import { ToastProvider } from "./components/ui/toast";

@@ -29,7 +29,7 @@ export const useGraphStore = create<GraphState>()(
       isAnimating: false,
       steps: [],
       currentStepIndex: -1,
-      speed: 100,
+      speed: 1,
 
       // Toast handler
       toastHandler: () => {},

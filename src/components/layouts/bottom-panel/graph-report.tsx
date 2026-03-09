@@ -148,7 +148,7 @@ export function GraphReport() {
               const labels = comp.map((id) => nodes.find((n) => n.id === id)?.label ?? id);
               return (
                 <div key={i} className="flex items-center gap-2 bg-slate-50 rounded-md px-3 py-1.5">
-                  <span className="text-xs font-semibold text-slate-500 shrink-0">
+                  <span className="text-xs font-bold text-gray-800 shrink-0">
                     Component {i + 1} ({comp.length} nodes):
                   </span>
                   <span className="text-slate-700">{labels.join(", ")}</span>

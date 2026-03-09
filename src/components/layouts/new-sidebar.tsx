@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import InputTab from "./input-tab";
-import ControlTab from "./control-tab";
+import InputTab from "./sidebar/input-tab";
+import ControlTab from "./sidebar/control-tab";
 import { FileCode2, Play } from "lucide-react";
 import { Tooltip } from "@/components/ui/tooltip";
 

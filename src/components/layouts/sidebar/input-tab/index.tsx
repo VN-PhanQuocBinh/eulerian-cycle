@@ -1,16 +1,18 @@
 import { useState, useEffect } from "react";
-import { RotateCcw, RefreshCw, Copy, Check } from "lucide-react";
+import { RotateCcw, RefreshCw, Copy, Check, WandSparkles } from "lucide-react";
 import { useGraphStore } from "@/contexts/graph-context";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/utils/cn";
 import { graphToEdgeList, parseEdgeList } from "@/utils";
 import { copyToClipboard } from "@/utils/copy-to-clipboard";
 import { useToast } from "@/components/ui/toast";
+import { GRAPH_EXAMPLES } from "@/constant/graph-examples";
 
 function InputTab({ className }: { className?: string }) {
   const { showToast } = useToast();
   const nodes = useGraphStore((state) => state.nodes);
   const edges = useGraphStore((state) => state.edges);
+  const currentAlgorithm = useGraphStore((state) => state.currentAlgorithm);
   const isDirected = useGraphStore((state) => state.isDirected);
   const drawGraphFromData = useGraphStore((state) => state.drawGraphFromData);
   const autoLayout = useGraphStore((state) => state.autoLayout);
@@ -56,6 +58,12 @@ function InputTab({ className }: { className?: string }) {
     }
   };
 
+  const handleSuggest = () => {
+    const examples = GRAPH_EXAMPLES[currentAlgorithm || "connected-components"] || [];
+    const randomExample = examples[Math.floor(Math.random() * examples.length)];
+    setText(randomExample.trim());
+  };
+
   return (
     <div className={cn("flex flex-col h-full gap-3 bg-background", className)}>
       <div className="flex items-center justify-between">
@@ -75,22 +83,29 @@ function InputTab({ className }: { className?: string }) {
           placeholder={"# one edge per line\nA B\nB C\nC A"}
           className="w-full h-full resize-none rounded-md border border-input px-3 py-2 text-sm font-mono placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
         />
-        <Button
-          variant="outline"
-          size="icon"
-          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-          onClick={handleCopy}
-          disabled={copyStatus === "success"}
-        >
-          {copyStatus === "success" ? (
-            <Check strokeWidth={3} className="size-4" />
-          ) : (
-            <Copy className="size-4" />
-          )}
-        </Button>
+        {text && (
+          <Button
+            variant="outline"
+            size="icon"
+            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+            onClick={handleCopy}
+            disabled={copyStatus === "success"}
+          >
+            {copyStatus === "success" ? (
+              <Check strokeWidth={3} className="size-4" />
+            ) : (
+              <Copy className="size-4" />
+            )}
+          </Button>
+        )}
       </div>
 
-      <div className=" flex flex-wrap gap-2">
+      <Button variant="secondary" size="sm" className="min-w-[120px]" onClick={handleSuggest}>
+        <WandSparkles />
+        Suggest Graph
+      </Button>
+
+      <div className=" flex flex-wrap gap-2 pt-4 border-t border-slate-200">
         <Button
           variant="secondary"
           size="sm"

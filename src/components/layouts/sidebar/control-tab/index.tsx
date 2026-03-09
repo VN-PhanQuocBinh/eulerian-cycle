@@ -120,7 +120,7 @@ function Sidebar({ className }: { className?: string }) {
 
     setCanBackward(currentStepValue > 0);
     setCanForward(currentStepValue + 1 < steps.length);
-  }, [steps, isAnimating, runMode, debouncedSpeed, highlightElement, nextStepStore]);
+  }, [steps, isAnimating, runMode, highlightElement, nextStepStore]);
 
   const previousStep = useCallback(() => {
     const currentStepValue = useGraphStore.getState().currentStepIndex;
@@ -184,7 +184,7 @@ function Sidebar({ className }: { className?: string }) {
           setIsAnimating(false);
         }
       },
-      BASE_ANIMATION_SPEED / (debouncedSpeed / 100),
+      BASE_ANIMATION_SPEED / debouncedSpeed,
     );
 
     return () => {

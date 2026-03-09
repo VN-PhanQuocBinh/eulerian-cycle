@@ -12,14 +12,15 @@ function SpeedControl({ speed, disabled, setSpeed }: SpeedControlProps) {
     <section>
       <div className={cn("flex items-center justify-between mb-2", disabled ? "opacity-50" : "")}>
         <h3 className="text-base font-semibold text-slate-700">Speed</h3>
-        <span className="text-xs text-slate-500">{speed}%</span>
+        <span className="text-xs text-slate-500">{speed}x</span>
       </div>
       <Slider
         disabled={disabled}
         value={[speed]}
         onValueChange={(value) => setSpeed(value[0])}
-        min={10}
-        max={200}
+        min={0.5}
+        max={3}
+        step={0.25}
       />
       <div className="flex justify-between text-xs text-slate-400 mt-1">
         <span>Slow</span>
