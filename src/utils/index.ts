@@ -8,9 +8,24 @@ export const generateEdgeSelector = (sourceId: string, targetId: string) => {
 
 export function graphToEdgeList(nodes: GraphNode[], edges: GraphEdge[]): string {
   const nodeMap = new Map(nodes.map((n) => [n.id, n.label]));
-  return edges
-    .map((e) => `${nodeMap.get(e.source) ?? e.source} ${nodeMap.get(e.target) ?? e.target}`)
+  const hasNeighborlessNodes = new Set();
+
+  const edgeTexts = edges
+    .map((e) => {
+      const sourceLabel = nodeMap.get(e.source) ?? e.source;
+      const targetLabel = nodeMap.get(e.target) ?? e.target;
+      hasNeighborlessNodes.add(e.source);
+      hasNeighborlessNodes.add(e.target);
+
+      return `${sourceLabel} ${targetLabel}`;
+    })
     .join("\n");
+
+  const nodeTexts = nodes
+    .filter((n) => !hasNeighborlessNodes.has(n.id))
+    .map((n) => nodeMap.get(n.id) ?? n.id)
+    .join("\n");
+  return [edgeTexts, nodeTexts].filter(Boolean).join("\n");
 }
 
 export function parseEdgeList(text: string): { nodes: GraphNode[]; edges: GraphEdge[] } {
@@ -33,7 +48,12 @@ export function parseEdgeList(text: string): { nodes: GraphNode[]; edges: GraphE
 
     // Support both "A B" and "A -> B"
     const tokens = line.split(/\s+/).filter((t) => t !== "->");
-    if (tokens.length < 2) continue;
+    if (tokens.length < 1) continue;
+
+    if (tokens.length === 1) {
+      getOrCreateNode(tokens[0]);
+      continue;
+    }
 
     const [srcLabel, tgtLabel] = tokens;
     const sourceId = getOrCreateNode(srcLabel);

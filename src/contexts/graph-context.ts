@@ -19,7 +19,7 @@ export const useGraphStore = create<GraphState>()(
       mode: "view",
       nodes: [],
       edges: [],
-      isDirected: true,
+      isDirected: false,
       test: false,
       cyInstance: null,
       ehInstance: null,
