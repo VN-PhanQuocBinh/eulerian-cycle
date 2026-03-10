@@ -1,7 +1,5 @@
 import type cytoscape from "cytoscape";
 import type { ToastHandler } from "@/components/ui/toast";
-import { GNode } from "@/core/models/gnode";
-import { GEdge } from "@/core/models/gedge";
 
 // Types
 export type GraphMode = "view" | "add-node" | "add-edge" | "delete";
@@ -44,12 +42,7 @@ export type StepEdgeElement = {
 // This type is used for the current step's element,
 // which can be either a node or an edge,
 // and can be either a StepNodeElement/StepEdgeElement (from stored steps) or a GNode/GEdge (from rendered steps).
-type GenericStepType =
-  | Array<StepNodeElement | StepEdgeElement>
-  | StepNodeElement
-  | StepEdgeElement
-  | GEdge
-  | GNode;
+type GenericStepType = Array<StepNodeElement | StepEdgeElement> | StepNodeElement | StepEdgeElement;
 
 export type CurrentStep<T extends GenericStepType = StepNodeElement | StepEdgeElement> = {
   elements: Array<T & { classes: string[] }>;
@@ -72,7 +65,6 @@ interface Step<T extends GenericStepType = StepNodeElement | StepEdgeElement> {
 
 // export type StoredStep = Step<StepNodeElement | StepEdgeElement>;
 export type StoredStep = Step<StepNodeElement | StepEdgeElement>;
-export type RenderedStep = Step<GNode | GEdge>;
 
 export type RunMode = "step-by-step" | "continuous";
 
@@ -151,6 +143,12 @@ export interface GraphState {
   saveImage: () => Promise<string>;
 
   // Algorithm implementations
+  findSCCs: () => {
+    components: string[][];
+    steps: StoredStep[];
+    message: string;
+  };
+
   findConnectedComponents: (startNodeId: string) => {
     components: string[][];
     steps: StoredStep[];

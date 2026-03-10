@@ -7,7 +7,7 @@ import {
   SpeedControl,
   FileOperation,
   PrimaryControlButtons,
-  // GraphTypeSelect,
+  GraphTypeSelect,
 } from "@/components/layouts/sidebar/index";
 import type { GraphAlgorithm, RunMode, StoredStep } from "@/types/graph";
 import { useToast } from "@/components/ui/toast";
@@ -85,14 +85,15 @@ function Sidebar({ className }: { className?: string }) {
   useEffect(() => {
     switch (currentAlgorithm) {
       case "connected-components": {
-        const { steps, message } = findConnectedComponents(startNodeId);
-        console.log(message);
+        const { steps, message, components } = findConnectedComponents(startNodeId);
+        console.log(components);
         setSteps(steps || []);
 
         break;
       }
       case "eulerian-cycle": {
-        const { steps } = findEulerianCycle(startNodeId);
+        const { steps, message } = findEulerianCycle(startNodeId);
+        console.log(message);
         setSteps(steps || []);
         break;
       }
@@ -246,11 +247,11 @@ function Sidebar({ className }: { className?: string }) {
       )}
     >
       {/* GRAPH TYPE */}
-      {/* <GraphTypeSelect
+      <GraphTypeSelect
         isDirected={isDirected}
         isAnimating={isAnimating}
         onSelect={handleGraphTypeChange}
-      /> */}
+      />
 
       {/* ALGORITHM SELECTION */}
       <RunConfigSelect<GraphAlgorithm>

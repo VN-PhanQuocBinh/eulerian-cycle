@@ -59,15 +59,15 @@ const GraphCanvas = () => {
     };
   }, []);
 
-  // useEffect(() => {
-  //   if (!cyRef.current) return;
+  useEffect(() => {
+    if (!cyRef.current) return;
 
-  //   if (isDirected) {
-  //     cyRef.current.edges().addClass("directed");
-  //   } else {
-  //     cyRef.current.edges().removeClass("directed");
-  //   }
-  // }, [cyRef.current, isDirected]);
+    if (isDirected) {
+      cyRef.current.edges().addClass("directed");
+    } else {
+      cyRef.current.edges().removeClass("directed");
+    }
+  }, [cyRef.current, isDirected, edges]);
 
   // Set toast handler in graph store
   useEffect(() => {
