@@ -19,7 +19,7 @@ export interface FindEulerianCycleProps {
 }
 
 export interface CheckEulerianCycle {
-  params: Omit<FindEulerianCycleProps["params"], "cyInstance">;
+  params: FindEulerianCycleProps["params"];
 }
 
 function checkBalancedDegrees({
@@ -64,10 +64,10 @@ function checkBalancedDegrees({
 function checkSCC({
   params,
 }: {
-  params: Pick<FindEulerianCycleProps["params"], "adjacencyList" | "nodes">;
+  params: Pick<FindEulerianCycleProps["params"], "adjacencyList" | "nodes" | "cyInstance">;
 }): AlgorithmCheckResult {
-  const { adjacencyList, nodes } = params;
-  const { components } = findSCCs({ adjacencyList });
+  const { adjacencyList, nodes, cyInstance } = params;
+  const { components } = findSCCs({ adjacencyList, cyInstance });
   console.log("Strongly connected components:", components);
 
   const aloneNodes = new Set();
@@ -90,7 +90,7 @@ function checkSCC({
 }
 
 function checkEulerianCycle({ params }: CheckEulerianCycle): AlgorithmCheckResult {
-  const { nodes, edges, isDirected, adjacencyList } = params;
+  const { nodes, edges, isDirected, adjacencyList, cyInstance } = params;
 
   if (nodes.length === 0) {
     return { exists: false, reasons: ["Graph is empty."] };
@@ -98,7 +98,7 @@ function checkEulerianCycle({ params }: CheckEulerianCycle): AlgorithmCheckResul
 
   if (isDirected) {
     const balancedDegreesCheck = checkBalancedDegrees({ nodes, edges });
-    const sccCheck = checkSCC({ params: { adjacencyList, nodes } });
+    const sccCheck = checkSCC({ params: { adjacencyList, nodes, cyInstance } });
     if (!balancedDegreesCheck.exists || !sccCheck.exists) {
       return {
         exists: false,
