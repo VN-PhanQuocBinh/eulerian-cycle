@@ -48,9 +48,9 @@ export type CurrentStep<T extends GenericStepType = StepNodeElement | StepEdgeEl
   elements: Array<T & { classes: string[] }>;
   action: StepAction;
   message: string[];
-  stack?: GraphNode[];
-  queue?: String[];
-  circuit?: GraphNode[];
+  stack?: string[];
+  queue?: string[];
+  circuit?: string[];
   visited?: Set<string>;
 
   // Will set required after add pseudo code for connected components algorithm
@@ -162,7 +162,7 @@ export interface GraphState {
   };
 
   // Algorithm operations
-  getAdjacencyList: () => Map<string, GraphNode[]>;
+  getAdjacencyList: () => Map<string, string[]>;
 
   // Helpers
   highlightNode: (nodeId: string, className: string[], pulse?: boolean) => void;

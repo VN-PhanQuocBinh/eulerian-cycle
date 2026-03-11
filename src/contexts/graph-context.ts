@@ -341,10 +341,10 @@ export const useGraphStore = create<GraphState>()(
       },
 
       // Algorithms implementation
-      getAdjacencyList: (): Map<string, GraphNode[]> => {
+      getAdjacencyList: (): Map<string, string[]> => {
         const state = get();
         const { nodes, edges, isDirected } = state;
-        const adjacencyList: Map<string, GraphNode[]> = new Map();
+        const adjacencyList: Map<string, string[]> = new Map();
 
         // Initialize adjacency list
         nodes.forEach((node) => {
@@ -357,7 +357,7 @@ export const useGraphStore = create<GraphState>()(
           if (sourceAdj) {
             const targetNode = nodes.find((n) => n.id === edge.target);
             if (targetNode) {
-              sourceAdj.push(targetNode);
+              sourceAdj.push(targetNode.id);
             }
           } else {
             alert("Error: Source node not found in adjacency list");
@@ -369,7 +369,7 @@ export const useGraphStore = create<GraphState>()(
             if (targetAdj) {
               const sourceNode = nodes.find((n) => n.id === edge.source);
               if (sourceNode) {
-                targetAdj.push(sourceNode);
+                targetAdj.push(sourceNode.id);
               }
             } else {
               alert("Error: Target node not found in adjacency list");
@@ -425,9 +425,9 @@ export const useGraphStore = create<GraphState>()(
 
       // ========== ALGORITHM IMPLEMENTATIONS ==========
       findSCCs: () => {
-        const { getAdjacencyList } = get();
+        const { getAdjacencyList, cyInstance } = get();
         const adjacencyList = getAdjacencyList();
-        return findSCCsAlgorithm({ adjacencyList });
+        return findSCCsAlgorithm({ adjacencyList, cyInstance });
       },
 
       findConnectedComponents: (startNodeId: string): ConnectedComponentsResult => {

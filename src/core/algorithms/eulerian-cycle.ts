@@ -1,5 +1,6 @@
 import type { GraphState, StoredStep, GraphNode } from "@/types/graph";
 import { findSCCs } from "./scc";
+import { getLabelById } from "@/utils";
 
 export type AlgorithmCheckResult = {
   exists: boolean;
@@ -151,8 +152,8 @@ export function findEulerianCycle({ params, startNodeId }: FindEulerianCycleProp
   }
 
   // Hierholzer's Algorithm
-  const circuit: GraphNode[] = [];
-  const stack: GraphNode[] = [nodes[startIndex]];
+  const circuit: string[] = [];
+  const stack: string[] = [nodes[startIndex].id];
   const visitedEdges = new Set<string>();
 
   steps.push({
@@ -167,24 +168,24 @@ export function findEulerianCycle({ params, startNodeId }: FindEulerianCycleProp
         "Copy Graph and initialize stack",
         `Initializing stack with starting node ${nodes[startIndex].label}`,
       ],
-      stack: [nodes[startIndex]],
+      stack: [nodes[startIndex].id],
       circuit: [],
     },
   });
 
   while (stack.length > 0) {
-    const currentNode = stack[stack.length - 1];
-    const currentNodeNeighbors = adjacencyList.get(currentNode.id) || [];
+    const currentNodeId = stack[stack.length - 1];
+    const currentNodeNeighbors = adjacencyList.get(currentNodeId) || [];
 
     if (currentNodeNeighbors.length > 0) {
-      const nextNode = currentNodeNeighbors.pop()!;
+      const nextNodeId = currentNodeNeighbors.pop()!;
 
       let processingEdge = cyInstance.edges(
-        `edge[source = "${currentNode.id}"][target = "${nextNode.id}"]`,
+        `edge[source = "${currentNodeId}"][target = "${nextNodeId}"]`,
       );
       if (processingEdge.length === 0 && !isDirected) {
         processingEdge = cyInstance.edges(
-          `edge[source = "${nextNode.id}"][target = "${currentNode.id}"]`,
+          `edge[source = "${nextNodeId}"][target = "${currentNodeId}"]`,
         );
       }
 
@@ -195,8 +196,8 @@ export function findEulerianCycle({ params, startNodeId }: FindEulerianCycleProp
       if (!edgeId) continue;
 
       if (!isDirected) {
-        const nextNodeNeighbors = adjacencyList.get(nextNode.id) || [];
-        const index = nextNodeNeighbors.indexOf(currentNode);
+        const nextNodeNeighbors = adjacencyList.get(nextNodeId) || [];
+        const index = nextNodeNeighbors.indexOf(currentNodeId);
         if (index !== -1) nextNodeNeighbors.splice(index, 1);
       }
 
@@ -205,15 +206,19 @@ export function findEulerianCycle({ params, startNodeId }: FindEulerianCycleProp
           elements: [
             {
               type: "node",
-              id: currentNode.id,
-              label: currentNode.label,
-              classes: cyInstance.getElementById(currentNode.id).classes(),
+              id: currentNodeId,
+              label: getLabelById(cyInstance, currentNodeId),
+              classes: cyInstance.getElementById(currentNodeId).classes(),
             },
             {
               type: "edge",
               id: edgeId,
-              source: { type: "node", id: currentNode.id, label: currentNode.label },
-              target: { type: "node", id: nextNode.id, label: nextNode.label },
+              source: {
+                type: "node",
+                id: currentNodeId,
+                label: getLabelById(cyInstance, currentNodeId),
+              },
+              target: { type: "node", id: nextNodeId, label: getLabelById(cyInstance, nextNodeId) },
               classes: cyInstance.getElementById(edgeId).classes(),
             },
           ],
@@ -222,32 +227,36 @@ export function findEulerianCycle({ params, startNodeId }: FindEulerianCycleProp
           elements: [
             {
               type: "node",
-              id: currentNode.id,
-              label: currentNode.label,
+              id: currentNodeId,
+              label: getLabelById(cyInstance, currentNodeId),
               classes: ["exploring"],
             },
             {
               type: "edge",
               id: edgeId,
-              source: { type: "node", id: currentNode.id, label: currentNode.label },
-              target: { type: "node", id: nextNode.id, label: nextNode.label },
+              source: {
+                type: "node",
+                id: currentNodeId,
+                label: getLabelById(cyInstance, currentNodeId),
+              },
+              target: { type: "node", id: nextNodeId, label: getLabelById(cyInstance, nextNodeId) },
               classes: ["in-cycle"],
             },
           ],
           highlightedPseudoCodeLineIds: [[6, 7], 8, [9, 10], 11],
           action: "traverse",
           message: [
-            `Exploring from node ${currentNode.label}`,
-            `Traversing edge from ${currentNode.label} to ${nextNode.label}`,
-            `Marking edge (${currentNode.label}, ${nextNode.label}) as visited`,
+            `Exploring from node ${getLabelById(cyInstance, currentNodeId)}`,
+            `Traversing edge from ${getLabelById(cyInstance, currentNodeId)} to ${getLabelById(cyInstance, nextNodeId)}`,
+            `Marking edge (${getLabelById(cyInstance, currentNodeId)}, ${getLabelById(cyInstance, nextNodeId)}) as visited`,
           ],
-          stack: [...stack, nextNode],
+          stack: [...stack, nextNodeId],
           circuit: [...circuit],
         },
       });
 
       visitedEdges.add(edgeId);
-      stack.push(nextNode);
+      stack.push(nextNodeId);
     } else {
       circuit.push(stack.pop()!);
       steps.push({
@@ -255,9 +264,9 @@ export function findEulerianCycle({ params, startNodeId }: FindEulerianCycleProp
           elements: [
             {
               type: "node",
-              id: currentNode.id,
-              label: currentNode.label,
-              classes: cyInstance.getElementById(currentNode.id).classes(),
+              id: currentNodeId,
+              label: getLabelById(cyInstance, currentNodeId),
+              classes: cyInstance.getElementById(currentNodeId).classes(),
             },
           ],
         },
@@ -265,17 +274,17 @@ export function findEulerianCycle({ params, startNodeId }: FindEulerianCycleProp
           elements: [
             {
               type: "node",
-              id: currentNode.id,
-              label: currentNode.label,
+              id: currentNodeId,
+              label: getLabelById(cyInstance, currentNodeId),
               classes: ["in-cycle"],
             },
           ],
           highlightedPseudoCodeLineIds: [[6, 7], 12, 13, 14],
           action: "add-to-circuit",
           message: [
-            `Exploring from node ${currentNode.label}`,
-            `No more neighbors to explore from ${currentNode.label}`,
-            `Added ${currentNode.label} to circuit`,
+            `Exploring from node ${getLabelById(cyInstance, currentNodeId)}`,
+            `No more neighbors to explore from ${getLabelById(cyInstance, currentNodeId)}`,
+            `Added ${getLabelById(cyInstance, currentNodeId)} to circuit`,
           ],
           stack: [...stack],
           circuit: [...circuit],

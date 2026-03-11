@@ -88,8 +88,8 @@ export function findConnectedComponents({
       component.push(current);
 
       const currentNode = cyInstance.getElementById(current);
-      const neighbors = adjacencyList.get(current) || [];
-      const untreatedNeighbors = neighbors.filter((n) => !visited.has(n.id));
+      const neighborIds = adjacencyList.get(current) || [];
+      const untreatedNeighbors = neighborIds.filter((neighborId) => !visited.has(neighborId));
 
       // Record step for visiting node
       steps.push({
@@ -123,20 +123,20 @@ export function findConnectedComponents({
           highlightedPseudoCodeLineIds: [4, [5, 6]],
         },
       });
-
-      for (const neighbor of neighbors) {
-        if (!visited.has(neighbor.id)) {
-          visited.add(neighbor.id);
-          const neighborNode = cyInstance.getElementById(neighbor.id);
+      
+      for (const neighborId of neighborIds) {
+        if (!visited.has(neighborId)) {
+          visited.add(neighborId);
+          const neighborNode = cyInstance.getElementById(neighborId);
 
           // Highlight edge being explored
-          let processingEdge = cyInstance.edges(`[source="${current}"][target="${neighbor.id}"]`);
+          let processingEdge = cyInstance.edges(`[source="${current}"][target="${neighborId}"]`);
           if (processingEdge.length === 0) {
-            processingEdge = cyInstance.edges(`[source="${neighbor.id}"][target="${current}"]`);
+            processingEdge = cyInstance.edges(`[source="${neighborId}"][target="${current}"]`);
           }
 
           // Enqueue neighbor
-          queue.push(neighbor.id);
+          queue.push(neighborId);
 
           steps.push({
             prev: {
@@ -151,7 +151,7 @@ export function findConnectedComponents({
                   },
                   target: {
                     type: "node",
-                    id: neighbor.id,
+                    id: neighborId,
                     label: neighborNode.data("label"),
                   },
                   classes: processingEdge[0].classes(),
@@ -170,7 +170,7 @@ export function findConnectedComponents({
                   },
                   target: {
                     type: "node",
-                    id: neighbor.id,
+                    id: neighborId,
                     label: neighborNode.data("label"),
                   },
                   classes: [`component-${componentIndex % COMPONENT_COLORS.length}`],
