@@ -20,6 +20,7 @@ electron.contextBridge.exposeInMainWorld("ipcRenderer", {
   // You can expose other APTs you need here.
   saveGraph: (graphData) => electron.ipcRenderer.invoke("save-graph", graphData),
   loadGraph: () => electron.ipcRenderer.invoke("load-graph"),
+  saveImage: (imageData) => electron.ipcRenderer.invoke("save-image", imageData),
   onRequestSaveGraph: (callback) => {
     electron.ipcRenderer.on("request-save-graph", callback);
     return () => electron.ipcRenderer.removeListener("request-save-graph", callback);
@@ -27,5 +28,9 @@ electron.contextBridge.exposeInMainWorld("ipcRenderer", {
   onRequestLoadGraph: (callback) => {
     electron.ipcRenderer.on("request-load-graph", callback);
     return () => electron.ipcRenderer.removeListener("request-load-graph", callback);
+  },
+  onRequestSaveImage: (callback) => {
+    electron.ipcRenderer.on("request-save-image", callback);
+    return () => electron.ipcRenderer.removeListener("request-save-image", callback);
   }
 });

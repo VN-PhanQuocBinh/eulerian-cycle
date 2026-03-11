@@ -29,6 +29,12 @@ export const graphStyles: cytoscape.StylesheetJson = [
     style: EDGE_STYLES,
   },
   {
+    selector: "edge.directed",
+    style: {
+      "target-arrow-shape": "triangle",
+    },
+  },
+  {
     selector: "node:selected",
     style: {
       "background-color": "#f0c002", // Viền đỏ khi chọn

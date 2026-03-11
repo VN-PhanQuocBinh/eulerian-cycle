@@ -82,23 +82,23 @@ button {
   cursor: pointer;
 }
 
-.custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
+*::-webkit-scrollbar {
+  width: 8px;
   height: 8px;
 }
 
-.custom-scrollbar::-webkit-scrollbar-track {
+*::-webkit-scrollbar-track {
   background: transparent;
   margin: 4px;
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb {
+*::-webkit-scrollbar-thumb {
   @apply bg-gray-300;
   border-radius: 6px;
   transition: background-color 0.2s;
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+*::-webkit-scrollbar-thumb:hover {
   @apply bg-gray-400;
 }
 

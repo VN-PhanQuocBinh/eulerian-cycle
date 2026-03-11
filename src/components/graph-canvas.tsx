@@ -4,19 +4,24 @@ import edgehandles from "cytoscape-edgehandles";
 import { useNodeInput } from "./ui/node-input";
 import type { EdgeHandlesInstance, EdgeHandlesOptions } from "cytoscape-edgehandles";
 import FunctionalBar from "./functional-bar";
+import ZoomBar from "./zoom-bar";
 // import AdjacencyListPanel from "./adjacency-list-panel";
 import { useGraphStore } from "@/contexts/graph-context";
 import type { GraphEdge, GraphNode } from "@/types/graph";
 import { useToast } from "./ui/toast";
 import { graphStyles } from "@/configs/graph";
+import dagre from "cytoscape-dagre";
+import { generateNodeId, generateEdgeId } from "@/utils/generate-id";
 
 cytoscape.use(edgehandles);
+cytoscape.use(dagre);
 
 const GraphCanvas = () => {
   const { showToast } = useToast();
 
   const graphMode = useGraphStore((state) => state.mode);
   const edges = useGraphStore((state) => state.edges);
+  const isDirected = useGraphStore((state) => state.isDirected);
   const addNode = useGraphStore((state) => state.addNode);
   const updateNode = useGraphStore((state) => state.updateNode);
   const addEdge = useGraphStore((state) => state.addEdge);
@@ -42,11 +47,27 @@ const GraphCanvas = () => {
       loadGraph();
     });
 
+    const removeSaveImageListener = (window as any).ipcRenderer?.onRequestSaveImage?.(() => {
+      const { saveImage } = useGraphStore.getState();
+      saveImage();
+    });
+
     return () => {
       if (removeSaveListener) removeSaveListener();
       if (removeLoadListener) removeLoadListener();
+      if (removeSaveImageListener) removeSaveImageListener();
     };
   }, []);
+
+  // useEffect(() => {
+  //   if (!cyRef.current) return;
+
+  //   if (isDirected) {
+  //     cyRef.current.edges().addClass("directed");
+  //   } else {
+  //     cyRef.current.edges().removeClass("directed");
+  //   }
+  // }, [cyRef.current, isDirected]);
 
   // Set toast handler in graph store
   useEffect(() => {
@@ -84,11 +105,10 @@ const GraphCanvas = () => {
       ): cytoscape.ElementDefinition {
         // for edges between the specified source and target
         // return element object to be passed to cy.add() for edge
-        const uniqueId = `edge-${sourceNode.id()}-${targetNode.id()}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+        const uniqueId = generateEdgeId(sourceNode.id(), targetNode.id());
 
         return {
           data: {
-            // id: `e-${sourceNode.id()}-${targetNode.id()}`,
             id: uniqueId,
             source: sourceNode.id(),
             target: targetNode.id(),
@@ -158,8 +178,7 @@ const GraphCanvas = () => {
           x: event.renderedPosition.x,
           y: event.renderedPosition.y,
           onComplete: (label: string) => {
-            // const nodeId = generateNodeId();
-            const nodeId = `node_${label}`;
+            const nodeId = generateNodeId(label);
             addNode({ id: nodeId.toLowerCase(), label, x, y });
           },
         });
@@ -246,7 +265,7 @@ const GraphCanvas = () => {
       <div ref={containerRef} className="w-full h-full" />
 
       <FunctionalBar />
-      {/* <AdjacencyListPanel /> */}
+      <ZoomBar />
     </div>
   );
 };

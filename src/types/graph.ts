@@ -1,5 +1,7 @@
 import type cytoscape from "cytoscape";
 import type { ToastHandler } from "@/components/ui/toast";
+import { GNode } from "@/core/models/gnode";
+import { GEdge } from "@/core/models/gedge";
 
 // Types
 export type GraphMode = "view" | "add-node" | "add-edge" | "delete";
@@ -13,7 +15,7 @@ export interface GraphNode {
 }
 
 export interface GraphEdge {
-  id: `e-${string}-${string}`;
+  id: string;
   source: string;
   target: string;
 }
@@ -26,39 +28,58 @@ export type StepAction =
   | "traverse"
   | "add-to-circuit";
 
-export type BaseStep = {
-  elementType: "node" | "edge";
+export type StepNodeElement = {
+  type: "node";
+  id: string;
+  label: string;
+};
+
+export type StepEdgeElement = {
+  type: "edge";
+  id: string;
+  source: StepNodeElement;
+  target: StepNodeElement;
+};
+
+// This type is used for the current step's element,
+// which can be either a node or an edge,
+// and can be either a StepNodeElement/StepEdgeElement (from stored steps) or a GNode/GEdge (from rendered steps).
+type GenericStepType =
+  | Array<StepNodeElement | StepEdgeElement>
+  | StepNodeElement
+  | StepEdgeElement
+  | GEdge
+  | GNode;
+
+export type CurrentStep<T extends GenericStepType = StepNodeElement | StepEdgeElement> = {
+  elements: Array<T & { classes: string[] }>;
   action: StepAction;
-  classes: string[];
-  message: string;
-  stack?: string[];
-  circuit?: string[];
+  message: string[];
+  stack?: GraphNode[];
+  queue?: String[];
+  circuit?: GraphNode[];
+  visited?: Set<string>;
+
+  // Will set required after add pseudo code for connected components algorithm
+  highlightedPseudoCodeLineIds?: Array<number | Array<number>>;
 };
+export type PrevStep = Pick<CurrentStep, "stack" | "circuit" | "elements">;
 
-export type NodeStep = BaseStep & {
-  elementType: "node";
-  elementId: string;
-};
-
-export type EdgeStep = BaseStep & {
-  elementType: "edge";
-  sourceElement: string;
-  targetElement: string;
-};
-
-export type CurrentStep = NodeStep | EdgeStep;
-export type PrevStep = Pick<CurrentStep, "classes" | "stack" | "circuit">;
-
-export interface Step {
+interface Step<T extends GenericStepType = StepNodeElement | StepEdgeElement> {
   prev: PrevStep;
-  current: CurrentStep;
+  current: CurrentStep<T>;
 }
+
+// export type StoredStep = Step<StepNodeElement | StepEdgeElement>;
+export type StoredStep = Step<StepNodeElement | StepEdgeElement>;
+export type RenderedStep = Step<GNode | GEdge>;
 
 export type RunMode = "step-by-step" | "continuous";
 
 export interface ConnectedComponentsResult {
   components: string[][];
-  steps: Step[];
+  steps: StoredStep[];
+  message: string;
 }
 
 export interface GraphData {
@@ -77,6 +98,13 @@ export interface GraphState {
   ehInstance: any | null;
   graphData: GraphData;
 
+  // Algorithm state
+  currentAlgorithm: GraphAlgorithm | null;
+  steps: StoredStep[];
+  isAnimating: boolean;
+  currentStepIndex: number;
+  speed: number;
+
   // Actions
   setMode: (mode: GraphMode) => void;
   setIsDirected: (isDirected: boolean) => void;
@@ -84,6 +112,16 @@ export interface GraphState {
   setEhInstance: (instance: any) => void;
   getCurrentNodesData: () => GraphNode[];
   getCurrentEdgesData: () => GraphEdge[];
+
+  setIsAnimating: (isAnimating: boolean) => void;
+  setCurrentStepIndex: (index: number) => void;
+  setSpeed: (speed: number) => void;
+  nextStep: () => void;
+  prevStep: () => void;
+
+  // Algorithm state operations
+  setCurrentAlgorithm: (algorithm: GraphAlgorithm | null) => void;
+  setSteps: (steps: StoredStep[]) => void;
 
   // Toast handler
   toastHandler: ToastHandler;
@@ -106,20 +144,27 @@ export interface GraphState {
   clearGraph: () => void;
   resetGraph: () => void;
   drawGraphFromData: (data: GraphData) => void;
+  autoLayout: () => void;
 
   saveGraph: () => Promise<string>;
   loadGraph: () => Promise<string>;
+  saveImage: () => Promise<string>;
 
   // Algorithm implementations
-  findConnectedComponents: () => {
+  findConnectedComponents: (startNodeId: string) => {
     components: string[][];
-    steps: Step[];
+    steps: StoredStep[];
+    message: string;
   };
   checkEulerianCycle: () => { exists: boolean; reason?: string };
-  findEulerianCycle: () => { cycle: string[] | null; steps: Step[]; message?: string };
+  findEulerianCycle: (startNodeId?: string) => {
+    cycle: GraphNode[] | null;
+    steps: Step[];
+    message?: string;
+  };
 
   // Algorithm operations
-  getAdjacencyList: () => Map<string, string[]>;
+  getAdjacencyList: () => Map<string, GraphNode[]>;
 
   // Helpers
   highlightNode: (nodeId: string, className: string[], pulse?: boolean) => void;

@@ -22,6 +22,7 @@ contextBridge.exposeInMainWorld("ipcRenderer", {
   // You can expose other APTs you need here.
   saveGraph: (graphData: string) => ipcRenderer.invoke("save-graph", graphData),
   loadGraph: () => ipcRenderer.invoke("load-graph"),
+  saveImage: (imageData: string) => ipcRenderer.invoke("save-image", imageData),
 
   onRequestSaveGraph: (callback: () => void) => {
     ipcRenderer.on("request-save-graph", callback);
@@ -30,5 +31,10 @@ contextBridge.exposeInMainWorld("ipcRenderer", {
   onRequestLoadGraph: (callback: () => void) => {
     ipcRenderer.on("request-load-graph", callback);
     return () => ipcRenderer.removeListener("request-load-graph", callback);
+  },
+
+  onRequestSaveImage: (callback: () => void) => {
+    ipcRenderer.on("request-save-image", callback);
+    return () => ipcRenderer.removeListener("request-save-image", callback);
   },
 });
