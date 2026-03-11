@@ -112,6 +112,7 @@ function runSCC({
       });
 
       runSCC({
+        cyInstance,
         steps,
         u: neighborId,
         adjacencyList,
