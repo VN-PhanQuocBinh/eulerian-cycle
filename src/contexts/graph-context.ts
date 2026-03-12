@@ -419,13 +419,33 @@ export const useGraphStore = create<GraphState>()(
         );
 
         if (highlightedEdge) {
+          let addClasses: string[] = [];
+          let removeClasses: string[] = [];
+          className.forEach((classString) => {
+            if (classString.startsWith("-")) {
+              removeClasses.push(classString.substring(1));
+            } else {
+              addClasses.push(classString);
+            }
+          });
+
           highlightedEdge.addClass(className);
+          highlightedEdge.removeClass(removeClasses);
         }
       },
 
       // ========== ALGORITHM IMPLEMENTATIONS ==========
       findSCCs: () => {
-        const { getAdjacencyList, cyInstance } = get();
+        const { getAdjacencyList, cyInstance, nodes } = get();
+
+        if (!cyInstance || nodes.length === 0) {
+          return {
+            components: [],
+            steps: [],
+            message: "Graph is empty. Please add nodes and edges to find SCCs.",
+          };
+        }
+
         const adjacencyList = getAdjacencyList();
         return findSCCsAlgorithm({ adjacencyList, cyInstance });
       },

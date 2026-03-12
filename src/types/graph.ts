@@ -3,7 +3,10 @@ import type { ToastHandler } from "@/components/ui/toast";
 
 // Types
 export type GraphMode = "view" | "add-node" | "add-edge" | "delete";
-export type GraphAlgorithm = "eulerian-cycle" | "connected-components";
+export type GraphAlgorithm =
+  | "eulerian-cycle"
+  | "connected-components"
+  | "strongly-connected-components";
 
 export interface GraphNode {
   id: string;
@@ -52,6 +55,10 @@ export type CurrentStep<T extends GenericStepType = StepNodeElement | StepEdgeEl
   queue?: string[];
   circuit?: string[];
   visited?: Set<string>;
+
+  // scc
+  dsc?: Map<string, number>;
+  lowLink?: Map<string, number>;
 
   // Will set required after add pseudo code for connected components algorithm
   highlightedPseudoCodeLineIds?: Array<number | Array<number>>;
@@ -154,6 +161,7 @@ export interface GraphState {
     steps: StoredStep[];
     message: string;
   };
+
   checkEulerianCycle: () => { exists: boolean; reason?: string };
   findEulerianCycle: (startNodeId?: string) => {
     cycle: GraphNode[] | null;

@@ -43,6 +43,7 @@ function Sidebar({ className }: { className?: string }) {
   const highlightEdge = useGraphStore((state) => state.highlightEdge);
   const findConnectedComponents = useGraphStore((state) => state.findConnectedComponents);
   const findEulerianCycle = useGraphStore((state) => state.findEulerianCycle);
+  const findSCCs = useGraphStore((state) => state.findSCCs);
   const resetGraph = useGraphStore((state) => state.resetGraph);
 
   // Local state
@@ -85,9 +86,15 @@ function Sidebar({ className }: { className?: string }) {
   useEffect(() => {
     switch (currentAlgorithm) {
       case "connected-components": {
-        const { steps, message, components } = findConnectedComponents(startNodeId);
-        console.log(components);
-        setSteps(steps || []);
+        if (isDirected) {
+          const { steps, message, components } = findSCCs();
+          console.log(steps);
+          setSteps(steps || []);
+        } else {
+          const { steps, message, components } = findConnectedComponents(startNodeId);
+          console.log(components);
+          setSteps(steps || []);
+        }
 
         break;
       }
@@ -131,6 +138,12 @@ function Sidebar({ className }: { className?: string }) {
       const prevStepData = steps[currentStepValue - 1].prev;
       const currentStepElements = currentStepData.elements;
       const prevStepElements = prevStepData.elements;
+
+      console.log("Reverting to previous step:", {
+        currentStepData,
+        prevStepData,
+      });
+      console.log("Current index:", currentStepValue);
 
       if (
         !prevStepData ||

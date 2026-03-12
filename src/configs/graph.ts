@@ -25,6 +25,10 @@ export const graphStyles: cytoscape.StylesheetJson = [
     style: NODE_STYLES,
   },
   {
+    selector: "node.default",
+    style: NODE_STYLES,
+  },
+  {
     selector: "edge",
     style: EDGE_STYLES,
   },
@@ -88,22 +92,6 @@ export const graphStyles: cytoscape.StylesheetJson = [
     },
   },
 
-  ...COMPONENT_COLORS.map((color, index) => ({
-    selector: `node.component-${index}`,
-    style: {
-      "background-color": color,
-    },
-  })),
-
-  ...COMPONENT_COLORS.map((color, index) => ({
-    selector: `edge.component-${index}`,
-    style: {
-      "line-color": color,
-      "target-arrow-color": color,
-      width: 4,
-    } as cytoscape.Css.Edge,
-  })),
-
   {
     selector: "node.exploring",
     style: {
@@ -129,62 +117,81 @@ export const graphStyles: cytoscape.StylesheetJson = [
     } as cytoscape.Css.Edge,
   },
 
-  {
-    selector: "node.scc-visiting",
-    style: {
-      "background-color": "#f59e0b", // vàng cam - đang active
-      "border-color": "#f59e0b",
-      "border-width": "4px",
-    },
-  },
-  {
-    selector: "node.scc-in-stack",
-    style: {
-      "background-color": "#6366f1", // tím nhạt - đang trên stack
-      "border-color": "#6366f1",
-      "border-width": "3px",
-    },
-  },
-  {
-    selector: "node.scc-root",
-    style: {
-      "background-color": "#ef4444", // đỏ - là root của SCC
-      "border-color": "#ef4444",
-      "border-width": "4px",
-    },
-  },
-  {
-    selector: "edge.scc-tree-edge",
-    style: {
-      "line-color": "#f59e0b",
-      "target-arrow-color": "#f59e0b",
-      width: 4,
-    } as cytoscape.Css.Edge,
-  },
-  {
-    selector: "edge.scc-back-edge",
-    style: {
-      "line-color": "#ef4444",
-      "target-arrow-color": "#ef4444",
-      width: 4,
-    } as cytoscape.Css.Edge,
-  },
-
   // ========== STYLES FOR SCC ANIMATION ==========
   {
     selector: "node.scc-visiting",
     style: {
       "background-color": "#f59e0b", // vàng cam - đang active
-      "border-color": "#f59e0b",
-      "border-width": "4px",
     },
   },
   {
     selector: "node.scc-in-stack",
     style: {
       "background-color": "#6366f1", // tím nhạt - đang trên stack
-      "border-color": "#6366f1",
-      "border-width": "3px",
     },
   },
+  {
+    selector: "edge.scc-visiting",
+    style: {
+      "line-color": "#6366f1",
+      "target-arrow-color": "#6366f1",
+    },
+  },
+
+  ...COMPONENT_COLORS.map((color, index) => ({
+    selector: `node.component-${index}`,
+    style: {
+      "background-color": color,
+    },
+  })),
+
+  ...COMPONENT_COLORS.map((color, index) => ({
+    selector: `edge.component-${index}`,
+    style: {
+      "line-color": color,
+      "target-arrow-color": color,
+      width: 4,
+    } as cytoscape.Css.Edge,
+  })),
+
+  // {
+  //   selector: "node.scc-visiting",
+  //   style: {
+  //     "background-color": "#f59e0b", // vàng cam - đang active
+  //     "border-color": "#f59e0b",
+  //     "border-width": "4px",
+  //   },
+  // },
+  // {
+  //   selector: "node.scc-in-stack",
+  //   style: {
+  //     "background-color": "#6366f1", // tím nhạt - đang trên stack
+  //     "border-color": "#6366f1",
+  //     "border-width": "3px",
+  //   },
+  // },
+  // {
+  //   selector: "node.scc-root",
+  //   style: {
+  //     "background-color": "#ef4444", // đỏ - là root của SCC
+  //     "border-color": "#ef4444",
+  //     "border-width": "4px",
+  //   },
+  // },
+  // {
+  //   selector: "edge.scc-tree-edge",
+  //   style: {
+  //     "line-color": "#f59e0b",
+  //     "target-arrow-color": "#f59e0b",
+  //     width: 4,
+  //   } as cytoscape.Css.Edge,
+  // },
+  // {
+  //   selector: "edge.scc-back-edge",
+  //   style: {
+  //     "line-color": "#ef4444",
+  //     "target-arrow-color": "#ef4444",
+  //     width: 4,
+  //   } as cytoscape.Css.Edge,
+  // },
 ];

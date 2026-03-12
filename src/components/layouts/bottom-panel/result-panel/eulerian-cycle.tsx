@@ -32,7 +32,7 @@ export function EulerianCycleStepsTable({ steps }: Props) {
   }
 
   return (
-    <div className="bg-white p-4">
+    <div className="bg-white px-4 h-full overflow-y-auto custom-scrollbar">
       <Table className="">
         <TableHeader className="">
           <TableRow className="top-0 border-b border-blue-200">

@@ -1,3 +1,4 @@
+import { COMPONENT_COLORS } from "@/types/styles";
 import { GraphNode, StoredStep, GraphState } from "@/types/graph";
 import { getLabelById } from "@/utils";
 
@@ -25,6 +26,13 @@ interface RunSCCParams {
   allSCCs: string[][];
 }
 
+const getClassesForNode = (cyInstance: GraphState["cyInstance"], nodeId: string): string[] => {
+  const node = cyInstance?.getElementById(nodeId);
+  if (!node) return [];
+  const classes = node.classes();
+  return classes;
+};
+
 // Tarjan's algorithm implementation for finding strongly connected components
 function runSCC({
   cyInstance,
@@ -38,18 +46,7 @@ function runSCC({
   timer,
   allSCCs,
 }: RunSCCParams) {
-  steps.push({
-    prev: {
-      elements: [],
-    },
-    current: {
-      elements: [],
-      highlightedPseudoCodeLineIds: [1],
-      action: "traverse",
-      message: ["Starting DFS from vertex u."],
-      stack: [...stack],
-    },
-  });
+  if (!cyInstance) return;
 
   timer.value++;
   disc.set(u, timer.value);
@@ -65,49 +62,84 @@ function runSCC({
           type: "node",
           id: u,
           label: getLabelById(cyInstance, u),
-          classes: ["exploring"],
+          classes: getClassesForNode(cyInstance, u),
         },
       ],
     },
     current: {
-      elements: [],
-      highlightedPseudoCodeLineIds: [2, 3],
+      elements: [
+        {
+          type: "node",
+          id: u,
+          label: getLabelById(cyInstance, u),
+          classes: ["scc-in-stack"],
+        },
+      ],
+      highlightedPseudoCodeLineIds: [1, 2, 3, 4],
       action: "traverse",
       message: [
-        "Set discovery time and low link for vertex u",
-        "Push u onto stack and mark as inStack.",
+        `Set discovery time and low link for vertex ${getLabelById(cyInstance, u)} to ${timer.value}.`,
+        `Push ${getLabelById(cyInstance, u)} onto stack and mark as inStack.`,
+        `For each neighbor v of ${getLabelById(cyInstance, u)}.`,
       ],
       stack: [...stack],
+      dsc: new Map(disc),
+      lowLink: new Map(lowLink),
     },
   });
 
   const neighborIds = adjacencyList.get(u) || [];
 
   for (const neighborId of neighborIds) {
-    steps.push({
-      prev: {
-        elements: [],
-      },
-      current: {
-        elements: [],
-        highlightedPseudoCodeLineIds: [4],
-        action: "traverse",
-        message: ["For each neighbor v of u."],
-        stack: [...stack],
-      },
-    });
+    if (disc.get(neighborId) === -1) {
+      const processingEdge = cyInstance.edges(`[source="${u}"][target="${neighborId}"]`);
 
-    if (!disc.has(neighborId)) {
       steps.push({
         prev: {
-          elements: [],
+          elements: [
+            {
+              type: "edge",
+              id: processingEdge[0].id(),
+              source: {
+                type: "node",
+                id: u,
+                label: getLabelById(cyInstance, u),
+              },
+              target: {
+                type: "node",
+                id: neighborId,
+                label: getLabelById(cyInstance, neighborId),
+              },
+              classes: processingEdge[0].classes(),
+            },
+          ],
         },
         current: {
-          elements: [],
+          elements: [
+            {
+              type: "edge",
+              id: processingEdge[0].id(),
+              source: {
+                type: "node",
+                id: u,
+                label: getLabelById(cyInstance, u),
+              },
+              target: {
+                type: "node",
+                id: neighborId,
+                label: getLabelById(cyInstance, neighborId),
+              },
+              classes: ["scc-visiting"],
+            },
+          ],
           highlightedPseudoCodeLineIds: [5, 6],
           action: "traverse",
-          message: ["Neighbor v is not visited. Recursively DFS on v."],
+          message: [
+            `Neighbor ${getLabelById(cyInstance, neighborId)} is not visited. Recursively DFS on ${getLabelById(cyInstance, neighborId)}.`,
+          ],
           stack: [...stack],
+          dsc: new Map(disc),
+          lowLink: new Map(lowLink),
         },
       });
 
@@ -139,6 +171,8 @@ function runSCC({
           action: "traverse",
           message: ["Update low link for vertex u."],
           stack: [...stack],
+          dsc: new Map(disc),
+          lowLink: new Map(lowLink),
         },
       });
     } else if (inStack.has(neighborId)) {
@@ -155,14 +189,38 @@ function runSCC({
           elements: [],
           highlightedPseudoCodeLineIds: [8, 9],
           action: "traverse",
-          message: ["Neighbor v is in stack. Update low link for vertex u."],
+          message: [
+            `Neighbor ${getLabelById(cyInstance, neighborId)} is in stack.`,
+            `Update low link for vertex ${getLabelById(cyInstance, u)}.`,
+          ],
           stack: [...stack],
+          dsc: new Map(disc),
+          lowLink: new Map(lowLink),
         },
       });
     }
   }
 
   if (lowLink.get(u) === disc.get(u)) {
+    steps.push({
+      prev: {
+        elements: [],
+      },
+      current: {
+        elements: [],
+        highlightedPseudoCodeLineIds: [10, 11],
+        action: "traverse",
+        message: [
+          `Low link of u = ${getLabelById(cyInstance, u)} is equal to discovery time.`,
+          "Found a strongly connected component.",
+          `Pop stack into new SCC until w == ${getLabelById(cyInstance, u)}.`,
+        ],
+        stack: [...stack],
+        dsc: new Map(disc),
+        lowLink: new Map(lowLink),
+      },
+    });
+
     const scc: string[] = [];
 
     while (true) {
@@ -170,23 +228,39 @@ function runSCC({
       inStack.delete(w);
       scc.push(w);
 
+      steps.push({
+        prev: {
+          elements: [
+            {
+              type: "node",
+              id: w,
+              label: getLabelById(cyInstance, w),
+              classes: getClassesForNode(cyInstance, w),
+            },
+          ],
+        },
+        current: {
+          elements: [
+            {
+              type: "node",
+              id: w,
+              label: getLabelById(cyInstance, w),
+              classes: [`component-${allSCCs.length % COMPONENT_COLORS.length}`],
+            },
+          ],
+          highlightedPseudoCodeLineIds: [11, 12],
+          action: "traverse",
+          message: [`Pop and add vertex ${getLabelById(cyInstance, w)} to current SCC.`],
+          stack: [...stack],
+          dsc: new Map(disc),
+          lowLink: new Map(lowLink),
+        },
+      });
+
       if (w === u) break;
     }
 
     allSCCs.push(scc);
-
-    steps.push({
-      prev: {
-        elements: [],
-      },
-      current: {
-        elements: [],
-        highlightedPseudoCodeLineIds: [10, 11, 12],
-        action: "traverse",
-        message: ["Found a strongly connected component."],
-        stack: [...stack],
-      },
-    });
   }
 
   steps.push({
@@ -197,14 +271,24 @@ function runSCC({
       elements: [],
       highlightedPseudoCodeLineIds: [13],
       action: "traverse",
-      message: ["End of DFS for vertex u."],
+      message: [`End of DFS for vertex ${getLabelById(cyInstance, u)}.`],
       stack: [...stack],
+      dsc: new Map(disc),
+      lowLink: new Map(lowLink),
     },
   });
 }
 
 export function findSCCs({ adjacencyList, cyInstance }: FindSCCParams): SCCResult {
   const steps: StoredStep[] = [];
+
+  const disc = new Map<string, number>();
+  const lowLink = new Map<string, number>();
+
+  for (const nodeId of adjacencyList.keys()) {
+    disc.set(nodeId, -1);
+    lowLink.set(nodeId, -1);
+  }
 
   steps.push({
     prev: {
@@ -216,11 +300,10 @@ export function findSCCs({ adjacencyList, cyInstance }: FindSCCParams): SCCResul
       action: "traverse",
       message: ["Initialize discovery time and low link maps, stack, and timer."],
       stack: [],
+      dsc: new Map(disc),
+      lowLink: new Map(lowLink),
     },
   });
-
-  const disc = new Map<string, number>();
-  const lowLink = new Map<string, number>();
 
   const stack: string[] = [];
   const inStack = new Set<string>();
@@ -237,12 +320,19 @@ export function findSCCs({ adjacencyList, cyInstance }: FindSCCParams): SCCResul
         elements: [],
         highlightedPseudoCodeLineIds: [16, 17],
         action: "traverse",
-        message: ["Iterating over each vertex u in the graph.", `Checking if vertex u is visited.`],
+        message: [
+          `Traverse vertex ${getLabelById(cyInstance, nodeId)}.`,
+          disc.has(nodeId)
+            ? `Vertex ${getLabelById(cyInstance, nodeId)} is already visited.`
+            : `Vertex ${getLabelById(cyInstance, nodeId)} is not visited.`,
+        ],
         stack: [...stack],
+        dsc: new Map(disc),
+        lowLink: new Map(lowLink),
       },
     });
 
-    if (!disc.has(nodeId)) {
+    if (disc.get(nodeId) === -1) {
       steps.push({
         prev: {
           elements: [],
@@ -251,10 +341,13 @@ export function findSCCs({ adjacencyList, cyInstance }: FindSCCParams): SCCResul
           elements: [],
           highlightedPseudoCodeLineIds: [18],
           action: "traverse",
-          message: [`Vertex u is not visited.`],
+          message: [`Start DFS from vertex ${getLabelById(cyInstance, nodeId)}.`],
           stack: [...stack],
+          dsc: new Map(disc),
+          lowLink: new Map(lowLink),
         },
       });
+
       runSCC({
         cyInstance,
         steps,
@@ -270,22 +363,58 @@ export function findSCCs({ adjacencyList, cyInstance }: FindSCCParams): SCCResul
     }
   }
 
+  const resetEdgeArray =
+    cyInstance?.edges().map((edge) => ({
+      type: "edge",
+      id: edge.id(),
+      source: {
+        type: "node",
+        id: edge.source().id(),
+        label: getLabelById(cyInstance, edge.source().id()),
+      },
+      target: {
+        type: "node",
+        id: edge.target().id(),
+        label: getLabelById(cyInstance, edge.target().id()),
+      },
+      classes: ["-scc-visiting"],
+    })) || [];
+
+  const prevResetArray =
+    cyInstance?.edges().map((edge) => ({
+      type: "edge",
+      id: edge.id(),
+      source: {
+        type: "node",
+        id: edge.source().id(),
+        label: getLabelById(cyInstance, edge.source().id()),
+      },
+      target: {
+        type: "node",
+        id: edge.target().id(),
+        label: getLabelById(cyInstance, edge.target().id()),
+      },
+      classes: edge.classes(),
+    })) || [];
+
   steps.push({
     prev: {
-      elements: [],
+      elements: [...(prevResetArray as StoredStep["prev"]["elements"])],
     },
     current: {
-      elements: [],
+      elements: [...(resetEdgeArray as StoredStep["current"]["elements"])],
       highlightedPseudoCodeLineIds: [19],
       action: "traverse",
       message: ["Returning all strongly connected components found."],
       stack: [...stack],
+      dsc: new Map(disc),
+      lowLink: new Map(lowLink),
     },
   });
 
   return {
     components: allSCCs,
-    steps: [], // For simplicity, not implementing step-by-step animation for SCCs in this version
+    steps, // For simplicity, not implementing step-by-step animation for SCCs in this version
     message: `Found ${allSCCs.length} strongly connected component(s).`,
   };
 }

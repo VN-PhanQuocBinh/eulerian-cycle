@@ -57,7 +57,12 @@ function InputTab({ className }: { className?: string }) {
   };
 
   const handleSuggest = () => {
-    const examples = GRAPH_EXAMPLES[currentAlgorithm || "connected-components"] || [];
+    const currentAlgo =
+      isDirected && currentAlgorithm === "connected-components"
+        ? "strongly-connected-components"
+        : currentAlgorithm || "connected-components";
+
+    const examples = GRAPH_EXAMPLES[currentAlgo] || [];
     const randomExample = examples[Math.floor(Math.random() * examples.length)];
     setText(randomExample.trim());
   };
