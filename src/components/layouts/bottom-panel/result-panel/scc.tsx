@@ -44,7 +44,11 @@ export function SCCStepsTable({ steps }: Props) {
           {steps.map((step, index) => {
             const isCurrentStep = index === currentStepIndex;
             const isPastStep = index < currentStepIndex;
-            const element = step.current.elements[0];
+            let element: (typeof step.current.elements)[number] | undefined;
+
+            if (step.current.elements && step.current.elements.length > 0) {
+              element = step.current.elements[0];
+            }
 
             // Detect SCC component index from element classes
             let componentIndex = -1;
@@ -89,6 +93,10 @@ export function SCCStepsTable({ steps }: Props) {
                       className={cn("px-2 py-0.5 rounded font-medium text-gray-700 bg-gray-100")}
                     >
                       {element.label}
+                    </span>
+                  ) : element?.type === "edge" ? (
+                    <span className="text-gray-600">
+                      {element.source.label} → {element.target.label}
                     </span>
                   ) : (
                     <span className="text-gray-400 italic">_</span>

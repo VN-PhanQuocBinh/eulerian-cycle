@@ -1,5 +1,5 @@
 import { useGraphStore } from "@/contexts/graph-context";
-import { useEffect, useState, useCallback, useRef, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useDebounce } from "@/hooks/use-debounce";
 import {
   RunConfigSelect,
@@ -11,8 +11,8 @@ import {
 } from "@/components/layouts/sidebar/index";
 import type { GraphAlgorithm, RunMode, StoredStep } from "@/types/graph";
 import { useToast } from "@/components/ui/toast";
-import { generateEdgeSelector } from "@/utils";
 import { cn } from "@/utils/cn";
+import { reverseInstruction } from "@/core/helpers/reverse-instruction";
 
 export const BASE_ANIMATION_SPEED = 2000; // in milliseconds
 
@@ -87,20 +87,17 @@ function Sidebar({ className }: { className?: string }) {
     switch (currentAlgorithm) {
       case "connected-components": {
         if (isDirected) {
-          const { steps, message, components } = findSCCs();
-          console.log(steps);
+          const { steps } = findSCCs();
           setSteps(steps || []);
         } else {
-          const { steps, message, components } = findConnectedComponents(startNodeId);
-          console.log(components);
+          const { steps } = findConnectedComponents(startNodeId);
           setSteps(steps || []);
         }
 
         break;
       }
       case "eulerian-cycle": {
-        const { steps, message } = findEulerianCycle(startNodeId);
-        console.log(message);
+        const { steps } = findEulerianCycle(startNodeId);
         setSteps(steps || []);
         break;
       }
@@ -134,16 +131,12 @@ function Sidebar({ className }: { className?: string }) {
     const currentStepValue = useGraphStore.getState().currentStepIndex;
 
     if (currentStepValue > 0 && cyInstance) {
-      const currentStepData = steps[currentStepValue - 1].current;
-      const prevStepData = steps[currentStepValue - 1].prev;
+      const currentStepData = steps[currentStepValue].current;
+      const prevStepData = steps[currentStepValue].prev;
       const currentStepElements = currentStepData.elements;
       const prevStepElements = prevStepData.elements;
 
-      console.log("Reverting to previous step:", {
-        currentStepData,
-        prevStepData,
-      });
-      console.log("Current index:", currentStepValue);
+      console.log("Reverting step", currentStepValue, { currentStepElements, prevStepElements });
 
       if (
         !prevStepData ||
@@ -157,21 +150,14 @@ function Sidebar({ className }: { className?: string }) {
         return;
       }
 
+      // Revert classes for each element
       currentStepElements.forEach((element, index) => {
-        if (element.type === "node") {
-          const revertNode = cyInstance.getElementById(element.id);
-          if (revertNode) {
-            revertNode.removeClass(element.classes);
-            revertNode.addClass(prevStepElements[index].classes);
-          }
-        } else if (element.type === "edge") {
-          const revertEdge = cyInstance.edges(
-            generateEdgeSelector(element.source.id, element.target.id),
-          );
-          if (revertEdge) {
-            revertEdge.removeClass(element.classes);
-            revertEdge.addClass(prevStepElements[index].classes);
-          }
+        const revertElement = cyInstance.getElementById(element.id);
+        if (revertElement) {
+          revertElement[0].removeClass(element.classes);
+
+          // revertElement[0].removeClass(element.classes);
+          // revertElement[0].addClass(prevStepElements[index].classes);
         }
       });
 
