@@ -45,6 +45,7 @@ function Sidebar({ className }: { className?: string }) {
   const findEulerianCycle = useGraphStore((state) => state.findEulerianCycle);
   const findSCCs = useGraphStore((state) => state.findSCCs);
   const resetGraph = useGraphStore((state) => state.resetGraph);
+  const updateUItoStep = useGraphStore((state) => state.updateUItoStep);
 
   // Local state
   const showToast = useToast().showToast;
@@ -97,7 +98,9 @@ function Sidebar({ className }: { className?: string }) {
         break;
       }
       case "eulerian-cycle": {
-        const { steps } = findEulerianCycle(startNodeId);
+        const { steps, cycle } = findEulerianCycle(startNodeId);
+        console.log("Eulerian cycle steps:", steps);
+        console.log("Eulerian cycle result:", cycle);
         setSteps(steps || []);
         break;
       }
@@ -131,38 +134,9 @@ function Sidebar({ className }: { className?: string }) {
     const currentStepValue = useGraphStore.getState().currentStepIndex;
 
     if (currentStepValue > 0 && cyInstance) {
-      const currentStepData = steps[currentStepValue].current;
-      const prevStepData = steps[currentStepValue].prev;
-      const currentStepElements = currentStepData.elements;
-      const prevStepElements = prevStepData.elements;
-
-      console.log("Reverting step", currentStepValue, { currentStepElements, prevStepElements });
-
-      if (
-        !prevStepData ||
-        !currentStepElements ||
-        currentStepElements.length !== prevStepElements.length
-      ) {
-        showToast?.({
-          message: "Cannot revert step due to inconsistent step data.",
-          type: "error",
-        });
-        return;
-      }
-
-      // Revert classes for each element
-      currentStepElements.forEach((element, index) => {
-        const revertElement = cyInstance.getElementById(element.id);
-        if (revertElement) {
-          revertElement[0].removeClass(element.classes);
-
-          // revertElement[0].removeClass(element.classes);
-          // revertElement[0].addClass(prevStepElements[index].classes);
-        }
-      });
-
+      updateUItoStep(currentStepValue - 1);
       prevStepStore();
-      setCanBackward(currentStepValue > 0);
+      setCanBackward(currentStepValue - 1 > 0);
       setCanForward(currentStepValue < steps.length);
     }
   }, [steps, cyInstance, prevStepStore]);

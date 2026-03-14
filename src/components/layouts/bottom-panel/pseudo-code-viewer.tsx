@@ -2,7 +2,11 @@ import { cn } from "@/lib/utils";
 import { useGraphStore } from "@/contexts/graph-context";
 import { BASE_ANIMATION_SPEED } from "@/components/layouts/sidebar/control-tab";
 import { useEffect, useState } from "react";
-import { HIERHOLZER_PSEUDOCODE, CONNECTED_COMPONENTS_PSEUDOCODE } from "@/constant/pseudo-code";
+import {
+  HIERHOLZER_PSEUDOCODE,
+  CONNECTED_COMPONENTS_PSEUDOCODE,
+  TARJAN_SCC_PSEUDOCODE,
+} from "@/constant/pseudo-code";
 import { PseudoCodeLine } from "@/types/pseudo-code";
 import { GraphAlgorithm } from "@/types/graph";
 
@@ -13,17 +17,22 @@ interface PseudoCodeViewerProps {
 const pseudoCodeMap: Record<GraphAlgorithm, PseudoCodeLine[]> = {
   "eulerian-cycle": HIERHOLZER_PSEUDOCODE,
   "connected-components": CONNECTED_COMPONENTS_PSEUDOCODE,
+  "strongly-connected-components": TARJAN_SCC_PSEUDOCODE,
 };
 
 export function PseudoCodeViewer({ className }: PseudoCodeViewerProps) {
   const currentStepIndex = useGraphStore((state) => state.currentStepIndex);
   const currentAlgorithm = useGraphStore((state) => state.currentAlgorithm);
+  const isDirected = useGraphStore((state) => state.isDirected);
   const speed = useGraphStore((state) => state.speed);
   const steps = useGraphStore((state) => state.steps);
 
-  const [lines, setLines] = useState(
-    currentAlgorithm === "eulerian-cycle" ? HIERHOLZER_PSEUDOCODE : CONNECTED_COMPONENTS_PSEUDOCODE,
-  );
+  const [lines, setLines] = useState(() => {
+    if (!currentAlgorithm || !pseudoCodeMap[currentAlgorithm]) return [];
+    if (currentAlgorithm === "connected-components" && isDirected)
+      return pseudoCodeMap["strongly-connected-components"];
+    return pseudoCodeMap[currentAlgorithm];
+  });
   const [currentHighlightedIndex, setCurrentHighlightedIndex] = useState<number>(0);
   const [currentHighlightedIds, setCurrentHighlightedIds] = useState<number[]>([]);
 
@@ -34,6 +43,11 @@ export function PseudoCodeViewer({ className }: PseudoCodeViewerProps) {
       return;
     }
 
+    if (currentAlgorithm === "connected-components" && isDirected) {
+      setLines(pseudoCodeMap["strongly-connected-components"]);
+      return;
+    }
+    
     setLines(pseudoCodeMap[currentAlgorithm]);
   }, [currentAlgorithm]);
 

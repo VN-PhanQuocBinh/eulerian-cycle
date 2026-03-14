@@ -33,7 +33,7 @@ export const graphStyles: cytoscape.StylesheetJson = [
     style: EDGE_STYLES,
   },
   {
-    selector: "edge.directed",
+    selector: "edge[?isDirected]", 
     style: {
       "target-arrow-shape": "triangle",
     },
@@ -153,45 +153,4 @@ export const graphStyles: cytoscape.StylesheetJson = [
       width: 4,
     } as cytoscape.Css.Edge,
   })),
-
-  // {
-  //   selector: "node.scc-visiting",
-  //   style: {
-  //     "background-color": "#f59e0b", // vàng cam - đang active
-  //     "border-color": "#f59e0b",
-  //     "border-width": "4px",
-  //   },
-  // },
-  // {
-  //   selector: "node.scc-in-stack",
-  //   style: {
-  //     "background-color": "#6366f1", // tím nhạt - đang trên stack
-  //     "border-color": "#6366f1",
-  //     "border-width": "3px",
-  //   },
-  // },
-  // {
-  //   selector: "node.scc-root",
-  //   style: {
-  //     "background-color": "#ef4444", // đỏ - là root của SCC
-  //     "border-color": "#ef4444",
-  //     "border-width": "4px",
-  //   },
-  // },
-  // {
-  //   selector: "edge.scc-tree-edge",
-  //   style: {
-  //     "line-color": "#f59e0b",
-  //     "target-arrow-color": "#f59e0b",
-  //     width: 4,
-  //   } as cytoscape.Css.Edge,
-  // },
-  // {
-  //   selector: "edge.scc-back-edge",
-  //   style: {
-  //     "line-color": "#ef4444",
-  //     "target-arrow-color": "#ef4444",
-  //     width: 4,
-  //   } as cytoscape.Css.Edge,
-  // },
 ];

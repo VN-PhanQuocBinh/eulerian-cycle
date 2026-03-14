@@ -12,6 +12,7 @@ import { ALGORITHM_LAYOUT_CONFIGS } from "@/configs/graph-layouts";
 import { findSCCs as findSCCsAlgorithm } from "@/core/algorithms/scc";
 import { findEulerianCycle as findEulerianCycleAlgorithm } from "@/core/algorithms/eulerian-cycle";
 import { findConnectedComponents as findConnectedComponentsAlgorithm } from "@/core/algorithms/connected-components";
+import { computeFinalStyles } from "@/core/helpers/compute-final-styles";
 
 export const useGraphStore = create<GraphState>()(
   devtools(
@@ -80,6 +81,25 @@ export const useGraphStore = create<GraphState>()(
         if (currentStepIndex > 0) {
           set({ currentStepIndex: currentStepIndex - 1 });
         }
+      },
+      updateUItoStep: (targetStepIndex) => {
+        const { steps, cyInstance } = get();
+
+        if (!cyInstance) return;
+
+        cyInstance.elements().classes(""); // Reset all classes
+        const finalStyles = computeFinalStyles(steps, targetStepIndex);
+
+        cyInstance.batch(() => {
+          for (const [elementId, classes] of finalStyles.entries()) {
+            const element = cyInstance.getElementById(elementId);
+            if (element.length > 0) {
+              const classString = Array.from(classes).join(" ");
+              element.classes(classString);
+              console;
+            }
+          }
+        });
       },
 
       // Node operations
@@ -388,7 +408,8 @@ export const useGraphStore = create<GraphState>()(
         const node = cyInstance.getElementById(nodeId);
         if (node.length === 0) return;
 
-        node[0].addClass(className);
+        const classString = Array.from([...className, node[0].classes()]).join(" ");
+        node[0].classes(classString);
 
         if (pulse) {
           node[0].animate({

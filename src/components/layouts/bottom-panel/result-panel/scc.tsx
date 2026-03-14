@@ -94,7 +94,7 @@ export function SCCStepsTable({ steps }: Props) {
                     >
                       {element.label}
                     </span>
-                  ) : element?.type === "edge" ? (
+                  ) : element?.type === "edge" && index < steps.length - 1 ? (
                     <span className="text-gray-600">
                       {element.source.label} → {element.target.label}
                     </span>

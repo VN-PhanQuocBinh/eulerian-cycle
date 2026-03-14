@@ -411,10 +411,6 @@ export function findSCCs({ adjacencyList, cyInstance }: FindSCCParams): SCCResul
       classes: ["-scc-visiting"],
     })) || [];
 
-    cyInstance?.edges().forEach((edge) => {
-      console.log(edge.classes())
-    });
-
   const prevResetArray =
     cyInstance?.edges().map((edge) => ({
       type: "edge",

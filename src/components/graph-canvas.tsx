@@ -63,9 +63,9 @@ const GraphCanvas = () => {
     if (!cyRef.current) return;
 
     if (isDirected) {
-      cyRef.current.edges().addClass("directed");
+      cyRef.current.edges().data("isDirected", true);
     } else {
-      cyRef.current.edges().removeClass("directed");
+      cyRef.current.edges().data("isDirected", false);
     }
   }, [cyRef.current, isDirected, edges]);
 

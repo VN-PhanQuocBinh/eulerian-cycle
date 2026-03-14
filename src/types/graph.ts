@@ -6,7 +6,6 @@ export type GraphMode = "view" | "add-node" | "add-edge" | "delete";
 export type GraphAlgorithm =
   | "eulerian-cycle"
   | "connected-components"
-  | "strongly-connected-components";
 
 export interface GraphNode {
   id: string;
@@ -117,6 +116,7 @@ export interface GraphState {
   setSpeed: (speed: number) => void;
   nextStep: () => void;
   prevStep: () => void;
+  updateUItoStep: (targetStepIndex: number) => void;
 
   // Algorithm state operations
   setCurrentAlgorithm: (algorithm: GraphAlgorithm | null) => void;
@@ -164,8 +164,8 @@ export interface GraphState {
 
   checkEulerianCycle: () => { exists: boolean; reason?: string };
   findEulerianCycle: (startNodeId?: string) => {
-    cycle: GraphNode[] | null;
-    steps: Step[];
+    cycle: string[] | null;
+    steps: StoredStep[];
     message?: string;
   };
 
