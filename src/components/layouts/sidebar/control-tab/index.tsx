@@ -1,4 +1,4 @@
-import { useGraphStore } from "@/contexts/graph-context";
+import { useGraphStore } from "@/stores/graph-context";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { useDebounce } from "@/hooks/use-debounce";
 import {
@@ -12,7 +12,6 @@ import {
 import type { GraphAlgorithm, RunMode, StoredStep } from "@/types/graph";
 import { useToast } from "@/components/ui/toast";
 import { cn } from "@/utils/cn";
-import { reverseInstruction } from "@/core/helpers/reverse-instruction";
 
 export const BASE_ANIMATION_SPEED = 2000; // in milliseconds
 
@@ -21,7 +20,7 @@ const ALGORITHM_OPTIONS: { label: string; value: GraphAlgorithm }[] = [
   { label: "Connected Components", value: "connected-components" },
 ];
 
-function Sidebar({ className }: { className?: string }) {
+function ControlTab({ className }: { className?: string }) {
   // Graph store
   const isDirected = useGraphStore((state) => state.isDirected);
   const edges = useGraphStore((state) => state.edges);
@@ -271,4 +270,4 @@ function Sidebar({ className }: { className?: string }) {
   );
 }
 
-export default Sidebar;
+export default ControlTab;

@@ -1,5 +1,5 @@
 import { cn } from "@/utils/cn";
-import { useGraphStore } from "@/contexts/graph-context";
+import { useGraphStore } from "@/stores/graph-context";
 import { FolderOpen, Save } from "lucide-react";
 
 interface FileOperationProps {

@@ -8,7 +8,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { CopyButton } from "@/components/copy-button";
-import { useGraphStore } from "@/contexts/graph-context";
+import { useGraphStore } from "@/stores/graph-context";
 import { getLabelById } from "@/utils";
 
 const arrayToString = (arr: string[]) => {

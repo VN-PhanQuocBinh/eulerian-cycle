@@ -1,4 +1,4 @@
-import { useGraphStore } from "@/contexts/graph-context";
+import { useGraphStore } from "@/stores/graph-context";
 import { EulerianCycleStepsTable } from "./result-panel/eulerian-cycle";
 import { ConnectedComponentsStepsTable } from "./result-panel/connected-components";
 import { SCCResult } from "./result-panel/scc-result";

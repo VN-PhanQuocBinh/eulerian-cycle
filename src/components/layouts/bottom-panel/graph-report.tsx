@@ -1,4 +1,4 @@
-import { useGraphStore } from "@/contexts/graph-context";
+import { useGraphStore } from "@/stores/graph-context";
 import { useMemo } from "react";
 import {
   Table,

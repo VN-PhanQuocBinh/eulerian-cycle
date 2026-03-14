@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { useGraphStore } from "@/contexts/graph-context";
+import { useGraphStore } from "@/stores/graph-context";
 import { BASE_ANIMATION_SPEED } from "@/components/layouts/sidebar/control-tab";
 import { useEffect, useState } from "react";
 import {

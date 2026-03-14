@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { RotateCcw, RefreshCw, Copy, Check, WandSparkles } from "lucide-react";
-import { useGraphStore } from "@/contexts/graph-context";
+import { useGraphStore } from "@/stores/graph-context";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/utils/cn";
 import { graphToEdgeList, parseEdgeList } from "@/utils";

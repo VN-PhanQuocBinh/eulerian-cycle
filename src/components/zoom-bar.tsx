@@ -1,6 +1,6 @@
 import { ZoomIn, ZoomOut, LayoutDashboard } from "lucide-react";
 import { Tooltip } from "@/components/ui/tooltip";
-import { useGraphStore } from "@/contexts/graph-context";
+import { useGraphStore } from "@/stores/graph-context";
 import FunctionButton from "@/components/ui/function-button";
 
 function ZoomBar() {

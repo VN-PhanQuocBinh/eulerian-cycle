@@ -8,7 +8,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { CopyButton } from "@/components/copy-button";
-import { useGraphStore } from "@/contexts/graph-context";
+import { useGraphStore } from "@/stores/graph-context";
 import { COMPONENT_COLORS } from "@/types/styles";
 import { cn } from "@/utils/cn";
 import { getLabelById } from "@/utils";

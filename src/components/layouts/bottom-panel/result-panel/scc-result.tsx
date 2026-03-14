@@ -1,5 +1,5 @@
 import { getLabelById } from "@/utils";
-import { useGraphStore } from "@/contexts/graph-context";
+import { useGraphStore } from "@/stores/graph-context";
 import { StoredStep } from "@/types/graph";
 import { SCCStepsTable } from "./scc";
 
