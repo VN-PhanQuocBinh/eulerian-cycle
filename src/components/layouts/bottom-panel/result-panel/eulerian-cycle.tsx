@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/table";
 import { CopyButton } from "@/components/copy-button";
 import { useGraphStore } from "@/contexts/graph-context";
+import { getLabelById } from "@/utils";
 
 const arrayToString = (arr: string[]) => {
   let result: string = arr.join(", ");
@@ -31,7 +32,7 @@ export function EulerianCycleStepsTable({ steps }: Props) {
   }
 
   return (
-    <div className="bg-white p-4">
+    <div className="bg-white px-4 h-full overflow-y-auto custom-scrollbar">
       <Table className="">
         <TableHeader className="">
           <TableRow className="top-0 border-b border-blue-200">
@@ -48,6 +49,7 @@ export function EulerianCycleStepsTable({ steps }: Props) {
             const isCurrentStep = index === currentStepIndex;
             const isPastStep = index < currentStepIndex;
             const elements = step.current.elements;
+            const cyInstance = useGraphStore.getState().cyInstance;
 
             const currentNode: StepNodeElement | undefined = elements.filter(
               (el) => el.type === "node",
@@ -55,6 +57,16 @@ export function EulerianCycleStepsTable({ steps }: Props) {
             const nextNode: StepNodeElement | undefined = elements.filter(
               (el) => el.type === "edge",
             )[0]?.target;
+
+            const stackNodes = step.current.stack?.map((nodeId) => ({
+              id: nodeId,
+              label: getLabelById(cyInstance, nodeId),
+            }));
+
+            const circuitNodes = step.current.circuit?.map((nodeId) => ({
+              id: nodeId,
+              label: getLabelById(cyInstance, nodeId),
+            }));
 
             return (
               <TableRow
@@ -93,10 +105,10 @@ export function EulerianCycleStepsTable({ steps }: Props) {
                 {/* Stack */}
                 <TableCell className="px-3 py-2">
                   <div className="flex items-center max-w-[150px]">
-                    {step.current.stack && step.current.stack.length > 0 ? (
+                    {stackNodes && stackNodes.length > 0 ? (
                       <>
                         <div className="flex-1 flex items-center gap-2 flex-wrap">
-                          {step.current.stack.map((node, idx) => (
+                          {stackNodes.map((node, idx) => (
                             <span
                               key={idx}
                               className="size-5 w-max text-purple-700 bg-purple-100 px-1.5 py-0.5 rounded text-xs"
@@ -105,9 +117,7 @@ export function EulerianCycleStepsTable({ steps }: Props) {
                             </span>
                           ))}
                         </div>
-                        <CopyButton
-                          text={arrayToString(step.current.stack.map((node) => node.label))}
-                        />
+                        <CopyButton text={arrayToString(stackNodes.map((node) => node.label))} />
                       </>
                     ) : (
                       <span className="text-gray-400 italic">Empty stack</span>
@@ -118,10 +128,10 @@ export function EulerianCycleStepsTable({ steps }: Props) {
                 {/* Circuit */}
                 <TableCell className="px-3 py-2">
                   <div className="flex items-center max-w-[200px]">
-                    {step.current.circuit && step.current.circuit.length > 0 ? (
+                    {circuitNodes && circuitNodes.length > 0 ? (
                       <>
                         <div className="flex-1 flex items-center gap-2 flex-wrap">
-                          {step.current.circuit.map((node, idx) => (
+                          {circuitNodes.map((node, idx) => (
                             <span
                               key={idx}
                               className="size-5 w-max text-orange-700 bg-orange-100 px-1.5 py-0.5 rounded text-xs"
@@ -130,9 +140,7 @@ export function EulerianCycleStepsTable({ steps }: Props) {
                             </span>
                           ))}
                         </div>
-                        <CopyButton
-                          text={arrayToString(step.current.circuit.map((node) => node.label))}
-                        />
+                        <CopyButton text={arrayToString(circuitNodes.map((node) => node.label))} />
                       </>
                     ) : (
                       <span className="text-gray-400 italic">Empty circuit</span>

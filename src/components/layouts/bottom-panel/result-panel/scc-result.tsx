@@ -1,0 +1,65 @@
+import { getLabelById } from "@/utils";
+import { useGraphStore } from "@/contexts/graph-context";
+import { StoredStep } from "@/types/graph";
+import { SCCStepsTable } from "./scc";
+
+export function SCCResult({ steps }: { steps: StoredStep[] }) {
+  const currentStepIndex = useGraphStore((state) => state.currentStepIndex);
+  const currentStep = steps[currentStepIndex] ?? steps[steps.length - 1];
+
+  if (steps.length === 0) {
+    return <div>...</div>;
+  }
+
+  return (
+    <div className="flex gap-4 h-full ">
+      {/* Left: Steps table */}
+      <div className="flex-1 max-h-full overflow-y-auto custom-scrollbar">
+        <SCCStepsTable steps={steps} />
+      </div>
+
+      {/* Right: disc/lowLink panel */}
+      <div className="top-0 w-56 basis-[200px] border-l p-3 overflow-y-auto custom-scrollbar">
+        <div className="text-xs font-semibold text-gray-500 mb-2 uppercase">disc / low-link</div>
+        <DiscLowLinkTable disc={currentStep?.current.dsc} lowLink={currentStep?.current.lowLink} />
+      </div>
+    </div>
+  );
+}
+
+// Sub-component hiển thị Map<nodeId, number>
+function DiscLowLinkTable({
+  disc,
+  lowLink,
+}: {
+  disc?: Map<string, number>;
+  lowLink?: Map<string, number>;
+}) {
+  const cyInstance = useGraphStore((s) => s.cyInstance);
+
+  if (!disc || disc.size === 0) {
+    return <span className="text-xs text-gray-400 italic">—</span>;
+  }
+
+  return (
+    <div className="space-y-1">
+      {/* Header */}
+      <div className="flex text-xs font-medium text-gray-400 pb-1 border-b">
+        <span className="flex-1">Node</span>
+        <span className="w-10 text-center">disc</span>
+        <span className="w-10 text-center">low</span>
+      </div>
+      {Array.from(disc.entries()).map(([nodeId, discValue]) => (
+        <div key={nodeId} className="flex text-xs items-center">
+          <span className="flex-1 text-gray-700">{getLabelById(cyInstance, nodeId)}</span>
+          <span className="w-10 text-center font-mono text-blue-600">
+            {discValue === -1 ? "—" : discValue}
+          </span>
+          <span className="w-10 text-center font-mono text-indigo-600">
+            {lowLink?.get(nodeId) === -1 ? "—" : lowLink?.get(nodeId)}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}

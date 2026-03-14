@@ -1,5 +1,5 @@
 import { useGraphStore } from "@/contexts/graph-context";
-import { useEffect, useState, useCallback, useRef, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useDebounce } from "@/hooks/use-debounce";
 import {
   RunConfigSelect,
@@ -7,12 +7,12 @@ import {
   SpeedControl,
   FileOperation,
   PrimaryControlButtons,
-  // GraphTypeSelect,
+  GraphTypeSelect,
 } from "@/components/layouts/sidebar/index";
 import type { GraphAlgorithm, RunMode, StoredStep } from "@/types/graph";
 import { useToast } from "@/components/ui/toast";
-import { generateEdgeSelector } from "@/utils";
 import { cn } from "@/utils/cn";
+import { reverseInstruction } from "@/core/helpers/reverse-instruction";
 
 export const BASE_ANIMATION_SPEED = 2000; // in milliseconds
 
@@ -43,7 +43,9 @@ function Sidebar({ className }: { className?: string }) {
   const highlightEdge = useGraphStore((state) => state.highlightEdge);
   const findConnectedComponents = useGraphStore((state) => state.findConnectedComponents);
   const findEulerianCycle = useGraphStore((state) => state.findEulerianCycle);
+  const findSCCs = useGraphStore((state) => state.findSCCs);
   const resetGraph = useGraphStore((state) => state.resetGraph);
+  const updateUItoStep = useGraphStore((state) => state.updateUItoStep);
 
   // Local state
   const showToast = useToast().showToast;
@@ -85,14 +87,20 @@ function Sidebar({ className }: { className?: string }) {
   useEffect(() => {
     switch (currentAlgorithm) {
       case "connected-components": {
-        const { steps, message } = findConnectedComponents(startNodeId);
-        console.log(message);
-        setSteps(steps || []);
+        if (isDirected) {
+          const { steps } = findSCCs();
+          setSteps(steps || []);
+        } else {
+          const { steps } = findConnectedComponents(startNodeId);
+          setSteps(steps || []);
+        }
 
         break;
       }
       case "eulerian-cycle": {
-        const { steps } = findEulerianCycle(startNodeId);
+        const { steps, cycle } = findEulerianCycle(startNodeId);
+        console.log("Eulerian cycle steps:", steps);
+        console.log("Eulerian cycle result:", cycle);
         setSteps(steps || []);
         break;
       }
@@ -126,43 +134,9 @@ function Sidebar({ className }: { className?: string }) {
     const currentStepValue = useGraphStore.getState().currentStepIndex;
 
     if (currentStepValue > 0 && cyInstance) {
-      const currentStepData = steps[currentStepValue - 1].current;
-      const prevStepData = steps[currentStepValue - 1].prev;
-      const currentStepElements = currentStepData.elements;
-      const prevStepElements = prevStepData.elements;
-
-      if (
-        !prevStepData ||
-        !currentStepElements ||
-        currentStepElements.length !== prevStepElements.length
-      ) {
-        showToast?.({
-          message: "Cannot revert step due to inconsistent step data.",
-          type: "error",
-        });
-        return;
-      }
-
-      currentStepElements.forEach((element, index) => {
-        if (element.type === "node") {
-          const revertNode = cyInstance.getElementById(element.id);
-          if (revertNode) {
-            revertNode.removeClass(element.classes);
-            revertNode.addClass(prevStepElements[index].classes);
-          }
-        } else if (element.type === "edge") {
-          const revertEdge = cyInstance.edges(
-            generateEdgeSelector(element.source.id, element.target.id),
-          );
-          if (revertEdge) {
-            revertEdge.removeClass(element.classes);
-            revertEdge.addClass(prevStepElements[index].classes);
-          }
-        }
-      });
-
+      updateUItoStep(currentStepValue - 1);
       prevStepStore();
-      setCanBackward(currentStepValue > 0);
+      setCanBackward(currentStepValue - 1 > 0);
       setCanForward(currentStepValue < steps.length);
     }
   }, [steps, cyInstance, prevStepStore]);
@@ -246,11 +220,11 @@ function Sidebar({ className }: { className?: string }) {
       )}
     >
       {/* GRAPH TYPE */}
-      {/* <GraphTypeSelect
+      <GraphTypeSelect
         isDirected={isDirected}
         isAnimating={isAnimating}
         onSelect={handleGraphTypeChange}
-      /> */}
+      />
 
       {/* ALGORITHM SELECTION */}
       <RunConfigSelect<GraphAlgorithm>

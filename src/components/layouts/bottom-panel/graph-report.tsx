@@ -8,6 +8,7 @@ import {
   TableHead,
   TableCell,
 } from "@/components/ui/table";
+import { getLabelById } from "@/utils";
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
@@ -27,6 +28,7 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
 }
 
 export function GraphReport() {
+  const cyInstance = useGraphStore((state) => state.cyInstance);
   const nodes = useGraphStore((state) => state.nodes);
   const edges = useGraphStore((state) => state.edges);
   const currentAlgorithm = useGraphStore((state) => state.currentAlgorithm);
@@ -121,7 +123,7 @@ export function GraphReport() {
                             key={idx}
                             className="px-1.5 py-0.5 rounded text-xs text-gray-700 bg-gray-100"
                           >
-                            {n.label}
+                            {getLabelById(cyInstance, n)}
                           </span>
                         ))
                       ) : (
@@ -184,7 +186,12 @@ export function GraphReport() {
               }
             />
             {circuit && <InfoRow label="Circuit length" value={`${circuit.length} edges`} />}
-            {circuit && <InfoRow label="Circuit" value={circuit.map((n) => n.label).join(" → ")} />}
+            {circuit && (
+              <InfoRow
+                label="Circuit"
+                value={circuit.map((n) => getLabelById(cyInstance, n)).join(" → ")}
+              />
+            )}
           </div>
         </section>
       )}

@@ -34,7 +34,7 @@ function ZoomBar() {
     <div className="absolute bottom-4 right-4 z-10 flex flex-row gap-2">
       <FunctionButton
         onClick={autoLayout}
-        tooltipContent="Tự động sắp xếp"
+        tooltipContent="Auto layout"
         icon={LayoutDashboard}
         disabled={isAnimating}
         className="mr-6"
@@ -42,14 +42,14 @@ function ZoomBar() {
 
       <FunctionButton
         onClick={handleZoomOut}
-        tooltipContent="Thu nhỏ"
+        tooltipContent="Zoom Out"
         icon={ZoomOut}
         disabled={isAnimating}
       />
 
       <FunctionButton
         onClick={handleZoomIn}
-        tooltipContent="Phóng to"
+        tooltipContent="Zoom In"
         icon={ZoomIn}
         disabled={isAnimating}
       />

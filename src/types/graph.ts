@@ -1,11 +1,11 @@
 import type cytoscape from "cytoscape";
 import type { ToastHandler } from "@/components/ui/toast";
-import { GNode } from "@/core/models/gnode";
-import { GEdge } from "@/core/models/gedge";
 
 // Types
 export type GraphMode = "view" | "add-node" | "add-edge" | "delete";
-export type GraphAlgorithm = "eulerian-cycle" | "connected-components";
+export type GraphAlgorithm =
+  | "eulerian-cycle"
+  | "connected-components"
 
 export interface GraphNode {
   id: string;
@@ -44,21 +44,20 @@ export type StepEdgeElement = {
 // This type is used for the current step's element,
 // which can be either a node or an edge,
 // and can be either a StepNodeElement/StepEdgeElement (from stored steps) or a GNode/GEdge (from rendered steps).
-type GenericStepType =
-  | Array<StepNodeElement | StepEdgeElement>
-  | StepNodeElement
-  | StepEdgeElement
-  | GEdge
-  | GNode;
+type GenericStepType = Array<StepNodeElement | StepEdgeElement> | StepNodeElement | StepEdgeElement;
 
 export type CurrentStep<T extends GenericStepType = StepNodeElement | StepEdgeElement> = {
   elements: Array<T & { classes: string[] }>;
   action: StepAction;
   message: string[];
-  stack?: GraphNode[];
-  queue?: String[];
-  circuit?: GraphNode[];
+  stack?: string[];
+  queue?: string[];
+  circuit?: string[];
   visited?: Set<string>;
+
+  // scc
+  dsc?: Map<string, number>;
+  lowLink?: Map<string, number>;
 
   // Will set required after add pseudo code for connected components algorithm
   highlightedPseudoCodeLineIds?: Array<number | Array<number>>;
@@ -72,7 +71,6 @@ interface Step<T extends GenericStepType = StepNodeElement | StepEdgeElement> {
 
 // export type StoredStep = Step<StepNodeElement | StepEdgeElement>;
 export type StoredStep = Step<StepNodeElement | StepEdgeElement>;
-export type RenderedStep = Step<GNode | GEdge>;
 
 export type RunMode = "step-by-step" | "continuous";
 
@@ -118,6 +116,7 @@ export interface GraphState {
   setSpeed: (speed: number) => void;
   nextStep: () => void;
   prevStep: () => void;
+  updateUItoStep: (targetStepIndex: number) => void;
 
   // Algorithm state operations
   setCurrentAlgorithm: (algorithm: GraphAlgorithm | null) => void;
@@ -151,20 +150,27 @@ export interface GraphState {
   saveImage: () => Promise<string>;
 
   // Algorithm implementations
+  findSCCs: () => {
+    components: string[][];
+    steps: StoredStep[];
+    message: string;
+  };
+
   findConnectedComponents: (startNodeId: string) => {
     components: string[][];
     steps: StoredStep[];
     message: string;
   };
+
   checkEulerianCycle: () => { exists: boolean; reason?: string };
   findEulerianCycle: (startNodeId?: string) => {
-    cycle: GraphNode[] | null;
-    steps: Step[];
+    cycle: string[] | null;
+    steps: StoredStep[];
     message?: string;
   };
 
   // Algorithm operations
-  getAdjacencyList: () => Map<string, GraphNode[]>;
+  getAdjacencyList: () => Map<string, string[]>;
 
   // Helpers
   highlightNode: (nodeId: string, className: string[], pulse?: boolean) => void;

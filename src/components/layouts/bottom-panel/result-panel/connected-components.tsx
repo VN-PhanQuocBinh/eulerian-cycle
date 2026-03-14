@@ -11,6 +11,7 @@ import { CopyButton } from "@/components/copy-button";
 import { useGraphStore } from "@/contexts/graph-context";
 import { COMPONENT_COLORS } from "@/types/styles";
 import { cn } from "@/utils/cn";
+import { getLabelById } from "@/utils";
 
 const arrayToString = (arr: string[]) => {
   return "[" + arr.join(", ") + "]";
@@ -56,7 +57,7 @@ export function ConnectedComponentsStepsTable({ steps }: Props) {
   });
 
   return (
-    <div className="bg-white p-4">
+    <div className="bg-white px-4 h-full overflow-y-auto custom-scrollbar">
       <Table>
         <TableHeader>
           <TableRow className="border-b border-blue-200">
@@ -97,9 +98,10 @@ export function ConnectedComponentsStepsTable({ steps }: Props) {
             );
 
             const queueNodes = step.current.queue?.map((nodeId) => {
-              const node = useGraphStore.getState().nodes.find((n) => n.id === nodeId);
-
-              return node;
+              return {
+                id: nodeId,
+                label: getLabelById(useGraphStore.getState().cyInstance, nodeId),
+              };
             }) as Array<GraphNode>;
 
             return (
@@ -178,9 +180,9 @@ export function ConnectedComponentsStepsTable({ steps }: Props) {
                     {queueNodes && queueNodes.length > 0 ? (
                       <>
                         <div className="flex-1 flex items-center gap-2 flex-wrap">
-                          {queueNodes.map((node, idx) => (
+                          {queueNodes.map((node) => (
                             <span
-                              key={idx}
+                              key={node.id}
                               className="size-5 w-max text-purple-700 bg-purple-100 px-1.5 py-0.5 rounded text-xs"
                             >
                               {node?.label}

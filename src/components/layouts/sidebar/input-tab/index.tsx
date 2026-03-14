@@ -33,8 +33,6 @@ function InputTab({ className }: { className?: string }) {
 
   const handleSync = () => {
     const { nodes: parsedNodes, edges: parsedEdges } = parseEdgeList(text);
-    console.log("Parsed nodes:", parsedNodes);
-    console.log("Parsed edges:", parsedEdges);
     drawGraphFromData({ nodes: parsedNodes, edges: parsedEdges, isDirected });
     autoLayout();
   };
@@ -59,7 +57,8 @@ function InputTab({ className }: { className?: string }) {
   };
 
   const handleSuggest = () => {
-    const examples = GRAPH_EXAMPLES[currentAlgorithm || "connected-components"] || [];
+    const examples =
+      GRAPH_EXAMPLES[isDirected ? "directed" : "undirected"]?.[currentAlgorithm!] || [];
     const randomExample = examples[Math.floor(Math.random() * examples.length)];
     setText(randomExample.trim());
   };
