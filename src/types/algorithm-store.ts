@@ -1,6 +1,7 @@
 import { GraphData } from "./graph-data-store";
 
 export type GraphAlgorithm = "eulerian-cycle" | "connected-components";
+export type RunMode = "step-by-step" | "continuous";
 
 export type StepNodeElement = {
   type: "node";
@@ -51,6 +52,7 @@ export interface AlgorithmStore {
   setSpeed: (speed: number) => void;
   nextStep: () => void;
   prevStep: () => void;
+  jumpToStep: (index: number) => void;
   updateUItoStep: (targetStepIndex: number) => void;
 
   // Helpers
@@ -63,9 +65,9 @@ export interface AlgorithmStore {
 
   // Algorithm implementations
 
-  findSCCs: () => ConnectedComponentsResult;
+  findSCCs: (data: GraphData) => ConnectedComponentsResult;
 
-  findConnectedComponents: (data: GraphData, startNodeId: string) => ConnectedComponentsResult;
+  findConnectedComponents: (data: GraphData, startNodeId?: string) => ConnectedComponentsResult;
 
   findEulerianCycle: (
     data: GraphData,

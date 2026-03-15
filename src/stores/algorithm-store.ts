@@ -37,6 +37,13 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
         }
       },
 
+      jumpToStep: (index: number) => {
+        const { steps } = get();
+        if (index >= 0 && index < steps.length) {
+          set({ currentStepIndex: index });
+        }
+      },
+
       // ========== ALGORITHM IMPLEMENTATIONS ==========
       findSCCs: (data: GraphData) => {
         const engine = new TarjanSCC(data);
@@ -55,18 +62,20 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
 
       findConnectedComponents: (
         data: GraphData,
-        startNodeId: string,
+        startNodeId?: string,
       ): ConnectedComponentsResult => {
         const { findSCCs } = get();
 
         if (data.isDirected) {
-          return findSCCs();
+          return findSCCs(data);
         }
 
-        return findConnectedComponentsAlgorithm({
+        const result = findConnectedComponentsAlgorithm({
           data,
-          startNodeId,
+          startNodeId: startNodeId || data.nodes[0]?.id,
         });
+
+        return result;
       },
 
       findEulerianCycle: (data: GraphData, startNodeId?: string) => {

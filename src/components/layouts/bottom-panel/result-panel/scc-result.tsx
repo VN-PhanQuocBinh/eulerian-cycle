@@ -1,10 +1,12 @@
-import { getLabelById } from "@/utils";
-import { useGraphStore } from "@/stores/graph-context";
+import { useAlgorithmStore, useGraphDataStore } from "@/stores";
 import { SCCStepsTable } from "./scc";
 import { Step } from "@/types/algorithm-store";
+import { createGraphUtils } from "@/core/helpers/graph-utils";
+import { useMemo } from "react";
+import { shallow } from "zustand/shallow";
 
 export function SCCResult({ steps }: { steps: Step[] }) {
-  const currentStepIndex = useGraphStore((state) => state.currentStepIndex);
+  const currentStepIndex = useAlgorithmStore((state) => state.currentStepIndex);
   const currentStep = steps[currentStepIndex] ?? steps[steps.length - 1];
 
   if (steps.length === 0) {
@@ -35,7 +37,17 @@ function DiscLowLinkTable({
   disc?: Map<string, number>;
   lowLink?: Map<string, number>;
 }) {
-  const cyInstance = useGraphStore((s) => s.cyInstance);
+  const edges = useGraphDataStore((state) => state.edges);
+  const nodes = useGraphDataStore((state) => state.nodes);
+  const isDirected = useGraphDataStore((state) => state.isDirected);
+
+  const graphUtils = useMemo(() => {
+    return createGraphUtils({
+      nodes,
+      edges,
+      isDirected,
+    });
+  }, [nodes, edges, isDirected]);
 
   if (!disc || disc.size === 0) {
     return <span className="text-xs text-gray-400 italic">—</span>;
@@ -51,7 +63,9 @@ function DiscLowLinkTable({
       </div>
       {Array.from(disc.entries()).map(([nodeId, discValue]) => (
         <div key={nodeId} className="flex text-xs items-center">
-          <span className="flex-1 text-gray-700">{getLabelById(cyInstance, nodeId)}</span>
+          <span className="flex-1 text-gray-700">
+            {graphUtils.getNode(nodeId)?.label || nodeId}
+          </span>
           <span className="w-10 text-center font-mono text-blue-600">
             {discValue === -1 ? "—" : discValue}
           </span>

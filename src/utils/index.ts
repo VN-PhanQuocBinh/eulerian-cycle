@@ -67,7 +67,3 @@ export function parseEdgeList(text: string): { nodes: GraphNode[]; edges: GraphE
 
   return { nodes, edges };
 }
-
-export function getLabelById(cyInstance: GraphState["cyInstance"], nodeId: string): string {
-  return cyInstance?.getElementById(nodeId).data("label");
-}

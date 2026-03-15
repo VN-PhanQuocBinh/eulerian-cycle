@@ -1,34 +1,18 @@
 import { ZoomIn, ZoomOut, LayoutDashboard } from "lucide-react";
-import { useGraphStore } from "@/stores/graph-context";
 import FunctionButton from "@/components/ui/function-button";
 import { graphService } from "@/services/graph-service";
 import { useAlgorithmStore } from "@/stores";
 
 function ZoomBar() {
-  const cyInstance = useGraphStore((state) => state.cyInstance);
-  const isAnimating = useGraphStore((state) => state.isAnimating);
+  const isAnimating = useAlgorithmStore((state) => state.isAnimating);
   const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
 
   const handleZoomIn = () => {
-    if (!cyInstance) return;
-    cyInstance.zoom({
-      level: cyInstance.zoom() * 1.2,
-      renderedPosition: {
-        x: cyInstance.width() / 2,
-        y: cyInstance.height() / 2,
-      },
-    });
+    graphService.zoomGraph("in");
   };
 
   const handleZoomOut = () => {
-    if (!cyInstance) return;
-    cyInstance.zoom({
-      level: cyInstance.zoom() / 1.2,
-      renderedPosition: {
-        x: cyInstance.width() / 2,
-        y: cyInstance.height() / 2,
-      },
-    });
+    graphService.zoomGraph("out");
   };
 
   const handleAutoLayout = () => {
@@ -41,23 +25,12 @@ function ZoomBar() {
         onClick={handleAutoLayout}
         tooltipContent="Auto layout"
         icon={LayoutDashboard}
-        disabled={isAnimating}
         className="mr-6"
       />
 
-      <FunctionButton
-        onClick={handleZoomOut}
-        tooltipContent="Zoom Out"
-        icon={ZoomOut}
-        disabled={isAnimating}
-      />
+      <FunctionButton onClick={handleZoomOut} tooltipContent="Zoom Out" icon={ZoomOut} />
 
-      <FunctionButton
-        onClick={handleZoomIn}
-        tooltipContent="Zoom In"
-        icon={ZoomIn}
-        disabled={isAnimating}
-      />
+      <FunctionButton onClick={handleZoomIn} tooltipContent="Zoom In" icon={ZoomIn} />
     </div>
   );
 }

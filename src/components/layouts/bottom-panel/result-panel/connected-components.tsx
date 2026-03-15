@@ -8,14 +8,15 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { CopyButton } from "@/components/copy-button";
-import { useGraphStore } from "@/stores/graph-context";
 import { COMPONENT_COLORS } from "@/types/styles";
 import { cn } from "@/utils/cn";
-import { getLabelById } from "@/utils";
 import { useAlgorithmStore, useGraphDataStore } from "@/stores";
 import { Step } from "@/types/algorithm-store";
 import { createGraphUtils } from "@/core/helpers/graph-utils";
 import { useMemo } from "react";
+import { Target } from "lucide-react";
+import { Tooltip } from "@/components/ui/tooltip";
+import { useStepControl } from "@/hooks/use-step-control";
 
 const arrayToString = (arr: string[]) => {
   return "[" + arr.join(", ") + "]";
@@ -27,11 +28,18 @@ interface Props {
 
 export function ConnectedComponentsStepsTable({ steps }: Props) {
   const currentStepIndex = useAlgorithmStore((state) => state.currentStepIndex);
-  const nodes = useGraphDataStore((state) => state.nodes);
   const edges = useGraphDataStore((state) => state.edges);
+  const nodes = useGraphDataStore((state) => state.nodes);
+  const isDirected = useGraphDataStore((state) => state.isDirected);
+  const { jumpTo } = useStepControl();
+
   const graphUtils = useMemo(() => {
-    return createGraphUtils(nodes, edges);
-  }, [nodes, edges]);
+    return createGraphUtils({
+      nodes,
+      edges,
+      isDirected,
+    });
+  }, [nodes, edges, isDirected]);
 
   if (steps.length === 0) {
     return (
@@ -114,19 +122,29 @@ export function ConnectedComponentsStepsTable({ steps }: Props) {
             return (
               <TableRow
                 key={index}
-                className={cn("", {
+                className={cn("group", {
                   "bg-blue-50! border-l-4 border-l-blue-500": isCurrentStep,
                   "bg-green-50/30": isPastStep,
                 })}
               >
                 {/* Step Number */}
                 <TableCell
-                  className="border-l-4"
+                  className="border-l-4 text-center"
                   style={{
                     borderColor: componentColor,
                   }}
                 >
-                  {index + 1}
+                  <div className="min-h-16 min-w-10 grid place-items-center">
+                    <Tooltip content={`Jump to step ${index + 1}`} side="right">
+                      <button
+                        onClick={() => jumpTo(index)}
+                        className="text-gray-800 p-1 rounded hidden group-hover:block"
+                      >
+                        <Target size={24} />
+                      </button>
+                    </Tooltip>
+                    <span className="group-hover:hidden">{index + 1}</span>
+                  </div>
                 </TableCell>
 
                 {/* Element */}

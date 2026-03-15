@@ -35,6 +35,7 @@ export function GraphReport() {
   const findConnectedComponents = useAlgorithmStore((state) => state.findConnectedComponents);
   const findEulerianCycle = useAlgorithmStore((state) => state.findEulerianCycle);
   const getCurrentGraphData = useGraphDataStore((state) => state.getCurrentGraphData);
+  const findSCCs = useAlgorithmStore((state) => state.findSCCs);
 
   const graphUtils = useMemo(
     () =>
@@ -59,10 +60,19 @@ export function GraphReport() {
   const components = useMemo(() => {
     if (nodes.length === 0) return [];
 
-    const { components } = findConnectedComponents(getCurrentGraphData(), nodes[0].id);
+    let components: string[][] = [];
+    const graphData = getCurrentGraphData();
+
+    if (isDirected) {
+      const { components: sccs } = findSCCs(graphData);
+      components = sccs;
+    } else {
+      const { components: undirectedComps } = findConnectedComponents(graphData);
+      components = undirectedComps;
+    }
 
     return components;
-  }, [nodes, edges, currentAlgorithm]);
+  }, [nodes, edges, currentAlgorithm, isDirected]);
 
   const circuit = useMemo(() => {
     if (currentAlgorithm !== "eulerian-cycle") return null;
@@ -75,7 +85,7 @@ export function GraphReport() {
       nodes[0].id,
     );
     return cycle;
-  }, [currentAlgorithm, nodes, edges]);
+  }, [currentAlgorithm, nodes, edges, isDirected]);
 
   const oddDegreeNodes = useMemo(
     () =>

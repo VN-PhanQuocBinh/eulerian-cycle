@@ -163,7 +163,7 @@ export function findConnectedComponents({
   });
 
   return {
-    components,
+    components: [...components],
     steps,
     message: `Found ${components.length} connected component(s).`,
   };

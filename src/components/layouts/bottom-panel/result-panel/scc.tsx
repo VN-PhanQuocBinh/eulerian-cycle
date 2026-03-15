@@ -8,18 +8,30 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { CopyButton } from "@/components/copy-button";
-import { useGraphStore } from "@/stores/graph-context";
+import { useAlgorithmStore, useGraphDataStore } from "@/stores";
 import { COMPONENT_COLORS } from "@/types/styles";
 import { cn } from "@/utils/cn";
-import { getLabelById } from "@/utils";
 import { Step } from "@/types/algorithm-store";
+import { createGraphUtils } from "@/core/helpers/graph-utils";
+import { useMemo } from "react";
 
 interface Props {
   steps: Step[];
 }
 
 export function SCCStepsTable({ steps }: Props) {
-  const currentStepIndex = useGraphStore((state) => state.currentStepIndex);
+  const currentStepIndex = useAlgorithmStore((state) => state.currentStepIndex);
+  const edges = useGraphDataStore((state) => state.edges);
+  const nodes = useGraphDataStore((state) => state.nodes);
+  const isDirected = useGraphDataStore((state) => state.isDirected);
+
+  const graphUtils = useMemo(() => {
+    return createGraphUtils({
+      nodes,
+      edges,
+      isDirected,
+    });
+  }, [nodes, edges, isDirected]);
 
   if (steps.length === 0) {
     return (
@@ -68,7 +80,7 @@ export function SCCStepsTable({ steps }: Props) {
             const stackNodes =
               step.stack?.map((nodeId) => ({
                 id: nodeId,
-                label: getLabelById(useGraphStore.getState().cyInstance, nodeId),
+                label: graphUtils.getNode(nodeId)?.label || nodeId,
               })) ?? [];
 
             return (

@@ -1,5 +1,4 @@
 import { COMPONENT_COLORS } from "@/types/styles";
-import { getLabelById } from "@/utils";
 import { GraphData, GraphNode, GraphEdge } from "@/types/graph-data-store";
 import { Step, AlgorithmStore, StepNodeElement } from "@/types/algorithm-store";
 import { createGraphUtils } from "@/core/helpers/graph-utils";
@@ -234,8 +233,6 @@ export class TarjanSCC {
       lowLink: new Map(this.lowLink),
     });
 
-    const allSCCs: string[][] = [];
-
     for (const nodeId of this.adjacencyList.keys()) {
       const nodeElement = this.utils.getNode(nodeId)!;
 
@@ -294,9 +291,9 @@ export class TarjanSCC {
     });
 
     return {
-      components: allSCCs,
+      components: this.allSCCs,
       steps: this.steps, // For simplicity, not implementing step-by-step animation for SCCs in this version
-      message: `Found ${allSCCs.length} strongly connected component(s).`,
+      message: `Found ${this.allSCCs.length} strongly connected component(s).`,
     };
   }
 }

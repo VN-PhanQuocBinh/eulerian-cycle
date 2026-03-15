@@ -16,6 +16,7 @@ interface IGraphEditor {
   updateNodeInCy(node: Partial<GraphNode> & { id: string }): void;
   removeSelectedElements(): { nodeIds: string[]; edgeIds: string[] };
   clearCanvas(): void;
+  resetGraph(): void;
   drawGraphFromData(graphData: {
     nodes: GraphNode[];
     edges: GraphEdge[];
@@ -28,6 +29,7 @@ interface IGraphVisualizer {
   highlightElement(elementId: string, className: string[], pulse?: boolean): void;
   toggleDirected(isDirected: boolean): void;
   applyStylesFromMap(styles: Map<string, Set<string>>): void;
+  zoomGraph(type: "in" | "out"): void;
 }
 
 interface IGraphService extends IGraphEditor, IGraphVisualizer {
@@ -225,6 +227,24 @@ class GraphService implements IGraphService {
     this.cy.elements().remove();
   }
 
+  // services/cytoscape-service.ts
+  public resetGraph() {
+    if (!this.cy) return;
+
+    this.cy.batch(() => {
+      this.cy!.elements().classes("");
+      this.cy!.elements().unselect();
+      this.cy!.animate({
+        fit: {
+          eles: this.cy!.elements(),
+          padding: 50,
+        },
+        duration: 500,
+        easing: "ease-in-out-cubic",
+      });
+    });
+  }
+
   drawGraphFromData: IGraphService["drawGraphFromData"] = (graphData) => {
     if (!this.cy) return;
 
@@ -295,16 +315,27 @@ class GraphService implements IGraphService {
     if (!this.cy) return;
 
     this.cy.batch(() => {
-      // 1. Reset class của toàn bộ elements
       this.cy!.elements().classes("");
 
-      // 2. Apply style mới
       for (const [elementId, classes] of styles.entries()) {
         const element = this.cy!.getElementById(elementId);
         if (element.length > 0) {
           element.classes(Array.from(classes).join(" "));
         }
       }
+    });
+  }
+
+  zoomGraph(type: "in" | "out") {
+    if (!this.cy) return;
+
+    const factor = type === "in" ? 1.2 : 1 / 1.2;
+    this.cy.zoom({
+      level: this.cy.zoom() * factor,
+      renderedPosition: {
+        x: this.cy.width() / 2,
+        y: this.cy.height() / 2,
+      },
     });
   }
 }

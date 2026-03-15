@@ -1,4 +1,4 @@
-import { GraphAlgorithm } from "@/types/graph";
+import { GraphAlgorithm } from "@/types/algorithm-store";
 import cytoscape from "cytoscape";
 
 export const ALGORITHM_LAYOUT_CONFIGS: Record<GraphAlgorithm, cytoscape.LayoutOptions> = {

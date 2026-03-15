@@ -2,11 +2,11 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import ResultPanel from "./bottom-panel/result-panel";
 import { PseudoCodeViewer } from "./bottom-panel/pseudo-code-viewer";
 import { GraphReport } from "./bottom-panel/graph-report";
-import { useGraphStore } from "@/stores/graph-context";
+import { useAlgorithmStore } from "@/stores";
 
 export function BottomPanel() {
-  const steps = useGraphStore((state) => state.steps);
-  const currentStepIndex = useGraphStore((state) => state.currentStepIndex);
+  const steps = useAlgorithmStore((state) => state.steps);
+  const currentStepIndex = useAlgorithmStore((state) => state.currentStepIndex);
 
   return (
     <Tabs defaultValue="steps" className="h-full tabs-bar p-2">

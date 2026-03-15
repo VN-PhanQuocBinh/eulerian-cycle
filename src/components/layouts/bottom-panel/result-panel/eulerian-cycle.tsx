@@ -8,9 +8,10 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { CopyButton } from "@/components/copy-button";
-import { useGraphStore } from "@/stores/graph-context";
-import { getLabelById } from "@/utils";
 import { Step } from "@/types/algorithm-store";
+import { useAlgorithmStore, useGraphDataStore } from "@/stores";
+import { createGraphUtils } from "@/core/helpers/graph-utils";
+import { useMemo } from "react";
 
 const arrayToString = (arr: string[]) => {
   let result: string = arr.join(", ");
@@ -22,7 +23,19 @@ interface Props {
 }
 
 export function EulerianCycleStepsTable({ steps }: Props) {
-  const currentStepIndex = useGraphStore((state) => state.currentStepIndex);
+  const currentStepIndex = useAlgorithmStore((state) => state.currentStepIndex);
+
+  const edges = useGraphDataStore((state) => state.edges);
+  const nodes = useGraphDataStore((state) => state.nodes);
+  const isDirected = useGraphDataStore((state) => state.isDirected);
+
+  const graphUtils = useMemo(() => {
+    return createGraphUtils({
+      nodes,
+      edges,
+      isDirected,
+    });
+  }, [nodes, edges, isDirected]);
 
   if (steps.length === 0) {
     return (
@@ -50,7 +63,6 @@ export function EulerianCycleStepsTable({ steps }: Props) {
             const isCurrentStep = index === currentStepIndex;
             const isPastStep = index < currentStepIndex;
             const elements = step.elements;
-            const cyInstance = useGraphStore.getState().cyInstance;
 
             const currentNode: StepNodeElement | undefined = elements.filter(
               (el) => el.type === "node",
@@ -61,12 +73,12 @@ export function EulerianCycleStepsTable({ steps }: Props) {
 
             const stackNodes = step.stack?.map((nodeId) => ({
               id: nodeId,
-              label: getLabelById(cyInstance, nodeId),
+              label: graphUtils.getNode(nodeId)?.label || nodeId,
             }));
 
             const circuitNodes = step.circuit?.map((nodeId) => ({
               id: nodeId,
-              label: getLabelById(cyInstance, nodeId),
+              label: graphUtils.getNode(nodeId)?.label || nodeId,
             }));
 
             return (

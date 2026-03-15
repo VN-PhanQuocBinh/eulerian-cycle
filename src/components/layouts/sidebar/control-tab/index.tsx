@@ -8,12 +8,13 @@ import {
   PrimaryControlButtons,
   GraphTypeSelect,
 } from "@/components/layouts/sidebar/index";
-import type { GraphAlgorithm, RunMode, StoredStep } from "@/types/graph";
+import { GraphAlgorithm, RunMode } from "@/types/algorithm-store";
 import { useToast } from "@/components/ui/toast";
 import { cn } from "@/utils/cn";
 import { useAlgorithmStore, useGraphDataStore } from "@/stores";
 import { graphService } from "@/services/graph-service";
 import { computeFinalStyles } from "@/core/helpers/compute-final-styles";
+import { useStepControl } from "@/hooks/use-step-control";
 
 export const BASE_ANIMATION_SPEED = 2000; // in milliseconds
 
@@ -32,6 +33,7 @@ function ControlTab({ className }: { className?: string }) {
 
   const steps = useAlgorithmStore((state) => state.steps);
   const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
+  const currentStepIndex = useAlgorithmStore((state) => state.currentStepIndex);
   const speed = useAlgorithmStore((state) => state.speed);
   const isAnimating = useAlgorithmStore((state) => state.isAnimating);
   const setIsAnimating = useAlgorithmStore((state) => state.setIsAnimating);
@@ -45,13 +47,12 @@ function ControlTab({ className }: { className?: string }) {
   const findEulerianCycle = useAlgorithmStore((state) => state.findEulerianCycle);
   const findSCCs = useAlgorithmStore((state) => state.findSCCs);
 
+  const { next, previous, jumpTo, canForward, canBackward } = useStepControl();
+
   // Local state
   const showToast = useToast().showToast;
   const [runMode, setRunMode] = useState<RunMode>("continuous");
   const debouncedSpeed = useDebounce(speed, 300);
-  // const [isAnimating, setIsAnimating] = useState(false);
-  const [canBackward, setCanBackward] = useState(true);
-  const [canForward, setCanForward] = useState(true);
   const startNodeOptions = useMemo(
     () => nodes.map((node) => ({ label: node.label, value: node.id })),
     [nodes],
@@ -72,21 +73,22 @@ function ControlTab({ className }: { className?: string }) {
 
   // Load steps when algorithm or graph changes
   useEffect(() => {
+    const graphData = getCurrentGraphData();
+
     switch (currentAlgorithm) {
       case "connected-components": {
         if (isDirected) {
-          const { steps } = findSCCs();
+          const { steps } = findSCCs(graphData);
           setSteps(steps || []);
         } else {
-          const { steps } = findConnectedComponents(getCurrentGraphData(), startNodeId);
-          console.log(steps);
+          const { steps } = findConnectedComponents(graphData, startNodeId);
           setSteps(steps || []);
         }
 
         break;
       }
       case "eulerian-cycle": {
-        const { steps, cycle } = findEulerianCycle(startNodeId);
+        const { steps, cycle } = findEulerianCycle(graphData, startNodeId);
         setSteps(steps || []);
         break;
       }
@@ -96,38 +98,43 @@ function ControlTab({ className }: { className?: string }) {
   }, [edges, nodes, startNodeId, isDirected, currentAlgorithm]);
 
   // Step controls
-  const nextStep = useCallback(() => {
-    const currentStepValue = useGraphStore.getState().currentStepIndex + 1;
-    nextStepStore();
+  // const nextStep = useCallback(() => {
+  //   const currentStepValue = useAlgorithmStore.getState().currentStepIndex + 1;
+  //   nextStepStore();
 
-    if (currentStepValue >= steps.length) {
-      showToast?.({
-        message: "No more steps available. Please reset or run a different algorithm.",
-        type: "info",
-      });
-      return;
-    }
+  //   if (currentStepValue >= steps.length) {
+  //     showToast?.({
+  //       message: "No more steps available. Please reset or run a different algorithm.",
+  //       type: "info",
+  //     });
+  //     return;
+  //   }
 
-    const step = steps[currentStepValue].current;
+  //   const step = steps[currentStepValue];
 
-    step.elements.forEach((element) =>
-      graphService.highlightElement(element.id, element.classes, element.type === "node"),
-    );
+  //   step.elements.forEach((element) =>
+  //     graphService.highlightElement(element.id, element.classes, element.type === "node"),
+  //   );
 
-    setCanBackward(currentStepValue > 0);
-    setCanForward(currentStepValue + 1 < steps.length);
-  }, [steps, isAnimating, runMode, nextStepStore]);
+  //   setCanBackward(currentStepValue > 0);
+  //   setCanForward(currentStepValue + 1 < steps.length);
+  // }, [steps, isAnimating, runMode, nextStepStore]);
 
-  const previousStep = useCallback(() => {
-    const currentStepValue = useGraphStore.getState().currentStepIndex;
+  // const updateUItoStep = (stepIndex: number) => {
+  //   const finalStyles = computeFinalStyles(steps, stepIndex);
+  //   graphService.applyStylesFromMap(finalStyles);
+  // };
 
-    if (currentStepValue > 0 && cyInstance) {
-      updateUItoStep(currentStepValue - 1);
-      prevStepStore();
-      setCanBackward(currentStepValue - 1 > 0);
-      setCanForward(currentStepValue < steps.length);
-    }
-  }, [steps, cyInstance, prevStepStore]);
+  // const previousStep = useCallback(() => {
+  //   const currentStepValue = useAlgorithmStore.getState().currentStepIndex;
+
+  //   if (currentStepValue > 0) {
+  //     updateUItoStep(currentStepValue - 1);
+  //     prevStepStore();
+  //     setCanBackward(currentStepValue - 1 > 0);
+  //     setCanForward(currentStepValue < steps.length);
+  //   }
+  // }, [steps, prevStepStore]);
 
   // Animation effect
   useEffect(() => {
@@ -136,10 +143,11 @@ function ControlTab({ className }: { className?: string }) {
     }
 
     const animationInterval: NodeJS.Timeout = setInterval(() => {
-      const currentStepValue = useGraphStore.getState().currentStepIndex;
+      const currentStepValue = useAlgorithmStore.getState().currentStepIndex;
 
       if (currentStepValue < steps.length) {
-        nextStep();
+        // nextStep();
+        next();
       } else {
         clearInterval(animationInterval);
         setIsAnimating(false);
@@ -152,7 +160,7 @@ function ControlTab({ className }: { className?: string }) {
   }, [isAnimating, runMode, steps, debouncedSpeed]);
 
   const handleToggleRun = async () => {
-    const currentStepValue = useGraphStore.getState().currentStepIndex;
+    const currentStepValue = useAlgorithmStore.getState().currentStepIndex;
 
     if (isAnimating) {
       // Pause animation
@@ -181,13 +189,13 @@ function ControlTab({ className }: { className?: string }) {
   };
 
   const handleReset = () => {
-    graphService.drawGraphFromData(getCurrentGraphData());
+    graphService.resetGraph();
+
     setCurrentStepIndex(-1);
     setIsAnimating(false);
-    setSteps([]);
 
-    setCanForward(true);
-    setCanBackward(false);
+    // setCanForward(true);
+    // setCanBackward(false);
   };
 
   const handleStartNodeChange = (nodeId: string) => {
@@ -245,8 +253,8 @@ function ControlTab({ className }: { className?: string }) {
       <PrimaryControlButtons
         onToggleRun={handleToggleRun}
         onReset={handleReset}
-        onNext={nextStep}
-        onPrevious={previousStep}
+        onNext={next}
+        onPrevious={previous}
         canForward={canForward}
         canBackward={canBackward}
         isAnimating={isAnimating}
