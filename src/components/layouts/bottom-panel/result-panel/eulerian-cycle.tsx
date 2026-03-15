@@ -10,6 +10,7 @@ import {
 import { CopyButton } from "@/components/copy-button";
 import { useGraphStore } from "@/stores/graph-context";
 import { getLabelById } from "@/utils";
+import { Step } from "@/types/algorithm-store";
 
 const arrayToString = (arr: string[]) => {
   let result: string = arr.join(", ");
@@ -17,7 +18,7 @@ const arrayToString = (arr: string[]) => {
 };
 
 interface Props {
-  steps: StoredStep[];
+  steps: Step[];
 }
 
 export function EulerianCycleStepsTable({ steps }: Props) {
@@ -48,7 +49,7 @@ export function EulerianCycleStepsTable({ steps }: Props) {
           {steps.map((step, index) => {
             const isCurrentStep = index === currentStepIndex;
             const isPastStep = index < currentStepIndex;
-            const elements = step.current.elements;
+            const elements = step.elements;
             const cyInstance = useGraphStore.getState().cyInstance;
 
             const currentNode: StepNodeElement | undefined = elements.filter(
@@ -58,12 +59,12 @@ export function EulerianCycleStepsTable({ steps }: Props) {
               (el) => el.type === "edge",
             )[0]?.target;
 
-            const stackNodes = step.current.stack?.map((nodeId) => ({
+            const stackNodes = step.stack?.map((nodeId) => ({
               id: nodeId,
               label: getLabelById(cyInstance, nodeId),
             }));
 
-            const circuitNodes = step.current.circuit?.map((nodeId) => ({
+            const circuitNodes = step.circuit?.map((nodeId) => ({
               id: nodeId,
               label: getLabelById(cyInstance, nodeId),
             }));
@@ -150,7 +151,7 @@ export function EulerianCycleStepsTable({ steps }: Props) {
 
                 {/* Message */}
                 <TableCell className="px-3 py-2 text-gray-600 text-left">
-                  {step.current.message.map((msg, idx) => (
+                  {step.message.map((msg, idx) => (
                     <div key={idx}>- {msg}</div>
                   ))}
                 </TableCell>

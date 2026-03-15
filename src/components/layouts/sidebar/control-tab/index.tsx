@@ -1,4 +1,3 @@
-import { useGraphStore } from "@/stores/graph-context";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { useDebounce } from "@/hooks/use-debounce";
 import {
@@ -12,6 +11,9 @@ import {
 import type { GraphAlgorithm, RunMode, StoredStep } from "@/types/graph";
 import { useToast } from "@/components/ui/toast";
 import { cn } from "@/utils/cn";
+import { useAlgorithmStore, useGraphDataStore } from "@/stores";
+import { graphService } from "@/services/graph-service";
+import { computeFinalStyles } from "@/core/helpers/compute-final-styles";
 
 export const BASE_ANIMATION_SPEED = 2000; // in milliseconds
 
@@ -22,29 +24,26 @@ const ALGORITHM_OPTIONS: { label: string; value: GraphAlgorithm }[] = [
 
 function ControlTab({ className }: { className?: string }) {
   // Graph store
-  const isDirected = useGraphStore((state) => state.isDirected);
-  const edges = useGraphStore((state) => state.edges);
-  const nodes = useGraphStore((state) => state.nodes);
-  const cyInstance = useGraphStore((state) => state.cyInstance);
-  const steps = useGraphStore((state) => state.steps);
-  const currentAlgorithm = useGraphStore((state) => state.currentAlgorithm);
-  const speed = useGraphStore((state) => state.speed);
-  const isAnimating = useGraphStore((state) => state.isAnimating);
-  const setIsDirected = useGraphStore((state) => state.setIsDirected);
-  const setIsAnimating = useGraphStore((state) => state.setIsAnimating);
-  const setSteps = useGraphStore((state) => state.setSteps);
-  const nextStepStore = useGraphStore((state) => state.nextStep);
-  const prevStepStore = useGraphStore((state) => state.prevStep);
-  const setCurrentAlgorithm = useGraphStore((state) => state.setCurrentAlgorithm);
-  const setCurrentStepIndex = useGraphStore((state) => state.setCurrentStepIndex);
-  const setSpeed = useGraphStore((state) => state.setSpeed);
-  const highlightNode = useGraphStore((state) => state.highlightNode);
-  const highlightEdge = useGraphStore((state) => state.highlightEdge);
-  const findConnectedComponents = useGraphStore((state) => state.findConnectedComponents);
-  const findEulerianCycle = useGraphStore((state) => state.findEulerianCycle);
-  const findSCCs = useGraphStore((state) => state.findSCCs);
-  const resetGraph = useGraphStore((state) => state.resetGraph);
-  const updateUItoStep = useGraphStore((state) => state.updateUItoStep);
+  const isDirected = useGraphDataStore((state) => state.isDirected);
+  const edges = useGraphDataStore((state) => state.edges);
+  const nodes = useGraphDataStore((state) => state.nodes);
+  const setIsDirected = useGraphDataStore((state) => state.setIsDirected);
+  const getCurrentGraphData = useGraphDataStore((state) => state.getCurrentGraphData);
+
+  const steps = useAlgorithmStore((state) => state.steps);
+  const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
+  const speed = useAlgorithmStore((state) => state.speed);
+  const isAnimating = useAlgorithmStore((state) => state.isAnimating);
+  const setIsAnimating = useAlgorithmStore((state) => state.setIsAnimating);
+  const setSteps = useAlgorithmStore((state) => state.setSteps);
+  const nextStepStore = useAlgorithmStore((state) => state.nextStep);
+  const prevStepStore = useAlgorithmStore((state) => state.prevStep);
+  const setCurrentAlgorithm = useAlgorithmStore((state) => state.setCurrentAlgorithm);
+  const setCurrentStepIndex = useAlgorithmStore((state) => state.setCurrentStepIndex);
+  const setSpeed = useAlgorithmStore((state) => state.setSpeed);
+  const findConnectedComponents = useAlgorithmStore((state) => state.findConnectedComponents);
+  const findEulerianCycle = useAlgorithmStore((state) => state.findEulerianCycle);
+  const findSCCs = useAlgorithmStore((state) => state.findSCCs);
 
   // Local state
   const showToast = useToast().showToast;
@@ -71,17 +70,6 @@ function ControlTab({ className }: { className?: string }) {
     }
   }, [nodes]);
 
-  const highlightElement = useCallback(
-    (element: StoredStep["current"]["elements"][number]) => {
-      if (element.type === "node") {
-        highlightNode(element.id, element.classes, true);
-      } else if (element.type === "edge") {
-        highlightEdge(element.source.id, element.target.id, element.classes);
-      }
-    },
-    [highlightEdge, highlightNode],
-  );
-
   // Load steps when algorithm or graph changes
   useEffect(() => {
     switch (currentAlgorithm) {
@@ -90,7 +78,8 @@ function ControlTab({ className }: { className?: string }) {
           const { steps } = findSCCs();
           setSteps(steps || []);
         } else {
-          const { steps } = findConnectedComponents(startNodeId);
+          const { steps } = findConnectedComponents(getCurrentGraphData(), startNodeId);
+          console.log(steps);
           setSteps(steps || []);
         }
 
@@ -98,8 +87,6 @@ function ControlTab({ className }: { className?: string }) {
       }
       case "eulerian-cycle": {
         const { steps, cycle } = findEulerianCycle(startNodeId);
-        console.log("Eulerian cycle steps:", steps);
-        console.log("Eulerian cycle result:", cycle);
         setSteps(steps || []);
         break;
       }
@@ -123,11 +110,13 @@ function ControlTab({ className }: { className?: string }) {
 
     const step = steps[currentStepValue].current;
 
-    step.elements.forEach(highlightElement);
+    step.elements.forEach((element) =>
+      graphService.highlightElement(element.id, element.classes, element.type === "node"),
+    );
 
     setCanBackward(currentStepValue > 0);
     setCanForward(currentStepValue + 1 < steps.length);
-  }, [steps, isAnimating, runMode, highlightElement, nextStepStore]);
+  }, [steps, isAnimating, runMode, nextStepStore]);
 
   const previousStep = useCallback(() => {
     const currentStepValue = useGraphStore.getState().currentStepIndex;
@@ -192,7 +181,7 @@ function ControlTab({ className }: { className?: string }) {
   };
 
   const handleReset = () => {
-    resetGraph();
+    graphService.drawGraphFromData(getCurrentGraphData());
     setCurrentStepIndex(-1);
     setIsAnimating(false);
     setSteps([]);

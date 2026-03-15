@@ -1,6 +1,6 @@
 import { cn } from "@/utils/cn";
-import { useGraphStore } from "@/stores/graph-context";
 import { FolderOpen, Save } from "lucide-react";
+import { useFileOperations } from "@/hooks/use-file-operations";
 
 interface FileOperationProps {
   className?: string;
@@ -8,8 +8,7 @@ interface FileOperationProps {
 }
 
 function FileOperation({ disabled = false, className }: FileOperationProps) {
-  const loadGraph = useGraphStore((state) => state.loadGraph);
-  const saveGraph = useGraphStore((state) => state.saveGraph);
+  const { loadGraph, saveGraph } = useFileOperations();
 
   return (
     <section className={cn("mt-auto pt-4 border-t border-slate-200", className)}>

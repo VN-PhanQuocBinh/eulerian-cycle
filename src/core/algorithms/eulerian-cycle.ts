@@ -1,6 +1,8 @@
-import type { GraphState, StoredStep, GraphNode } from "@/types/graph";
-import { findSCCs } from "./scc";
-import { getLabelById } from "@/utils";
+import { GraphNode, GraphEdge } from "@/types/graph-data-store";
+import { Step } from "@/types/algorithm-store";
+import { TarjanSCC } from "@/core/algorithms/tarjan-scc";
+import { GraphData } from "@/types/graph-data-store";
+import { createGraphUtils } from "@/core/helpers/graph-utils";
 
 export type AlgorithmCheckResult = {
   exists: boolean;
@@ -8,227 +10,189 @@ export type AlgorithmCheckResult = {
 };
 
 export interface FindEulerianCycleProps {
-  params: {
-    cyInstance: GraphState["cyInstance"];
-    nodes: GraphState["nodes"];
-    edges: GraphState["edges"];
-    adjacencyList: ReturnType<GraphState["getAdjacencyList"]>;
-    isDirected: GraphState["isDirected"];
-  };
+  data: GraphData;
   startNodeId?: string;
 }
 
-export interface CheckEulerianCycle {
-  params: FindEulerianCycleProps["params"];
-}
+export interface CheckEulerianCycle extends Omit<FindEulerianCycleProps, "startNodeId"> {}
 
-function checkBalancedDegrees({
-  nodes,
-  edges,
-}: {
-  nodes: GraphState["nodes"];
-  edges: GraphState["edges"];
-}): AlgorithmCheckResult {
-  const inDegrees: Map<string, number> = new Map();
-  const outDegrees: Map<string, number> = new Map();
+export class EulerianCycle {
+  readonly utils: ReturnType<typeof createGraphUtils>;
+  readonly nodes: GraphNode[] = [];
+  readonly edges: GraphEdge[] = [];
+  readonly isDirected: boolean = true;
+  readonly adjacencyList: Map<string, string[]> = new Map();
 
-  nodes.forEach((node) => {
-    inDegrees.set(node.id, 0);
-    outDegrees.set(node.id, 0);
-  });
+  steps: Step[] = [];
 
-  edges.forEach((edge) => {
-    outDegrees.set(edge.source, (outDegrees.get(edge.source) || 0) + 1);
-    inDegrees.set(edge.target, (inDegrees.get(edge.target) || 0) + 1);
-  });
-
-  const nodeErrorMessages: string[] = [];
-  for (const node of nodes) {
-    if (inDegrees.get(node.id) !== outDegrees.get(node.id)) {
-      nodeErrorMessages.push(
-        `Node ${node.label} has in-degree ${inDegrees.get(node.id)} ≠ out-degree ${outDegrees.get(node.id)}.`,
-      );
-    }
+  constructor(data: GraphData) {
+    this.utils = createGraphUtils(data);
+    this.nodes = data.nodes;
+    this.edges = data.edges;
+    this.isDirected = data.isDirected;
+    this.adjacencyList = this.utils.adjacencyList;
   }
 
-  if (nodeErrorMessages.length > 0) {
-    return {
-      exists: false,
-      reasons: nodeErrorMessages,
-    };
-  }
+  checkBalancedDegrees() {
+    const inDegrees: Map<string, number> = new Map();
+    const outDegrees: Map<string, number> = new Map();
 
-  return { exists: true };
-}
+    this.nodes.forEach((node) => {
+      inDegrees.set(node.id, 0);
+      outDegrees.set(node.id, 0);
+    });
 
-function checkSCC({
-  params,
-}: {
-  params: Pick<FindEulerianCycleProps["params"], "adjacencyList" | "nodes" | "cyInstance">;
-}): AlgorithmCheckResult {
-  const { adjacencyList, nodes, cyInstance } = params;
-  const { components } = findSCCs({ adjacencyList, cyInstance });
-  console.log("Strongly connected components:", components);
+    this.edges.forEach((edge) => {
+      outDegrees.set(edge.source, (outDegrees.get(edge.source) || 0) + 1);
+      inDegrees.set(edge.target, (inDegrees.get(edge.target) || 0) + 1);
+    });
 
-  const aloneNodes = new Set();
-  nodes.forEach((node) => {
-    if (!adjacencyList.get(node.id) || adjacencyList.get(node.id)!.length === 0) {
-      aloneNodes.add(node.id);
+    const nodeErrorMessages: string[] = [];
+    for (const node of this.nodes) {
+      if (inDegrees.get(node.id) !== outDegrees.get(node.id)) {
+        nodeErrorMessages.push(
+          `Node ${node.label} has in-degree ${inDegrees.get(node.id)} ≠ out-degree ${outDegrees.get(node.id)}.`,
+        );
+      }
     }
-  });
 
-  for (const component of components) {
-    if (component.length === 1 && !aloneNodes.has(component[0])) {
+    if (nodeErrorMessages.length > 0) {
       return {
         exists: false,
-        reasons: [`Node ${component[0]} is not strongly connected to any other node.`],
+        reasons: nodeErrorMessages,
       };
     }
+
+    return { exists: true };
   }
 
-  return { exists: true };
-}
+  checkSCC() {
+    const { components } = new TarjanSCC({
+      nodes: this.nodes,
+      edges: this.edges,
+      isDirected: this.isDirected,
+    }).execute();
 
-function checkEulerianCycle({ params }: CheckEulerianCycle): AlgorithmCheckResult {
-  const { nodes, edges, isDirected, adjacencyList, cyInstance } = params;
+    const aloneNodes = new Set();
+    this.nodes.forEach((node) => {
+      if (!this.adjacencyList.get(node.id) || this.adjacencyList.get(node.id)!.length === 0) {
+        aloneNodes.add(node.id);
+      }
+    });
 
-  if (nodes.length === 0) {
-    return { exists: false, reasons: ["Graph is empty."] };
-  }
-
-  if (isDirected) {
-    const balancedDegreesCheck = checkBalancedDegrees({ nodes, edges });
-    const sccCheck = checkSCC({ params: { adjacencyList, nodes, cyInstance } });
-    if (!balancedDegreesCheck.exists || !sccCheck.exists) {
-      return {
-        exists: false,
-        reasons: [...(balancedDegreesCheck?.reasons || []), ...(sccCheck?.reasons || [])],
-      };
-    }
-  } else {
-    for (const node of nodes) {
-      const degree = adjacencyList.get(node.id)?.length || 0;
-      if (degree % 2 !== 0) {
+    for (const component of components) {
+      if (component.length === 1 && !aloneNodes.has(component[0])) {
         return {
           exists: false,
-          reasons: [`Node ${node.id} has odd degree ${degree}.`],
+          reasons: [`Node ${component[0]} is not strongly connected to any other node.`],
         };
       }
     }
+
+    return { exists: true };
   }
 
-  return { exists: true };
-}
+  checkEulerianCycle() {
+    if (this.nodes.length === 0) {
+      return { exists: false, reasons: ["Graph is empty."] };
+    }
 
-export function findEulerianCycle({ params, startNodeId }: FindEulerianCycleProps) {
-  // const { cyInstance, nodes, isDirected, getAdjacencyList, checkEulerianCycle } = get();
-  const { cyInstance, nodes, adjacencyList, isDirected } = params;
-  const steps: StoredStep[] = [];
+    if (this.isDirected) {
+      const balancedDegreesCheck = this.checkBalancedDegrees();
+      const sccCheck = this.checkSCC();
+      if (!balancedDegreesCheck.exists || !sccCheck.exists) {
+        return {
+          exists: false,
+          reasons: [...(balancedDegreesCheck?.reasons || []), ...(sccCheck?.reasons || [])],
+        };
+      }
+    } else {
+      for (const node of this.nodes) {
+        const degree = this.adjacencyList.get(node.id)?.length || 0;
+        if (degree % 2 !== 0) {
+          return {
+            exists: false,
+            reasons: [`Node ${node.id} has odd degree ${degree}.`],
+          };
+        }
+      }
+    }
 
-  // Logic to find Eulerian Cycle
-  if (nodes.length === 0 || !cyInstance) {
-    return { cycle: null, steps: [] };
+    return { exists: true };
   }
 
-  const check = checkEulerianCycle({ params });
-  console.log("Eulerian cycle check result:", check);
-  if (!check.exists) {
-    return { cycle: null, steps: [], message: check.reasons };
-  }
+  execute(startNodeId?: string) {
+    // Logic to find Eulerian Cycle
+    if (this.nodes.length === 0) {
+      return { cycle: null, steps: [] };
+    }
 
-  // Initialize starting point
-  if (!startNodeId) {
-    return {
-      cycle: null,
-      steps: [],
-      message: `Start node ID ${startNodeId} not found. Starting from default node.`,
-    };
-  }
+    const check = this.checkEulerianCycle();
+    if (!check.exists) {
+      return { cycle: null, steps: [], message: check.reasons };
+    }
 
-  let startIndex = 0;
-  const startNodeIndex = nodes.findIndex((n) => n.id === startNodeId);
-  if (startNodeIndex !== -1) {
-    startIndex = startNodeIndex;
-  }
+    // Initialize starting point
+    if (!startNodeId) {
+      return {
+        cycle: null,
+        steps: [],
+        message: `Start node ID ${startNodeId} not found. Starting from default node.`,
+      };
+    }
 
-  // Hierholzer's Algorithm
-  const circuit: string[] = [];
-  const stack: string[] = [nodes[startIndex].id];
-  const visitedEdges = new Set<string>();
+    let startIndex = 0;
+    const startNodeIndex = this.nodes.findIndex((n) => n.id === startNodeId);
+    if (startNodeIndex !== -1) {
+      startIndex = startNodeIndex;
+    }
 
-  steps.push({
-    prev: {
-      elements: [],
-    },
-    current: {
+    // Hierholzer's Algorithm
+    const circuit: string[] = [];
+    const stack: string[] = [this.nodes[startIndex].id];
+    const visitedEdges = new Set<string>();
+
+    this.steps.push({
       elements: [],
       highlightedPseudoCodeLineIds: [[2, 3, 4], 5],
-      action: "traverse",
       message: [
         "Copy Graph and initialize stack",
-        `Initializing stack with starting node ${nodes[startIndex].label}`,
+        `Initializing stack with starting node ${this.nodes[startIndex].label}`,
       ],
-      stack: [nodes[startIndex].id],
+      stack: [this.nodes[startIndex].id],
       circuit: [],
-    },
-  });
+    });
 
-  while (stack.length > 0) {
-    const currentNodeId = stack[stack.length - 1];
-    const currentNodeNeighbors = adjacencyList.get(currentNodeId) || [];
+    while (stack.length > 0) {
+      const currentNodeId = stack[stack.length - 1];
+      const currentNodeNeighbors = this.adjacencyList.get(currentNodeId) || [];
 
-    if (currentNodeNeighbors.length > 0) {
-      const nextNodeId = currentNodeNeighbors.pop()!;
+      if (currentNodeNeighbors.length > 0) {
+        const nextNodeId = currentNodeNeighbors.pop()!;
 
-      let processingEdge = cyInstance.edges(
-        `edge[source = "${currentNodeId}"][target = "${nextNodeId}"]`,
-      );
-      if (processingEdge.length === 0 && !isDirected) {
-        processingEdge = cyInstance.edges(
-          `edge[source = "${nextNodeId}"][target = "${currentNodeId}"]`,
-        );
-      }
+        let processingEdge = this.utils.getEdges(currentNodeId, nextNodeId);
+        if (processingEdge.length === 0 && !this.isDirected) {
+          processingEdge = this.utils.getEdges(nextNodeId, currentNodeId);
+        }
 
-      const edgeId = Array.from(processingEdge)
-        .find((edge) => !visitedEdges.has(edge.id()))
-        ?.id();
+        const edgeId = Array.from(processingEdge).find((edge) => !visitedEdges.has(edge.id))?.id;
 
-      if (!edgeId) continue;
+        if (!edgeId) continue;
 
-      if (!isDirected) {
-        const nextNodeNeighbors = adjacencyList.get(nextNodeId) || [];
-        const index = nextNodeNeighbors.indexOf(currentNodeId);
-        if (index !== -1) nextNodeNeighbors.splice(index, 1);
-      }
+        if (!this.isDirected) {
+          const nextNodeNeighbors = this.adjacencyList.get(nextNodeId) || [];
+          const index = nextNodeNeighbors.indexOf(currentNodeId);
+          if (index !== -1) nextNodeNeighbors.splice(index, 1);
+        }
 
-      steps.push({
-        prev: {
+        const currentNodeLabel = this.utils.getNode(currentNodeId)?.label || currentNodeId;
+        const nextNodeLabel = this.utils.getNode(nextNodeId)?.label || nextNodeId;
+        this.steps.push({
           elements: [
             {
               type: "node",
               id: currentNodeId,
-              label: getLabelById(cyInstance, currentNodeId),
-              classes: cyInstance.getElementById(currentNodeId).classes(),
-            },
-            {
-              type: "edge",
-              id: edgeId,
-              source: {
-                type: "node",
-                id: currentNodeId,
-                label: getLabelById(cyInstance, currentNodeId),
-              },
-              target: { type: "node", id: nextNodeId, label: getLabelById(cyInstance, nextNodeId) },
-              classes: cyInstance.getElementById(edgeId).classes(),
-            },
-          ],
-        },
-        current: {
-          elements: [
-            {
-              type: "node",
-              id: currentNodeId,
-              label: getLabelById(cyInstance, currentNodeId),
+              label: currentNodeLabel,
               classes: ["exploring"],
             },
             {
@@ -237,81 +201,63 @@ export function findEulerianCycle({ params, startNodeId }: FindEulerianCycleProp
               source: {
                 type: "node",
                 id: currentNodeId,
-                label: getLabelById(cyInstance, currentNodeId),
+                label: currentNodeLabel,
               },
-              target: { type: "node", id: nextNodeId, label: getLabelById(cyInstance, nextNodeId) },
+              target: { type: "node", id: nextNodeId, label: nextNodeLabel },
               classes: ["in-cycle"],
             },
           ],
           highlightedPseudoCodeLineIds: [[6, 7], 8, [9, 10], 11],
-          action: "traverse",
           message: [
-            `Exploring from node ${getLabelById(cyInstance, currentNodeId)}`,
-            `Traversing edge from ${getLabelById(cyInstance, currentNodeId)} to ${getLabelById(cyInstance, nextNodeId)}`,
-            `Marking edge (${getLabelById(cyInstance, currentNodeId)}, ${getLabelById(cyInstance, nextNodeId)}) as visited`,
+            `Exploring from node ${currentNodeLabel}`,
+            `Traversing edge from ${currentNodeLabel} to ${nextNodeLabel}`,
+            `Marking edge (${currentNodeLabel}, ${nextNodeLabel}) as visited`,
           ],
           stack: [...stack, nextNodeId],
           circuit: [...circuit],
-        },
-      });
+        });
 
-      visitedEdges.add(edgeId);
-      stack.push(nextNodeId);
-    } else {
-      circuit.push(stack.pop()!);
-      steps.push({
-        prev: {
+        visitedEdges.add(edgeId);
+        stack.push(nextNodeId);
+      } else {
+        circuit.push(stack.pop()!);
+
+        const currentNodeLabel = this.utils.getNode(currentNodeId)?.label || currentNodeId;
+        this.steps.push({
           elements: [
             {
               type: "node",
               id: currentNodeId,
-              label: getLabelById(cyInstance, currentNodeId),
-              classes: cyInstance.getElementById(currentNodeId).classes(),
-            },
-          ],
-        },
-        current: {
-          elements: [
-            {
-              type: "node",
-              id: currentNodeId,
-              label: getLabelById(cyInstance, currentNodeId),
+              label: this.utils.getNode(currentNodeId)?.label || currentNodeId,
               classes: ["in-cycle"],
             },
           ],
           highlightedPseudoCodeLineIds: [[6, 7], 12, 13, 14],
-          action: "add-to-circuit",
           message: [
-            `Exploring from node ${getLabelById(cyInstance, currentNodeId)}`,
-            `No more neighbors to explore from ${getLabelById(cyInstance, currentNodeId)}`,
-            `Added ${getLabelById(cyInstance, currentNodeId)} to circuit`,
+            `Exploring from node ${currentNodeLabel}`,
+            `No more neighbors to explore from ${currentNodeLabel}`,
+            `Added ${currentNodeLabel} to circuit`,
           ],
           stack: [...stack],
           circuit: [...circuit],
-        },
-      });
+        });
+      }
     }
-  }
 
-  circuit.reverse();
+    circuit.reverse();
 
-  steps.push({
-    prev: {
-      elements: [],
-    },
-    current: {
+    this.steps.push({
       elements: [],
       highlightedPseudoCodeLineIds: [15, 16],
-      action: "traverse",
       message: ["Reverse the circuit to get correct order", `Eulerian cycle found successfully.`],
       stack: [],
       circuit: [...circuit],
-    },
-  });
+    });
 
-  return {
-    cycle: circuit,
-    steps: steps,
-    message: "Eulerian cycle found successfully.",
-  };
+    return {
+      cycle: circuit,
+      steps: this.steps,
+      message: "Eulerian cycle found successfully.",
+    };
+  }
 }

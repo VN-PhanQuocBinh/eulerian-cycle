@@ -1,12 +1,13 @@
-import { useGraphStore } from "@/stores/graph-context";
 import { EulerianCycleStepsTable } from "./result-panel/eulerian-cycle";
 import { ConnectedComponentsStepsTable } from "./result-panel/connected-components";
 import { SCCResult } from "./result-panel/scc-result";
+import { useAlgorithmStore } from "@/stores";
+import { useGraphDataStore } from "@/stores";
 
 function ResultPanel() {
-  const currentAlgorithm = useGraphStore((state) => state.currentAlgorithm);
-  const isDirected = useGraphStore((state) => state.isDirected);
-  const steps = useGraphStore((state) => state.steps);
+  const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
+  const isDirected = useGraphDataStore((state) => state.isDirected);
+  const steps = useAlgorithmStore((state) => state.steps);
 
   return (
     <div className="flex-1 h-full ">
@@ -25,13 +26,6 @@ function ResultPanel() {
       ) : (
         <div className="p-8 text-center text-slate-400 text-sm">Run an algorithm to see steps</div>
       )}
-      {/* {currentAlgorithm === "eulerian-cycle" && steps.length > 0 ? (
-        <EulerianCycleStepsTable steps={steps} />
-      ) : currentAlgorithm === "connected-components" && steps.length > 0 ? (
-        <ConnectedComponentsStepsTable steps={steps} />
-      ) : (
-        <div className="p-8 text-center text-slate-400 text-sm">Run an algorithm to see steps</div>
-      )} */}
     </div>
   );
 }

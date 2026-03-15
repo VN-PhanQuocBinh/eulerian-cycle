@@ -12,9 +12,10 @@ import { useGraphStore } from "@/stores/graph-context";
 import { COMPONENT_COLORS } from "@/types/styles";
 import { cn } from "@/utils/cn";
 import { getLabelById } from "@/utils";
+import { Step } from "@/types/algorithm-store";
 
 interface Props {
-  steps: StoredStep[];
+  steps: Step[];
 }
 
 export function SCCStepsTable({ steps }: Props) {
@@ -44,10 +45,10 @@ export function SCCStepsTable({ steps }: Props) {
           {steps.map((step, index) => {
             const isCurrentStep = index === currentStepIndex;
             const isPastStep = index < currentStepIndex;
-            let element: (typeof step.current.elements)[number] | undefined;
+            let element: (typeof step.elements)[number] | undefined;
 
-            if (step.current.elements && step.current.elements.length > 0) {
-              element = step.current.elements[0];
+            if (step.elements && step.elements.length > 0) {
+              element = step.elements[0];
             }
 
             // Detect SCC component index from element classes
@@ -65,7 +66,7 @@ export function SCCStepsTable({ steps }: Props) {
                 : "transparent";
 
             const stackNodes =
-              step.current.stack?.map((nodeId) => ({
+              step.stack?.map((nodeId) => ({
                 id: nodeId,
                 label: getLabelById(useGraphStore.getState().cyInstance, nodeId),
               })) ?? [];
@@ -142,7 +143,7 @@ export function SCCStepsTable({ steps }: Props) {
 
                 {/* Message */}
                 <TableCell className="px-3 py-2 text-gray-600 text-left">
-                  {step.current.message?.map((msg, idx) => (
+                  {step.message?.map((msg, idx) => (
                     <div key={idx}>- {msg}</div>
                   ))}
                 </TableCell>

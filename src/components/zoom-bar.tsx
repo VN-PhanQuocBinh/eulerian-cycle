@@ -1,12 +1,13 @@
 import { ZoomIn, ZoomOut, LayoutDashboard } from "lucide-react";
-import { Tooltip } from "@/components/ui/tooltip";
 import { useGraphStore } from "@/stores/graph-context";
 import FunctionButton from "@/components/ui/function-button";
+import { graphService } from "@/services/graph-service";
+import { useAlgorithmStore } from "@/stores";
 
 function ZoomBar() {
   const cyInstance = useGraphStore((state) => state.cyInstance);
   const isAnimating = useGraphStore((state) => state.isAnimating);
-  const autoLayout = useGraphStore((state) => state.autoLayout);
+  const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
 
   const handleZoomIn = () => {
     if (!cyInstance) return;
@@ -30,10 +31,14 @@ function ZoomBar() {
     });
   };
 
+  const handleAutoLayout = () => {
+    graphService.autoLayout(currentAlgorithm);
+  };
+
   return (
     <div className="absolute bottom-4 right-4 z-10 flex flex-row gap-2">
       <FunctionButton
-        onClick={autoLayout}
+        onClick={handleAutoLayout}
         tooltipContent="Auto layout"
         icon={LayoutDashboard}
         disabled={isAnimating}

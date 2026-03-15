@@ -3,29 +3,45 @@ import { graphStyles } from "@/configs/graph";
 import { generateEdgeId } from "@/utils/generate-id";
 import type { EdgeHandlesInstance, EdgeHandlesOptions } from "cytoscape-edgehandles";
 import { GraphEdge, GraphNode } from "@/types/graph-data-store";
+import { GraphAlgorithm } from "@/types/algorithm-store";
+import { ALGORITHM_LAYOUT_CONFIGS } from "@/configs/graph-layouts";
 
 interface Position {
   x: number;
   y: number;
 }
 
-interface IGraphService {
+interface IGraphEditor {
+  addNodeToCy(node: GraphNode): void;
+  updateNodeInCy(node: Partial<GraphNode> & { id: string }): void;
+  removeSelectedElements(): { nodeIds: string[]; edgeIds: string[] };
+  clearCanvas(): void;
+  drawGraphFromData(graphData: {
+    nodes: GraphNode[];
+    edges: GraphEdge[];
+    isDirected: boolean;
+  }): void;
+}
+
+interface IGraphVisualizer {
+  autoLayout(algorithm: GraphAlgorithm): void;
+  highlightElement(elementId: string, className: string[], pulse?: boolean): void;
+  toggleDirected(isDirected: boolean): void;
+  applyStylesFromMap(styles: Map<string, Set<string>>): void;
+}
+
+interface IGraphService extends IGraphEditor, IGraphVisualizer {
   // Initialization & Lifecycle
-  init(container: HTMLDivElement): { cy: cytoscape.Core; eh: EdgeHandlesInstance };
+  init(container: HTMLDivElement): void;
   destroy(): void;
-  toggleDrawMode(enable: boolean): void;
   bindEvents(callbacks: {
     onNodeAdd: (position: Position) => void;
     onNodeUpdate: (params: { id: string; position: Position }) => void;
     onEdgeAdd: (edge: GraphEdge) => void;
   }): void;
 
-  // Node & Edge Operations
-  addNodeToCy(node: GraphNode): void;
-  removeNodeFromCy(nodeId: string): void;
-  updateNodeInCy(node: Partial<GraphNode> & { id: string }): void;
-  removeSelectedElements(): { nodeIds: string[]; edgeIds: string[] };
-  clearCanvas(): void;
+  toggleDrawMode(enable: boolean): void;
+  getPNG(): string;
 }
 
 class GraphService implements IGraphService {
@@ -135,10 +151,40 @@ class GraphService implements IGraphService {
     });
   };
 
+  autoLayout: IGraphService["autoLayout"] = (algorithm) => {
+    if (!this.cy || !algorithm) return;
+
+    const layoutConfig = ALGORITHM_LAYOUT_CONFIGS[algorithm];
+    if (layoutConfig) {
+      this.cy.layout(layoutConfig).run();
+    }
+  };
+
   destroy() {
     this.cy?.destroy();
     this.cy = null;
   }
+
+  toggleDrawMode: IGraphService["toggleDrawMode"] = (enable) => {
+    if (!this.eh) return;
+
+    if (enable) {
+      this.eh.enableDrawMode();
+    } else {
+      this.eh.disableDrawMode();
+    }
+  };
+
+  toggleDirected: IGraphService["toggleDirected"] = (isDirected) => {
+    if (!this.cy) return;
+
+    this.cy.edges().data("isDirected", isDirected);
+  };
+
+  getPNG: IGraphService["getPNG"] = () => {
+    if (!this.cy) return "";
+    return this.cy.png({ full: true, bg: "white" });
+  };
 
   addNodeToCy: IGraphService["addNodeToCy"] = (node) => {
     if (!this.cy) return;
@@ -159,8 +205,6 @@ class GraphService implements IGraphService {
     }
   };
 
-  removeNodeFromCy: IGraphService["removeNodeFromCy"] = (nodeId) => {};
-
   removeSelectedElements: IGraphService["removeSelectedElements"] = () => {
     if (!this.cy) return { nodeIds: [], edgeIds: [] };
     const selectedElements = this.cy.$(":selected");
@@ -176,19 +220,92 @@ class GraphService implements IGraphService {
     };
   };
 
-  toggleDrawMode: IGraphService["toggleDrawMode"] = (enable) => {
-    if (!this.eh) return;
-
-    if (enable) {
-      this.eh.enableDrawMode();
-    } else {
-      this.eh.disableDrawMode();
-    }
-  };
-
   clearCanvas(): void {
     if (!this.cy) return;
     this.cy.elements().remove();
+  }
+
+  drawGraphFromData: IGraphService["drawGraphFromData"] = (graphData) => {
+    if (!this.cy) return;
+
+    const { nodes, edges } = graphData;
+    // Clear current graph
+    this.clearCanvas();
+
+    // Load nodes
+    nodes.forEach((node: GraphNode) => {
+      this.cy?.add({
+        group: "nodes",
+        data: { id: node.id, label: node.label },
+        position: { x: node.x, y: node.y },
+      });
+    });
+
+    // Load edges
+    edges.forEach((edge: GraphEdge) => {
+      this.cy?.add({
+        group: "edges",
+        data: edge,
+      });
+    });
+  };
+
+  highlightElement: IGraphService["highlightElement"] = (elementId, className, pulse = false) => {
+    if (!this.cy) return;
+
+    const element = this.cy.getElementById(elementId);
+    let addClasses: string[] = [];
+    let removeClasses: string[] = [];
+
+    if (element.length === 0) {
+      console.warn(`Element with ID ${elementId} not found for highlighting.`);
+      return;
+    }
+
+    className.forEach((classString) => {
+      if (classString.startsWith("-")) {
+        removeClasses.push(classString.substring(1));
+      } else {
+        addClasses.push(classString);
+      }
+    });
+
+    const currentClasses = element.classes();
+    const applyedClasses = currentClasses
+      .filter((cls) => !removeClasses.includes(cls))
+      .concat(addClasses);
+
+    element.classes(applyedClasses.join(" "));
+
+    if (pulse) {
+      element.animate({
+        style: { width: 50, height: 50 },
+        duration: 200,
+        complete: () => {
+          element.animate({
+            style: { width: 40, height: 40 },
+            duration: 200,
+          });
+        },
+      });
+    }
+  };
+
+  applyStylesFromMap(styles: Map<string, Set<string>>) {
+    if (!this.cy) return;
+
+    this.cy.batch(() => {
+      // 1. Reset class của toàn bộ elements
+      this.cy!.elements().classes("");
+
+      // 2. Apply style mới
+      for (const [elementId, classes] of styles.entries()) {
+        const element = this.cy!.getElementById(elementId);
+        if (element.length > 0) {
+          element.classes(Array.from(classes).join(" "));
+        }
+      }
+    });
   }
 }
 

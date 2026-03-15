@@ -20,69 +20,7 @@ export const useUIStore = create<UIStore>()(
         }));
       },
 
-      resetGraph: () => {
-        const {
-          cyInstance,
-          isDirected,
-          drawGraphFromData,
-          getCurrentEdgesData,
-          getCurrentNodesData,
-        } = get();
-        if (!cyInstance) return;
-
-        const nodes = getCurrentNodesData();
-        const edges: GraphEdge[] = getCurrentEdgesData();
-
-        drawGraphFromData({
-          nodes,
-          edges,
-          isDirected,
-        });
-      },
-
-      drawGraphFromData: (graphData: GraphData) => {
-        const { cyInstance, clearGraph } = get();
-        if (!cyInstance || !graphData) return;
-
-        const { nodes, edges, isDirected } = graphData;
-        // Clear current graph
-        clearGraph();
-
-        // Load nodes
-        nodes.forEach((node: GraphNode) => {
-          cyInstance.add({
-            group: "nodes",
-            data: { id: node.id, label: node.label },
-            position: { x: node.x, y: node.y },
-          });
-        });
-
-        // Load edges
-        edges.forEach((edge: GraphEdge) => {
-          cyInstance.add({
-            group: "edges",
-            data: edge,
-          });
-        });
-
-        // Update store
-        set({
-          nodes,
-          edges,
-          isDirected: !!isDirected,
-        });
-      },
-
-      autoLayout: () => {
-        const { cyInstance, currentAlgorithm } = get();
-
-        if (!cyInstance || !currentAlgorithm) return;
-
-        const layoutConfig = ALGORITHM_LAYOUT_CONFIGS[currentAlgorithm];
-        if (layoutConfig) {
-          cyInstance.layout(layoutConfig).run();
-        }
-      },
+      
     }),
     { name: "UIStore" },
   ),

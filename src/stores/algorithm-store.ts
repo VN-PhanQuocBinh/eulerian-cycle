@@ -2,11 +2,11 @@ import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { AlgorithmStore } from "@/types/algorithm-store";
 
-import type { ConnectedComponentsResult } from "@/types/graph";
-import { findSCCs as findSCCsAlgorithm } from "@/core/algorithms/scc";
-import { findEulerianCycle as findEulerianCycleAlgorithm } from "@/core/algorithms/eulerian-cycle";
+import type { ConnectedComponentsResult, Step } from "@/types/algorithm-store";
+import { TarjanSCC } from "@/core/algorithms/tarjan-scc";
+import { EulerianCycle } from "@/core/algorithms/eulerian-cycle";
 import { findConnectedComponents as findConnectedComponentsAlgorithm } from "@/core/algorithms/connected-components";
-import { computeFinalStyles } from "@/core/helpers/compute-final-styles";
+import { GraphData } from "@/types/graph-data-store";
 
 export const useAlgorithmStore = create<AlgorithmStore>()(
   devtools(
@@ -22,6 +22,8 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
       setIsAnimating: (isAnimating) => set({ isAnimating }),
       setCurrentStepIndex: (index) => set({ currentStepIndex: index }),
       setSpeed: (speed) => set({ speed }),
+
+      setSteps: (steps: Step[]) => set({ steps }),
       nextStep: () => {
         const { currentStepIndex, steps } = get();
         if (currentStepIndex < steps.length) {
@@ -34,71 +36,12 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
           set({ currentStepIndex: currentStepIndex - 1 });
         }
       },
-      updateUItoStep: (targetStepIndex) => {
-        const { steps, cyInstance } = get();
-
-        if (!cyInstance) return;
-
-        cyInstance.elements().classes(""); // Reset all classes
-        const finalStyles = computeFinalStyles(steps, targetStepIndex);
-
-        cyInstance.batch(() => {
-          for (const [elementId, classes] of finalStyles.entries()) {
-            const element = cyInstance.getElementById(elementId);
-            if (element.length > 0) {
-              const classString = Array.from(classes).join(" ");
-              element.classes(classString);
-              console;
-            }
-          }
-        });
-      },
-
-      // Algorithms implementation
-      getAdjacencyList: (): Map<string, string[]> => {
-        const state = get();
-        const { nodes, edges, isDirected } = state;
-        const adjacencyList: Map<string, string[]> = new Map();
-
-        // Initialize adjacency list
-        nodes.forEach((node) => {
-          adjacencyList.set(node.id, []);
-        });
-
-        // Populate adjacency list
-        edges.forEach((edge) => {
-          const sourceAdj = adjacencyList.get(edge.source);
-          if (sourceAdj) {
-            const targetNode = nodes.find((n) => n.id === edge.target);
-            if (targetNode) {
-              sourceAdj.push(targetNode.id);
-            }
-          } else {
-            alert("Error: Source node not found in adjacency list");
-          }
-
-          // If undirected, add reverse edge
-          if (!isDirected) {
-            const targetAdj = adjacencyList.get(edge.target);
-            if (targetAdj) {
-              const sourceNode = nodes.find((n) => n.id === edge.source);
-              if (sourceNode) {
-                targetAdj.push(sourceNode.id);
-              }
-            } else {
-              alert("Error: Target node not found in adjacency list");
-            }
-          }
-        });
-
-        return adjacencyList;
-      },
 
       // ========== ALGORITHM IMPLEMENTATIONS ==========
-      findSCCs: () => {
-        const { getAdjacencyList, cyInstance, nodes } = get();
+      findSCCs: (data: GraphData) => {
+        const engine = new TarjanSCC(data);
 
-        if (!cyInstance || nodes.length === 0) {
+        if (data.nodes.length === 0) {
           return {
             components: [],
             steps: [],
@@ -106,42 +49,31 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
           };
         }
 
-        const adjacencyList = getAdjacencyList();
-        return findSCCsAlgorithm({ adjacencyList, cyInstance });
+        const result = engine.execute();
+        return result;
       },
 
-      findConnectedComponents: (startNodeId: string): ConnectedComponentsResult => {
-        const { nodes, getAdjacencyList, cyInstance, isDirected, findSCCs } = get();
-        const adjacencyList = getAdjacencyList();
+      findConnectedComponents: (
+        data: GraphData,
+        startNodeId: string,
+      ): ConnectedComponentsResult => {
+        const { findSCCs } = get();
 
-        if (isDirected) {
+        if (data.isDirected) {
           return findSCCs();
         }
 
         return findConnectedComponentsAlgorithm({
-          params: {
-            cyInstance,
-            nodes,
-            adjacencyList,
-          },
+          data,
           startNodeId,
         });
       },
 
-      findEulerianCycle: (startNodeId?: string) => {
-        const { cyInstance, nodes, edges, isDirected, getAdjacencyList } = get();
-        const adjacencyList = getAdjacencyList();
+      findEulerianCycle: (data: GraphData, startNodeId?: string) => {
+        const engine = new EulerianCycle(data);
+        const result = engine.execute(startNodeId);
 
-        return findEulerianCycleAlgorithm({
-          params: {
-            cyInstance,
-            nodes,
-            edges,
-            adjacencyList,
-            isDirected,
-          },
-          startNodeId,
-        });
+        return result;
       },
     }),
     { name: "GraphStore" },

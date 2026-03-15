@@ -27,10 +27,12 @@ export interface GraphDataStore {
   setIsDirected: (isDirected: boolean) => void;
   getCurrentNodesData: () => GraphNode[];
   getCurrentEdgesData: () => GraphEdge[];
+  getCurrentGraphData: () => GraphData;
 
   // Bulk updates
   updateNodes: (nodes: GraphNode[]) => void;
   updateEdges: (edges: GraphEdge[]) => void;
+  updateGraphData: (graphData: GraphData) => void;
 
   // Node operations
   addNode: (node: GraphNode) => void;

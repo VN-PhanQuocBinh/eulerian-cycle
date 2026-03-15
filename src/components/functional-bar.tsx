@@ -1,5 +1,4 @@
 import { MousePointer2, PlusCircle, Trash2, SplinePointer } from "lucide-react";
-import { useGraphStore } from "@/stores/graph-context";
 import FunctionButton from "@/components/ui/function-button";
 import { useUIStore } from "@/stores";
 import { graphService } from "@/services/graph-service";

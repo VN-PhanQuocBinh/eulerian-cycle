@@ -1,9 +1,9 @@
 import { getLabelById } from "@/utils";
 import { useGraphStore } from "@/stores/graph-context";
-import { StoredStep } from "@/types/graph";
 import { SCCStepsTable } from "./scc";
+import { Step } from "@/types/algorithm-store";
 
-export function SCCResult({ steps }: { steps: StoredStep[] }) {
+export function SCCResult({ steps }: { steps: Step[] }) {
   const currentStepIndex = useGraphStore((state) => state.currentStepIndex);
   const currentStep = steps[currentStepIndex] ?? steps[steps.length - 1];
 
@@ -21,7 +21,7 @@ export function SCCResult({ steps }: { steps: StoredStep[] }) {
       {/* Right: disc/lowLink panel */}
       <div className="top-0 w-56 basis-[200px] border-l p-3 overflow-y-auto custom-scrollbar">
         <div className="text-xs font-semibold text-gray-500 mb-2 uppercase">disc / low-link</div>
-        <DiscLowLinkTable disc={currentStep?.current.dsc} lowLink={currentStep?.current.lowLink} />
+        <DiscLowLinkTable disc={currentStep?.dsc} lowLink={currentStep?.lowLink} />
       </div>
     </div>
   );

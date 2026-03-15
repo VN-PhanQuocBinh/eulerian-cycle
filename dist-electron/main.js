@@ -130,17 +130,26 @@ ipcMain.handle("load-graph", async () => {
   }
 });
 ipcMain.handle("save-image", async (event, base64Data) => {
-  const { filePath } = await dialog.showSaveDialog({
-    title: "Export Graph as Image",
-    defaultPath: `graph-${Date.now()}.png`,
-    filters: [{ name: "Images", extensions: ["png", "jpg"] }]
-  });
-  if (filePath) {
+  try {
+    const { filePath, canceled } = await dialog.showSaveDialog({
+      title: "Export Graph as Image",
+      defaultPath: `graph-${Date.now()}.png`,
+      filters: [{ name: "Images", extensions: ["png", "jpg"] }]
+    });
+    if (canceled || !filePath) {
+      return { success: false, error: "Save operation was canceled." };
+    }
     const base64Image = base64Data.split(";base64,").pop();
     fs.writeFile(filePath, base64Image, "base64");
-    return "Success";
+    return {
+      success: true
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message
+    };
   }
-  return "Cancelled";
 });
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {

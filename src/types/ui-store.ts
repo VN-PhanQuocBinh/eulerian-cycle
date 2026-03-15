@@ -10,7 +10,5 @@ export interface UIStore {
 
   // Graph operations
   clearGraph: () => void;
-  resetGraph: () => void;
-  drawGraphFromData: (data: GraphData) => void;
   autoLayout: () => void;
 }

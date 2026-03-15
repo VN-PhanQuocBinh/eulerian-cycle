@@ -1,3 +1,5 @@
+import { GraphData } from "./graph-data-store";
+
 export type GraphAlgorithm = "eulerian-cycle" | "connected-components";
 
 export type StepNodeElement = {
@@ -13,10 +15,8 @@ export type StepEdgeElement = {
   target: StepNodeElement;
 };
 
-type GenericStepType = Array<StepNodeElement | StepEdgeElement> | StepNodeElement | StepEdgeElement;
-
-export type CurrentStep<T extends GenericStepType = StepNodeElement | StepEdgeElement> = {
-  elements: Array<T & { classes: string[] }>;
+export type Step = {
+  elements: Array<(StepNodeElement | StepEdgeElement) & { classes: string[] }>;
   message: string[];
   stack?: string[];
   queue?: string[];
@@ -30,20 +30,17 @@ export type CurrentStep<T extends GenericStepType = StepNodeElement | StepEdgeEl
   // Will set required after add pseudo code for connected components algorithm
   highlightedPseudoCodeLineIds?: Array<number | Array<number>>;
 };
-export type PrevStep = Pick<CurrentStep, "stack" | "circuit" | "elements">;
 
-interface Step<T extends GenericStepType = StepNodeElement | StepEdgeElement> {
-  prev: PrevStep;
-  current: CurrentStep<T>;
+export interface ConnectedComponentsResult {
+  components: string[][];
+  steps: Step[];
+  message: string;
 }
-
-// export type StoredStep = Step<StepNodeElement | StepEdgeElement>;
-export type StoredStep = Step<StepNodeElement | StepEdgeElement>;
 
 export interface AlgorithmStore {
   // Algorithm state
-  currentAlgorithm: GraphAlgorithm | null;
-  steps: StoredStep[];
+  currentAlgorithm: GraphAlgorithm;
+  steps: Step[];
   isAnimating: boolean;
   currentStepIndex: number;
   speed: number;
@@ -62,26 +59,20 @@ export interface AlgorithmStore {
 
   // Algorithm state operations
   setCurrentAlgorithm: (algorithm: GraphAlgorithm | null) => void;
-  setSteps: (steps: StoredStep[]) => void;
+  setSteps: (steps: Step[]) => void;
 
   // Algorithm implementations
-  getAdjacencyList: () => Map<string, string[]>;
 
-  findSCCs: () => {
-    components: string[][];
-    steps: StoredStep[];
-    message: string;
-  };
+  findSCCs: () => ConnectedComponentsResult;
 
-  findConnectedComponents: (startNodeId: string) => {
-    components: string[][];
-    steps: StoredStep[];
-    message: string;
-  };
+  findConnectedComponents: (data: GraphData, startNodeId: string) => ConnectedComponentsResult;
 
-  findEulerianCycle: (startNodeId?: string) => {
+  findEulerianCycle: (
+    data: GraphData,
+    startNodeId?: string,
+  ) => {
     cycle: string[] | null;
-    steps: StoredStep[];
+    steps: Step[];
     message?: string;
   };
 }

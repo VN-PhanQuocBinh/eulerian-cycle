@@ -1,4 +1,3 @@
-import { useGraphStore } from "@/stores/graph-context";
 import { useMemo } from "react";
 import {
   Table,
@@ -8,7 +7,8 @@ import {
   TableHead,
   TableCell,
 } from "@/components/ui/table";
-import { getLabelById } from "@/utils";
+import { createGraphUtils } from "@/core/helpers/graph-utils";
+import { useAlgorithmStore, useGraphDataStore } from "@/stores";
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
@@ -28,13 +28,23 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
 }
 
 export function GraphReport() {
-  const cyInstance = useGraphStore((state) => state.cyInstance);
-  const nodes = useGraphStore((state) => state.nodes);
-  const edges = useGraphStore((state) => state.edges);
-  const currentAlgorithm = useGraphStore((state) => state.currentAlgorithm);
-  const findConnectedComponents = useGraphStore((state) => state.findConnectedComponents);
-  const findEulerianCycle = useGraphStore((state) => state.findEulerianCycle);
-  const getAdjacencyList = useGraphStore((state) => state.getAdjacencyList);
+  const nodes = useGraphDataStore((state) => state.nodes);
+  const edges = useGraphDataStore((state) => state.edges);
+  const isDirected = useGraphDataStore((state) => state.isDirected);
+  const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
+  const findConnectedComponents = useAlgorithmStore((state) => state.findConnectedComponents);
+  const findEulerianCycle = useAlgorithmStore((state) => state.findEulerianCycle);
+  const getCurrentGraphData = useGraphDataStore((state) => state.getCurrentGraphData);
+
+  const graphUtils = useMemo(
+    () =>
+      createGraphUtils({
+        nodes,
+        edges,
+        isDirected,
+      }),
+    [nodes, edges, isDirected],
+  );
 
   const isMultiGraph = useMemo(() => {
     const seen = new Set<string>();
@@ -49,27 +59,32 @@ export function GraphReport() {
   const components = useMemo(() => {
     if (nodes.length === 0) return [];
 
-    const { components } = findConnectedComponents(nodes[0].id);
+    const { components } = findConnectedComponents(getCurrentGraphData(), nodes[0].id);
 
     return components;
   }, [nodes, edges, currentAlgorithm]);
 
   const circuit = useMemo(() => {
     if (currentAlgorithm !== "eulerian-cycle") return null;
-    const { cycle } = findEulerianCycle(nodes[0].id);
+    const { cycle } = findEulerianCycle(
+      {
+        nodes,
+        edges,
+        isDirected,
+      },
+      nodes[0].id,
+    );
     return cycle;
   }, [currentAlgorithm, nodes, edges]);
-
-  const adjacencyList = useMemo(() => getAdjacencyList(), [nodes, edges]);
 
   const oddDegreeNodes = useMemo(
     () =>
       nodes.filter((node) => {
-        const adjacentNodes = adjacencyList.get(node.id) ?? [];
+        const adjacentNodes = graphUtils.adjacencyList.get(node.id) || [];
         const nodeDegree = adjacentNodes.length;
         return nodeDegree % 2 !== 0;
       }),
-    [nodes, adjacencyList],
+    [nodes, graphUtils],
   );
 
   if (nodes.length === 0) {
@@ -108,8 +123,8 @@ export function GraphReport() {
             </TableHeader>
             <TableBody>
               {nodes.map((node) => {
-                const neighbors = adjacencyList.get(node.id) ?? [];
-                const degree = adjacencyList.get(node.id)?.length ?? 0;
+                const neighbors = graphUtils.adjacencyList.get(node.id) ?? [];
+                const degree = graphUtils.adjacencyList.get(node.id)?.length ?? 0;
                 return (
                   <TableRow key={node.id}>
                     <TableCell>{node.label}</TableCell>
@@ -123,7 +138,7 @@ export function GraphReport() {
                             key={idx}
                             className="px-1.5 py-0.5 rounded text-xs text-gray-700 bg-gray-100"
                           >
-                            {getLabelById(cyInstance, n)}
+                            {graphUtils.getNode(n)?.label}
                           </span>
                         ))
                       ) : (
@@ -189,7 +204,7 @@ export function GraphReport() {
             {circuit && (
               <InfoRow
                 label="Circuit"
-                value={circuit.map((n) => getLabelById(cyInstance, n)).join(" → ")}
+                value={circuit.map((n) => graphUtils.getNode(n)?.label).join(" → ")}
               />
             )}
           </div>

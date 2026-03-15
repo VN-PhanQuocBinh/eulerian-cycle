@@ -1,4 +1,4 @@
-import { GraphNode, StoredStep } from "@/types/graph";
+import { GraphNode } from "@/types/graph";
 import {
   Table,
   TableHeader,
@@ -12,17 +12,26 @@ import { useGraphStore } from "@/stores/graph-context";
 import { COMPONENT_COLORS } from "@/types/styles";
 import { cn } from "@/utils/cn";
 import { getLabelById } from "@/utils";
+import { useAlgorithmStore, useGraphDataStore } from "@/stores";
+import { Step } from "@/types/algorithm-store";
+import { createGraphUtils } from "@/core/helpers/graph-utils";
+import { useMemo } from "react";
 
 const arrayToString = (arr: string[]) => {
   return "[" + arr.join(", ") + "]";
 };
 
 interface Props {
-  steps: StoredStep[];
+  steps: Step[];
 }
 
 export function ConnectedComponentsStepsTable({ steps }: Props) {
-  const currentStepIndex = useGraphStore((state) => state.currentStepIndex);
+  const currentStepIndex = useAlgorithmStore((state) => state.currentStepIndex);
+  const nodes = useGraphDataStore((state) => state.nodes);
+  const edges = useGraphDataStore((state) => state.edges);
+  const graphUtils = useMemo(() => {
+    return createGraphUtils(nodes, edges);
+  }, [nodes, edges]);
 
   if (steps.length === 0) {
     return (
@@ -33,11 +42,11 @@ export function ConnectedComponentsStepsTable({ steps }: Props) {
   }
 
   // Group steps by component
-  const componentGroups: { [key: number]: StoredStep[] } = {};
+  const componentGroups: { [key: number]: Step[] } = {};
   let currentComponent = 0;
 
   steps.forEach((step) => {
-    const element = step.current.elements[0];
+    const element = step.elements[0];
     if (element?.type === "node") {
       const componentClass = element.classes.find((cls) => cls.startsWith("component-"));
       if (componentClass) {
@@ -73,7 +82,7 @@ export function ConnectedComponentsStepsTable({ steps }: Props) {
           {steps.map((step, index) => {
             const isCurrentStep = index === currentStepIndex;
             const isPastStep = index < currentStepIndex;
-            const element = step.current.elements[0];
+            const element = step.elements[0];
 
             // Determine component index from classes
             let componentIndex = -1;
@@ -90,17 +99,15 @@ export function ConnectedComponentsStepsTable({ steps }: Props) {
                 ? COMPONENT_COLORS[componentIndex % COMPONENT_COLORS.length]
                 : "transparent";
 
-            const visitedNodes = Array.from(step.current.visited || new Set<string>()).map(
-              (nodeId) => {
-                const node = useGraphStore.getState().nodes.find((n) => n.id === nodeId);
-                return node ? node.label : nodeId;
-              },
-            );
+            const visitedNodes = Array.from(step.visited || new Set<string>()).map((nodeId) => {
+              const node = graphUtils.getNode(nodeId);
+              return node ? node.label : nodeId;
+            });
 
-            const queueNodes = step.current.queue?.map((nodeId) => {
+            const queueNodes = step.queue?.map((nodeId) => {
               return {
                 id: nodeId,
-                label: getLabelById(useGraphStore.getState().cyInstance, nodeId),
+                label: graphUtils.getNode(nodeId)?.label,
               };
             }) as Array<GraphNode>;
 
@@ -199,7 +206,7 @@ export function ConnectedComponentsStepsTable({ steps }: Props) {
 
                 {/* Message */}
                 <TableCell className="px-3 py-2 text-gray-600 text-left">
-                  {step.current.message?.map((msg, idx) => (
+                  {step.message?.map((msg, idx) => (
                     <div key={idx}>- {msg}</div>
                   ))}
                 </TableCell>

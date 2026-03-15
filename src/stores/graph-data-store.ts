@@ -8,7 +8,7 @@ export const useGraphDataStore = create<GraphDataStore>()(
     (set, get) => ({
       nodes: [],
       edges: [],
-      isDirected: true,
+      isDirected: false,
 
       setIsDirected: (isDirected) => set({ isDirected }),
       getCurrentNodesData: () => {
@@ -19,9 +19,14 @@ export const useGraphDataStore = create<GraphDataStore>()(
         const { edges } = get();
         return edges;
       },
+      getCurrentGraphData: () => {
+        const { nodes, edges, isDirected } = get();
+        return { nodes, edges, isDirected };
+      },
 
       updateNodes: (nodes) => set({ nodes }),
       updateEdges: (edges) => set({ edges }),
+      updateGraphData: (graphData) => set({ ...graphData }),
 
       addNode: (node) => {
         if (!node.label.trim()) return;
