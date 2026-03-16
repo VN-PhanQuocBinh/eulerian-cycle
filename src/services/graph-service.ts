@@ -23,6 +23,7 @@ interface IGraphEditor {
     edges: GraphEdge[];
     isDirected: boolean;
   }): void;
+  getGraphSnapshot(): { nodes: GraphNode[]; edges: GraphEdge[]; isDirected: boolean };
 }
 
 interface IGraphVisualizer {
@@ -203,6 +204,28 @@ class GraphService implements IGraphService {
     if (nodeInCy) {
       nodeInCy.data({ ...nodeInCy.data(), label: node.label });
     }
+  };
+
+  getGraphSnapshot: IGraphService["getGraphSnapshot"] = () => {
+    if (!this.cy) return { nodes: [], edges: [], isDirected: false };
+
+    const nodes: GraphNode[] = this.cy.nodes().map((node) => ({
+      id: node.id(),
+      label: node.data("label"),
+      x: node.renderedPosition().x,
+      y: node.renderedPosition().y,
+    }));
+    const edges: GraphEdge[] = this.cy.edges().map((edge) => ({
+      id: edge.id(),
+      source: edge.source().id(),
+      target: edge.target().id(),
+    }));
+
+    return {
+      nodes,
+      edges,
+      isDirected: this.cy.edges().some((edge) => edge.data("isDirected")),
+    };
   };
 
   removeSelectedElements: IGraphService["removeSelectedElements"] = () => {

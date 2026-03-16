@@ -46,7 +46,7 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
   return (
     <TableRow
       key={index}
-      className={cn("", {
+      className={cn("group", {
         "bg-blue-50! border-l-4 border-l-blue-500": isActive,
       })}
     >

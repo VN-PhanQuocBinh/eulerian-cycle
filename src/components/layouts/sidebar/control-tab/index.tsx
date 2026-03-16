@@ -100,13 +100,13 @@ function ControlTab({ className }: { className?: string }) {
 
   const handleAlgorithmChange = (algorithm: GraphAlgorithm) => {
     handleReset();
+    setSteps([]);
     setCurrentAlgorithm(algorithm);
   };
 
   const handleReset = () => {
     graphService.resetGraph();
 
-    setSteps([]);
     setCurrentStepIndex(-1);
     setIsAnimating(false);
   };

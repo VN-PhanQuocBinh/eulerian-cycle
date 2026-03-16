@@ -15,8 +15,6 @@ export interface FileData {
 export const useFileOperations = () => {
   const updateNodes = useGraphDataStore((state) => state.updateNodes);
   const updateEdges = useGraphDataStore((state) => state.updateEdges);
-  const getCurrentNodesData = useGraphDataStore((state) => state.getCurrentNodesData);
-  const getCurrentEdgesData = useGraphDataStore((state) => state.getCurrentEdgesData);
   const setIsDirected = useGraphDataStore((state) => state.setIsDirected);
   const { showToast } = useToast();
 
@@ -36,6 +34,7 @@ export const useFileOperations = () => {
       const graphData: GraphData = parsedData.graph;
 
       graphService.drawGraphFromData(graphData);
+
       updateNodes(graphData.nodes);
       updateEdges(graphData.edges);
       setIsDirected(graphData.isDirected);
@@ -54,11 +53,7 @@ export const useFileOperations = () => {
 
   const saveGraph = useCallback(async () => {
     const graphData: FileData = {
-      graph: {
-        isDirected: useGraphDataStore.getState().isDirected,
-        nodes: getCurrentNodesData(),
-        edges: getCurrentEdgesData(),
-      },
+      graph: graphService.getGraphSnapshot(),
       metadata: {
         version: "1.0",
         createdAt: new Date().toISOString(),

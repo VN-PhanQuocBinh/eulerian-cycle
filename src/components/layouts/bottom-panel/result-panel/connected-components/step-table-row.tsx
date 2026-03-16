@@ -21,8 +21,6 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
   const rowRef = useSmartScroll(isActive);
   const element = step.elements[0];
 
-  console.log("Rendering StepTableRow", index);
-
   const componentIndex = useMemo(() => {
     if (element) {
       const componentClass = element.classes.find((cls) => cls.startsWith("component-"));
@@ -75,17 +73,6 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
           borderColor: componentColor,
         }}
       >
-        {/* <div className="min-h-16 min-w-10 grid place-items-center">
-          <Tooltip content={`Jump to step ${index + 1}`} side="right">
-            <button
-              onClick={() => onJumpToStep(index)}
-              className="text-gray-800 p-1 rounded hidden group-hover:block"
-            >
-              <Target size={24} />
-            </button>
-          </Tooltip>
-          <span className="group-hover:hidden">{index + 1}</span>
-        </div> */}
         <JumpButton index={index} />
       </TableCell>
 
