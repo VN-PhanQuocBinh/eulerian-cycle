@@ -70,6 +70,8 @@ export const useGraphDataStore = create<GraphDataStore>()(
         set((state) => ({
           edges: state.edges.filter((e) => e.id !== edgeId),
         })),
+
+      clearGraphData: () => set({ nodes: [], edges: [] }),
     }),
     { name: "GraphDataStore" },
   ),

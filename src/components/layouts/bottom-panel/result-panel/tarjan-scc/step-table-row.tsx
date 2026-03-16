@@ -6,6 +6,7 @@ import { createGraphUtils } from "@/core/helpers/graph-utils";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { CopyButton } from "@/components/copy-button";
 import JumpButton from "../../jump-button";
+import { useSmartScroll } from "@/hooks/use-smart-scroll";
 
 interface Props {
   step: Step;
@@ -15,6 +16,8 @@ interface Props {
 }
 
 function StepTableRow({ step, index, isActive, graphUtils }: Props) {
+  const rowRef = useSmartScroll(isActive);
+
   let element: (typeof step.elements)[number] | undefined;
 
   if (step.elements && step.elements.length > 0) {
@@ -48,13 +51,13 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
         label: graphUtils.getNode(nodeId)?.label || nodeId,
       })) ?? [];
 
-    console.log("Stack Nodes:", index, stack);
     return stack;
   }, [step.stack, graphUtils]);
 
   return (
     <TableRow
       key={index}
+      ref={rowRef}
       className={cn("group", {
         "bg-blue-50! border-l-4 border-l-blue-500": isActive,
       })}

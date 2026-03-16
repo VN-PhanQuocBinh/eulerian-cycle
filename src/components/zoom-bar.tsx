@@ -20,7 +20,7 @@ function ZoomBar() {
   };
 
   return (
-    <div className="absolute bottom-4 right-4 z-10 flex flex-row gap-2">
+    <div className="absolute bottom-4 right-4 z-50 flex flex-row gap-2">
       <FunctionButton
         onClick={handleAutoLayout}
         tooltipContent="Auto layout"

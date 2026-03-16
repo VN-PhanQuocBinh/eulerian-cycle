@@ -37,3 +37,26 @@ export const getAdjacencyList = (data: GraphData): Map<string, string[]> => {
 
   return adjacencyList;
 };
+
+export const getReverseAdjacencyList = (data: GraphData): Map<string, string[]> => {
+  const { nodes, edges } = data;
+  const reverseAdjacencyList: Map<string, string[]> = new Map();
+
+  // Initialize reverse adjacency list
+  nodes.forEach((node) => {
+    reverseAdjacencyList.set(node.id, []);
+  });
+
+  // Populate reverse adjacency list
+  edges.forEach((edge) => {
+    const targetAdj = reverseAdjacencyList.get(edge.target);
+    if (targetAdj) {
+      const sourceNode = nodes.find((n) => n.id === edge.source);
+      if (sourceNode) {
+        targetAdj.push(sourceNode.id);
+      }
+    }
+  });
+
+  return reverseAdjacencyList;
+};

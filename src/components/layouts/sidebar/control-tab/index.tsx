@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useDebounce } from "@/hooks/use-debounce";
 import {
   RunConfigSelect,
@@ -40,7 +40,7 @@ function ControlTab({ className }: { className?: string }) {
   const setSpeed = useAlgorithmStore((state) => state.setSpeed);
   const setSteps = useAlgorithmStore((state) => state.setSteps);
 
-  const { next, previous, canForward, canBackward } = useStepControl();
+  const { next, previous, isLastStep, canForward, canBackward } = useStepControl();
 
   // Local state
   const showToast = useToast().showToast;
@@ -60,8 +60,7 @@ function ControlTab({ className }: { className?: string }) {
     const animationInterval: NodeJS.Timeout = setInterval(() => {
       const currentStepValue = useAlgorithmStore.getState().currentStepIndex;
 
-      if (currentStepValue < steps.length) {
-        // nextStep();
+      if (!isLastStep(currentStepValue)) {
         next();
       } else {
         clearInterval(animationInterval);
@@ -72,7 +71,7 @@ function ControlTab({ className }: { className?: string }) {
     return () => {
       clearInterval(animationInterval);
     };
-  }, [isAnimating, runMode, steps, debouncedSpeed]);
+  }, [isAnimating, runMode, steps, debouncedSpeed, isLastStep, next]);
 
   const handleToggleRun = async () => {
     const currentStepValue = useAlgorithmStore.getState().currentStepIndex;
@@ -90,7 +89,7 @@ function ControlTab({ className }: { className?: string }) {
         return;
       }
 
-      if (currentStepValue >= steps.length) {
+      if (currentStepValue >= steps.length - 1) {
         handleReset();
       }
 

@@ -63,11 +63,13 @@ export function GraphReport() {
     let components: string[][] = [];
     const graphData = getCurrentGraphData();
 
+    const startNodeIdToUse = useAlgorithmStore.getState().startNodeId || nodes[0].id;
+
     if (isDirected) {
-      const { components: sccs } = findSCCs(graphData);
+      const { components: sccs } = findSCCs(graphData, startNodeIdToUse);
       components = sccs;
     } else {
-      const { components: undirectedComps } = findConnectedComponents(graphData);
+      const { components: undirectedComps } = findConnectedComponents(graphData, startNodeIdToUse);
       components = undirectedComps;
     }
 
@@ -105,8 +107,6 @@ export function GraphReport() {
     );
   }
 
-  const isConnected = components.length <= 1;
-
   return (
     <div className="p-3 space-y-4 text-sm overflow-y-auto h-full">
       {/* General */}
@@ -127,7 +127,14 @@ export function GraphReport() {
             <TableHeader>
               <TableRow className="border-b border-slate-200">
                 <TableHead>Node</TableHead>
-                <TableHead>Degree</TableHead>
+                {!isDirected ? (
+                  <TableHead>Degree</TableHead>
+                ) : (
+                  <>
+                    <TableHead>In-Degree</TableHead>
+                    <TableHead>Out-Degree</TableHead>
+                  </>
+                )}
                 <TableHead>Adjacent List</TableHead>
               </TableRow>
             </TableHeader>
@@ -135,12 +142,24 @@ export function GraphReport() {
               {nodes.map((node) => {
                 const neighbors = graphUtils.adjacencyList.get(node.id) ?? [];
                 const degree = graphUtils.adjacencyList.get(node.id)?.length ?? 0;
+                const inDegree = graphUtils.reverseAdjacencyList.get(node.id)?.length ?? 0;
+
                 return (
                   <TableRow key={node.id}>
                     <TableCell>{node.label}</TableCell>
+
                     <TableCell>
                       <span className="px-1.5 py-0.5 rounded text-xs font-medium">{degree}</span>
                     </TableCell>
+
+                    {isDirected && (
+                      <TableCell>
+                        <span className="px-1.5 py-0.5 rounded text-xs font-medium">
+                          {inDegree}
+                        </span>
+                      </TableCell>
+                    )}
+
                     <TableCell>
                       {neighbors.length > 0 ? (
                         neighbors.map((n, idx) => (
@@ -190,14 +209,6 @@ export function GraphReport() {
         <section>
           <SectionTitle>Eulerian Cycle</SectionTitle>
           <div className="bg-slate-50 rounded-md px-3 py-1">
-            <InfoRow
-              label="Is Graph Connected?"
-              value={
-                <span className={isConnected ? "text-green-600" : "text-red-500"}>
-                  {isConnected ? "Yes" : "No"}
-                </span>
-              }
-            />
             <InfoRow
               label="Odd-Degree Nodes"
               value={

@@ -1,16 +1,18 @@
 import { MousePointer2, PlusCircle, Trash2, SplinePointer } from "lucide-react";
 import FunctionButton from "@/components/ui/function-button";
-import { useUIStore } from "@/stores";
+import { useGraphDataStore, useUIStore, useAlgorithmStore } from "@/stores";
 import { graphService } from "@/services/graph-service";
 
 function FunctionalBar() {
   const interactionMode = useUIStore((s) => s.mode);
   const setMode = useUIStore((s) => s.setMode);
-  const clearGraph = useUIStore((s) => s.clearGraph);
+  const clearGraphData = useGraphDataStore((s) => s.clearGraphData);
+  const setSteps = useAlgorithmStore((s) => s.setSteps);
 
   const handleClear = () => {
     graphService.clearCanvas();
-    clearGraph();
+    clearGraphData();
+    setSteps([]);
   };
 
   return (

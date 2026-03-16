@@ -66,12 +66,12 @@ export class EulerianCycle {
     return { exists: true };
   }
 
-  checkSCC() {
+  checkSCC(startNodeId: string) {
     const { components } = new TarjanSCC({
       nodes: this.nodes,
       edges: this.edges,
       isDirected: this.isDirected,
-    }).execute();
+    }).execute(startNodeId);
 
     const aloneNodes = new Set();
     this.nodes.forEach((node) => {
@@ -92,14 +92,14 @@ export class EulerianCycle {
     return { exists: true };
   }
 
-  checkEulerianCycle() {
+  checkEulerianCycle(startNodeId: string): AlgorithmCheckResult {
     if (this.nodes.length === 0) {
       return { exists: false, reasons: ["Graph is empty."] };
     }
 
     if (this.isDirected) {
       const balancedDegreesCheck = this.checkBalancedDegrees();
-      const sccCheck = this.checkSCC();
+      const sccCheck = this.checkSCC(startNodeId);
       if (!balancedDegreesCheck.exists || !sccCheck.exists) {
         return {
           exists: false,
@@ -121,13 +121,13 @@ export class EulerianCycle {
     return { exists: true };
   }
 
-  execute(startNodeId?: string) {
+  execute(startNodeId: string) {
     // Logic to find Eulerian Cycle
     if (this.nodes.length === 0) {
       return { cycle: null, steps: [] };
     }
 
-    const check = this.checkEulerianCycle();
+    const check = this.checkEulerianCycle(startNodeId);
     if (!check.exists) {
       return { cycle: null, steps: [], message: check.reasons };
     }

@@ -115,7 +115,7 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
             break;
           }
           case "eulerian-cycle": {
-            const { steps, cycle } = findEulerianCycle(data, startNodeIdToUse);
+            const { steps } = findEulerianCycle(data, startNodeIdToUse);
             setSteps(steps || []);
             break;
           }

@@ -42,4 +42,6 @@ export interface GraphDataStore {
   // Edge operations
   addEdge: (edge: GraphEdge) => void;
   removeEdge: (edgeId: string) => void;
+
+  clearGraphData: () => void;
 }

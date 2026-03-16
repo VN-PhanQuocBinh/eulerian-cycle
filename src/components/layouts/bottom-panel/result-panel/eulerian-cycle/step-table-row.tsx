@@ -7,6 +7,7 @@ import { Step } from "@/types/algorithm-store";
 import { StepNodeElement } from "@/types/algorithm-store";
 import { cn } from "@/utils/cn";
 import { arrayToString } from "@/utils";
+import { useSmartScroll } from "@/hooks/use-smart-scroll";
 
 interface Props {
   step: Step;
@@ -16,8 +17,8 @@ interface Props {
 }
 
 function StepTableRow({ step, index, isActive, graphUtils }: Props) {
+  const rowRef = useSmartScroll(isActive);
   const elements = step.elements;
-  console.log("Rendering StepTableRow", { step, index, isActive });
 
   const currentNode: StepNodeElement | undefined = useMemo(() => {
     return elements.filter((el) => el.type === "node")[0];
@@ -46,6 +47,7 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
   return (
     <TableRow
       key={index}
+      ref={rowRef}
       className={cn("group", {
         "bg-blue-50! border-l-4 border-l-blue-500": isActive,
       })}

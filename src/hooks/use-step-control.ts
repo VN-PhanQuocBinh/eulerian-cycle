@@ -10,6 +10,8 @@ export const useStepControl = () => {
   const jumpToStep = useAlgorithmStore((state) => state.jumpToStep);
   const currentStepIndex = useAlgorithmStore((state) => state.currentStepIndex);
 
+  const isLastStep = useCallback((index: number) => index >= steps.length - 1, [steps]);
+
   const syncUIToStep = useCallback(
     (index: number) => {
       if (index < 0 || index >= steps.length) return;
@@ -22,12 +24,12 @@ export const useStepControl = () => {
   const next = useCallback(() => {
     const currentStepIndex = useAlgorithmStore.getState().currentStepIndex;
 
-    if (currentStepIndex + 1 < steps.length) {
+    if (!isLastStep(currentStepIndex)) {
       const nextIdx = currentStepIndex + 1;
       nextStep();
       syncUIToStep(nextIdx);
     }
-  }, [nextStep, syncUIToStep]);
+  }, [nextStep, syncUIToStep, isLastStep, steps]);
 
   const previous = useCallback(() => {
     const currentStepIndex = useAlgorithmStore.getState().currentStepIndex;
@@ -50,6 +52,7 @@ export const useStepControl = () => {
     next,
     previous,
     jumpTo,
+    isLastStep,
     currentStepIndex,
     canForward: currentStepIndex + 1 < steps.length,
     canBackward: currentStepIndex > 0,

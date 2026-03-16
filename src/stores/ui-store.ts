@@ -7,20 +7,16 @@ export const useUIStore = create<UIStore>()(
   devtools(
     (set, get) => ({
       mode: "view",
+      enableSmartScroll: true,
+      bottomPanelTab: "steps",
+      isBottomPanelOpen: true,
+      isSidebarOpen: true,
 
       setMode: (mode: GraphMode) => set({ mode }),
-
-      // Graph operations
-      clearGraph: () => {
-        set(() => ({
-          mode: "view",
-          nodes: [],
-          edges: [],
-          isDirected: false,
-        }));
-      },
-
-      
+      toggleSmartScroll: () => set((state) => ({ enableSmartScroll: !state.enableSmartScroll })),
+      setBottomPanelTab: (tab) => set({ bottomPanelTab: tab }),
+      toggleBottomPanel: (isOpen) => set({ isBottomPanelOpen: isOpen }),
+      toggleSidebar: (isOpen) => set({ isSidebarOpen: isOpen }),
     }),
     { name: "UIStore" },
   ),
