@@ -2,6 +2,7 @@ import { COMPONENT_COLORS } from "@/types/styles";
 import { GraphData, GraphNode, GraphEdge } from "@/types/graph-data-store";
 import { Step, AlgorithmStore, StepNodeElement } from "@/types/algorithm-store";
 import { createGraphUtils } from "@/core/helpers/graph-utils";
+import { read } from "original-fs";
 
 interface SCCResult {
   components: string[][];
@@ -218,7 +219,7 @@ export class TarjanSCC {
     });
   }
 
-  execute(): SCCResult {
+  execute(startNodeId: string): SCCResult {
     for (const nodeId of this.adjacencyList.keys()) {
       this.disc.set(nodeId, -1);
       this.lowLink.set(nodeId, -1);
@@ -233,9 +234,8 @@ export class TarjanSCC {
       lowLink: new Map(this.lowLink),
     });
 
-    for (const nodeId of this.adjacencyList.keys()) {
+    const readyToTraverse = (nodeId: string) => {
       const nodeElement = this.utils.getNode(nodeId)!;
-
       this.steps.push({
         elements: [],
         highlightedPseudoCodeLineIds: [16, 17],
@@ -249,7 +249,6 @@ export class TarjanSCC {
         dsc: new Map(this.disc),
         lowLink: new Map(this.lowLink),
       });
-
       if (this.disc.get(nodeId) === -1) {
         this.steps.push({
           elements: [],
@@ -259,9 +258,14 @@ export class TarjanSCC {
           dsc: new Map(this.disc),
           lowLink: new Map(this.lowLink),
         });
-
         this.traverse(nodeId);
       }
+    };
+
+    // Main loop to handle disconnected graphs - ensure we cover all nodes
+    readyToTraverse(startNodeId);
+    for (const nodeId of this.adjacencyList.keys()) {
+      readyToTraverse(nodeId);
     }
 
     const resetEdgeArray =

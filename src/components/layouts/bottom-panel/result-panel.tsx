@@ -1,6 +1,6 @@
-import { EulerianCycleStepsTable } from "./result-panel/eulerian-cycle";
-import { ConnectedComponentsStepsTable } from "./result-panel/connected-components";
-import { SCCResult } from "./result-panel/scc-result";
+import { EulerianCycleStepsTable } from "./result-panel/eulerian-cycle/eulerian-cycle";
+import { ConnectedComponentsStepsTable } from "./result-panel/connected-components/connected-components";
+import { SCCResult } from "./result-panel/tarjan-scc/scc-result";
 import { useAlgorithmStore } from "@/stores";
 import { useGraphDataStore } from "@/stores";
 

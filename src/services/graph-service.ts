@@ -5,6 +5,7 @@ import type { EdgeHandlesInstance, EdgeHandlesOptions } from "cytoscape-edgehand
 import { GraphEdge, GraphNode } from "@/types/graph-data-store";
 import { GraphAlgorithm } from "@/types/algorithm-store";
 import { ALGORITHM_LAYOUT_CONFIGS } from "@/configs/graph-layouts";
+import { useAlgorithmStore } from "@/stores";
 
 interface Position {
   x: number;
@@ -25,7 +26,7 @@ interface IGraphEditor {
 }
 
 interface IGraphVisualizer {
-  autoLayout(algorithm: GraphAlgorithm): void;
+  autoLayout(algorithm: GraphAlgorithm, animate?: boolean): void;
   highlightElement(elementId: string, className: string[], pulse?: boolean): void;
   toggleDirected(isDirected: boolean): void;
   applyStylesFromMap(styles: Map<string, Set<string>>): void;
@@ -119,11 +120,14 @@ class GraphService implements IGraphService {
     });
 
     this.cy.on("dblclick", "node", (event) => {
+      console.dir(event);
       const node = event.target;
-      console.log(node);
+      const nodeElement = this.cy!.getElementById(node.id());
+      const position = nodeElement.renderedPosition();
+
       callbacks.onNodeUpdate({
         id: node.id(),
-        position: { x: node.position().x, y: node.position().y },
+        position: { x: position.x, y: position.y },
       });
     });
 
@@ -145,20 +149,14 @@ class GraphService implements IGraphService {
         callbacks.onEdgeAdd(newEdge);
       },
     );
-
-    // Lắng nghe việc chọn phần tử để xóa
-    this.cy.on("select unselect", () => {
-      const selected = this.cy!.$(":selected");
-      // Trả về danh sách để xử lý bên ngoài
-    });
   };
 
-  autoLayout: IGraphService["autoLayout"] = (algorithm) => {
+  autoLayout: IGraphService["autoLayout"] = (algorithm, animate = true) => {
     if (!this.cy || !algorithm) return;
 
     const layoutConfig = ALGORITHM_LAYOUT_CONFIGS[algorithm];
     if (layoutConfig) {
-      this.cy.layout(layoutConfig).run();
+      this.cy.layout({ ...layoutConfig, animate } as cytoscape.LayoutOptions).run();
     }
   };
 
@@ -253,6 +251,7 @@ class GraphService implements IGraphService {
     this.clearCanvas();
 
     // Load nodes
+
     nodes.forEach((node: GraphNode) => {
       this.cy?.add({
         group: "nodes",

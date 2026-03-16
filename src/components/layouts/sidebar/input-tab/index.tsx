@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { RotateCcw, RefreshCw, Copy, Check, WandSparkles } from "lucide-react";
-import { useGraphStore } from "@/stores/graph-context";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/utils/cn";
 import { graphToEdgeList, parseEdgeList } from "@/utils";
@@ -35,7 +34,7 @@ function InputTab({ className }: { className?: string }) {
   const handleSync = () => {
     const { nodes: parsedNodes, edges: parsedEdges } = parseEdgeList(text);
     graphService.drawGraphFromData({ nodes: parsedNodes, edges: parsedEdges, isDirected });
-    graphService.autoLayout(currentAlgorithm);
+    graphService.autoLayout(currentAlgorithm, false);
     updateGraphData({
       nodes: parsedNodes,
       edges: parsedEdges,

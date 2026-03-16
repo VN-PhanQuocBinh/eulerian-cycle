@@ -45,6 +45,7 @@ export interface AlgorithmStore {
   isAnimating: boolean;
   currentStepIndex: number;
   speed: number;
+  startNodeId: string | null;
 
   // Actions
   setIsAnimating: (isAnimating: boolean) => void;
@@ -60,21 +61,24 @@ export interface AlgorithmStore {
   highlightEdge: (sourceId: string, targetId: string, className: string[]) => void;
 
   // Algorithm state operations
-  setCurrentAlgorithm: (algorithm: GraphAlgorithm | null) => void;
+  setCurrentAlgorithm: (algorithm: GraphAlgorithm) => void;
   setSteps: (steps: Step[]) => void;
+  setStartNodeId: (startNodeId: string) => void;
 
   // Algorithm implementations
 
-  findSCCs: (data: GraphData) => ConnectedComponentsResult;
+  findSCCs: (data: GraphData, startNodeId: string) => ConnectedComponentsResult;
 
-  findConnectedComponents: (data: GraphData, startNodeId?: string) => ConnectedComponentsResult;
+  findConnectedComponents: (data: GraphData, startNodeId: string) => ConnectedComponentsResult;
 
   findEulerianCycle: (
     data: GraphData,
-    startNodeId?: string,
+    startNodeId: string,
   ) => {
     cycle: string[] | null;
     steps: Step[];
     message?: string;
   };
+
+  recalculateSteps(data: GraphData): void;
 }

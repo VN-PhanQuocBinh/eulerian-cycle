@@ -5,33 +5,38 @@ import { useCallback } from "react";
 
 export const useStepControl = () => {
   const steps = useAlgorithmStore((state) => state.steps);
-  const currentStepIndex = useAlgorithmStore((state) => state.currentStepIndex);
   const nextStep = useAlgorithmStore((state) => state.nextStep);
   const prevStep = useAlgorithmStore((state) => state.prevStep);
   const jumpToStep = useAlgorithmStore((state) => state.jumpToStep);
+  const currentStepIndex = useAlgorithmStore((state) => state.currentStepIndex);
 
-  // Hàm lõi để cập nhật UI dựa trên index
-  const syncUIToStep = (index: number) => {
-    if (index < 0 || index >= steps.length) return;
-    const finalStyles = computeFinalStyles(steps, index);
-    graphService.applyStylesFromMap(finalStyles);
-  };
+  const syncUIToStep = useCallback(
+    (index: number) => {
+      if (index < 0 || index >= steps.length) return;
+      const finalStyles = computeFinalStyles(steps, index);
+      graphService.applyStylesFromMap(finalStyles);
+    },
+    [steps],
+  );
 
   const next = useCallback(() => {
+    const currentStepIndex = useAlgorithmStore.getState().currentStepIndex;
+
     if (currentStepIndex + 1 < steps.length) {
       const nextIdx = currentStepIndex + 1;
-      nextStep(); // Cập nhật index trong store
-      syncUIToStep(nextIdx); // Cập nhật canvas
+      nextStep();
+      syncUIToStep(nextIdx);
     }
-  }, [currentStepIndex, steps]);
+  }, [nextStep, syncUIToStep]);
 
   const previous = useCallback(() => {
+    const currentStepIndex = useAlgorithmStore.getState().currentStepIndex;
     if (currentStepIndex > 0) {
       const prevIdx = currentStepIndex - 1;
       prevStep();
       syncUIToStep(prevIdx);
     }
-  }, [currentStepIndex, steps]);
+  }, [prevStep, syncUIToStep]);
 
   const jumpTo = useCallback(
     (index: number) => {

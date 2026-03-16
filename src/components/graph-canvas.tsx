@@ -3,7 +3,6 @@ import cytoscape from "cytoscape";
 import edgehandles from "cytoscape-edgehandles";
 import FunctionalBar from "./functional-bar";
 import ZoomBar from "./zoom-bar";
-import { useGraphStore } from "@/stores/graph-context";
 import dagre from "cytoscape-dagre";
 import { useGraphDataStore } from "@/stores/graph-data-store";
 import { graphService } from "@/services/graph-service";

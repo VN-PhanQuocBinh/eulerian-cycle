@@ -48,6 +48,8 @@ export const useGraphInteractions = () => {
           x,
           y,
           onComplete: (label: string) => {
+            if (!label.trim()) return;
+
             graphService.updateNodeInCy({ id, label });
             updateNode(id, { label });
           },

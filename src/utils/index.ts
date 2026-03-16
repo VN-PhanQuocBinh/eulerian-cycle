@@ -67,3 +67,8 @@ export function parseEdgeList(text: string): { nodes: GraphNode[]; edges: GraphE
 
   return { nodes, edges };
 }
+
+export const arrayToString = (arr: string[]) => {
+  let result: string = arr.join(", ");
+  return "[" + result + "]";
+};

@@ -52,7 +52,8 @@ export const NodeInput = forwardRef<HTMLDivElement, NodeInputProps>(
     return (
       <div
         ref={internalRef}
-        className="absolute bg-[#3b82f6] text-white rounded-full size-10 flex justify-center"
+        className="absolute -translate-1/2 bg-[#3b82f6] text-white rounded-full size-10 flex justify-center"
+        id="node-input"
         style={{
           scale: zoomLevel,
           top: position?.y,
@@ -95,7 +96,7 @@ export function NodeInputProvider({ children }: { children: React.ReactNode }) {
 
     setIsOpen(false);
     if (onCompleteRef.current) {
-      onCompleteRef.current(content!);
+      onCompleteRef.current(content || "");
     }
   };
 

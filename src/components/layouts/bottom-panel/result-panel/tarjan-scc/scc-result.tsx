@@ -1,9 +1,8 @@
 import { useAlgorithmStore, useGraphDataStore } from "@/stores";
-import { SCCStepsTable } from "./scc";
+import { SCCStepsTable } from "./scc-steps-table";
 import { Step } from "@/types/algorithm-store";
 import { createGraphUtils } from "@/core/helpers/graph-utils";
 import { useMemo } from "react";
-import { shallow } from "zustand/shallow";
 
 export function SCCResult({ steps }: { steps: Step[] }) {
   const currentStepIndex = useAlgorithmStore((state) => state.currentStepIndex);

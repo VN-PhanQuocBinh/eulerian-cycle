@@ -17,6 +17,7 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
       steps: [],
       currentStepIndex: -1,
       speed: 1,
+      startNodeId: null,
 
       // Mode actions
       setIsAnimating: (isAnimating) => set({ isAnimating }),
@@ -24,6 +25,9 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
       setSpeed: (speed) => set({ speed }),
 
       setSteps: (steps: Step[]) => set({ steps }),
+      setCurrentAlgorithm: (algorithm) => set({ currentAlgorithm: algorithm }),
+      setStartNodeId: (startNodeId) => set({ startNodeId }),
+
       nextStep: () => {
         const { currentStepIndex, steps } = get();
         if (currentStepIndex < steps.length) {
@@ -45,7 +49,7 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
       },
 
       // ========== ALGORITHM IMPLEMENTATIONS ==========
-      findSCCs: (data: GraphData) => {
+      findSCCs: (data: GraphData, startNodeId: string) => {
         const engine = new TarjanSCC(data);
 
         if (data.nodes.length === 0) {
@@ -56,18 +60,18 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
           };
         }
 
-        const result = engine.execute();
+        const result = engine.execute(startNodeId);
         return result;
       },
 
       findConnectedComponents: (
         data: GraphData,
-        startNodeId?: string,
+        startNodeId: string,
       ): ConnectedComponentsResult => {
         const { findSCCs } = get();
 
         if (data.isDirected) {
-          return findSCCs(data);
+          return findSCCs(data, startNodeId);
         }
 
         const result = findConnectedComponentsAlgorithm({
@@ -78,11 +82,46 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
         return result;
       },
 
-      findEulerianCycle: (data: GraphData, startNodeId?: string) => {
+      findEulerianCycle: (data: GraphData, startNodeId: string) => {
         const engine = new EulerianCycle(data);
         const result = engine.execute(startNodeId);
 
         return result;
+      },
+
+      recalculateSteps: (data: GraphData) => {
+        const {
+          currentAlgorithm,
+          startNodeId,
+          setSteps,
+          findSCCs,
+          findConnectedComponents,
+          findEulerianCycle,
+        } = get();
+
+        const startNodeIdToUse = startNodeId || data.nodes[0]?.id || "";
+
+        switch (currentAlgorithm) {
+          case "connected-components": {
+            if (data.isDirected) {
+              const { steps } = findSCCs(data, startNodeIdToUse);
+              // console.log("SCC Steps:", steps);
+              setSteps(steps || []);
+            } else {
+              const { steps } = findConnectedComponents(data, startNodeIdToUse);
+              setSteps(steps || []);
+            }
+
+            break;
+          }
+          case "eulerian-cycle": {
+            const { steps, cycle } = findEulerianCycle(data, startNodeIdToUse);
+            setSteps(steps || []);
+            break;
+          }
+          default:
+            setSteps([]);
+        }
       },
     }),
     { name: "GraphStore" },
