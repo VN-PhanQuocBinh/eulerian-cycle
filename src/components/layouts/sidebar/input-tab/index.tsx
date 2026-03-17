@@ -1,21 +1,21 @@
 import { useState, useEffect } from "react";
 import { RotateCcw, RefreshCw, Copy, Check, WandSparkles } from "lucide-react";
-import { useGraphStore } from "@/contexts/graph-context";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/utils/cn";
 import { graphToEdgeList, parseEdgeList } from "@/utils";
 import { copyToClipboard } from "@/utils/copy-to-clipboard";
 import { useToast } from "@/components/ui/toast";
 import { GRAPH_EXAMPLES } from "@/constant/graph-examples";
+import { useGraphDataStore, useAlgorithmStore } from "@/stores";
+import { graphService } from "@/services/graph-service";
 
 function InputTab({ className }: { className?: string }) {
   const { showToast } = useToast();
-  const nodes = useGraphStore((state) => state.nodes);
-  const edges = useGraphStore((state) => state.edges);
-  const currentAlgorithm = useGraphStore((state) => state.currentAlgorithm);
-  const isDirected = useGraphStore((state) => state.isDirected);
-  const drawGraphFromData = useGraphStore((state) => state.drawGraphFromData);
-  const autoLayout = useGraphStore((state) => state.autoLayout);
+  const nodes = useGraphDataStore((state) => state.nodes);
+  const edges = useGraphDataStore((state) => state.edges);
+  const updateGraphData = useGraphDataStore((state) => state.updateGraphData);
+  const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
+  const isDirected = useGraphDataStore((state) => state.isDirected);
 
   const getStoreText = () => graphToEdgeList(nodes, edges);
 
@@ -33,8 +33,13 @@ function InputTab({ className }: { className?: string }) {
 
   const handleSync = () => {
     const { nodes: parsedNodes, edges: parsedEdges } = parseEdgeList(text);
-    drawGraphFromData({ nodes: parsedNodes, edges: parsedEdges, isDirected });
-    autoLayout();
+    graphService.drawGraphFromData({ nodes: parsedNodes, edges: parsedEdges, isDirected });
+    graphService.autoLayout(currentAlgorithm, false);
+    updateGraphData({
+      nodes: parsedNodes,
+      edges: parsedEdges,
+      isDirected,
+    });
   };
 
   const handleCopy = () => {
@@ -69,9 +74,6 @@ function InputTab({ className }: { className?: string }) {
         <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
           Edge List
         </span>
-        {/* <span className="text-xs text-muted-foreground">
-          {edges.length} edge{edges.length !== 1 ? "s" : ""}
-        </span> */}
       </div>
 
       <div className="relative group bg-gray-50 flex-1 w-full ">

@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { useGraphStore } from "@/contexts/graph-context";
+import { useAlgorithmStore, useGraphDataStore } from "@/stores";
 import { BASE_ANIMATION_SPEED } from "@/components/layouts/sidebar/control-tab";
 import { useEffect, useState } from "react";
 import {
@@ -8,24 +8,24 @@ import {
   TARJAN_SCC_PSEUDOCODE,
 } from "@/constant/pseudo-code";
 import { PseudoCodeLine } from "@/types/pseudo-code";
-import { GraphAlgorithm } from "@/types/graph";
+import { GraphAlgorithm } from "@/types/algorithm-store";
 
 interface PseudoCodeViewerProps {
   className?: string;
 }
 
-const pseudoCodeMap: Record<GraphAlgorithm, PseudoCodeLine[]> = {
+const pseudoCodeMap: Record<GraphAlgorithm | "strongly-connected-components", PseudoCodeLine[]> = {
   "eulerian-cycle": HIERHOLZER_PSEUDOCODE,
   "connected-components": CONNECTED_COMPONENTS_PSEUDOCODE,
   "strongly-connected-components": TARJAN_SCC_PSEUDOCODE,
 };
 
 export function PseudoCodeViewer({ className }: PseudoCodeViewerProps) {
-  const currentStepIndex = useGraphStore((state) => state.currentStepIndex);
-  const currentAlgorithm = useGraphStore((state) => state.currentAlgorithm);
-  const isDirected = useGraphStore((state) => state.isDirected);
-  const speed = useGraphStore((state) => state.speed);
-  const steps = useGraphStore((state) => state.steps);
+  const currentStepIndex = useAlgorithmStore((state) => state.currentStepIndex);
+  const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
+  const isDirected = useGraphDataStore((state) => state.isDirected);
+  const speed = useAlgorithmStore((state) => state.speed);
+  const steps = useAlgorithmStore((state) => state.steps);
 
   const [lines, setLines] = useState(() => {
     if (!currentAlgorithm || !pseudoCodeMap[currentAlgorithm]) return [];
@@ -47,7 +47,7 @@ export function PseudoCodeViewer({ className }: PseudoCodeViewerProps) {
       setLines(pseudoCodeMap["strongly-connected-components"]);
       return;
     }
-    
+
     setLines(pseudoCodeMap[currentAlgorithm]);
   }, [currentAlgorithm]);
 
@@ -64,7 +64,7 @@ export function PseudoCodeViewer({ className }: PseudoCodeViewerProps) {
       return;
     }
 
-    const currentLineIds = steps[currentStepIndex]?.current.highlightedPseudoCodeLineIds || [];
+    const currentLineIds = steps[currentStepIndex]?.highlightedPseudoCodeLineIds || [];
 
     if (!currentLineIds || currentLineIds.length === 0) {
       setCurrentHighlightedIds([]);

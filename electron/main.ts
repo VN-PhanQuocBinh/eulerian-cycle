@@ -164,19 +164,30 @@ ipcMain.handle("load-graph", async () => {
 });
 
 ipcMain.handle("save-image", async (event, base64Data) => {
-  const { filePath } = await dialog.showSaveDialog({
-    title: "Export Graph as Image",
-    defaultPath: `graph-${Date.now()}.png`,
-    filters: [{ name: "Images", extensions: ["png", "jpg"] }],
-  });
+  try {
+    const { filePath, canceled } = await dialog.showSaveDialog({
+      title: "Export Graph as Image",
+      defaultPath: `graph-${Date.now()}.png`,
+      filters: [{ name: "Images", extensions: ["png", "jpg"] }],
+    });
 
-  if (filePath) {
+    if (canceled || !filePath) {
+      return { success: false, error: "Save operation was canceled." };
+    }
+
     // Chuyển base64 về Buffer để ghi file
     const base64Image = base64Data.split(";base64,").pop();
     fs.writeFile(filePath, base64Image, "base64");
-    return "Success";
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: (error as Error).message,
+    };
   }
-  return "Cancelled";
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common

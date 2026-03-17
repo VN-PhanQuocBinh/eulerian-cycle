@@ -1,14 +1,13 @@
-import { StoredStep } from "@/types/graph";
+import { Step } from "@/types/algorithm-store";
 
 export function computeFinalStyles(
-  steps: StoredStep[],
+  steps: Step[],
   targetStepIndex: number,
 ): Map<string, Set<string>> {
-  console.log("Computing final styles up to step index:", targetStepIndex);
   const finalStyles: Map<string, Set<string>> = new Map();
 
   for (let i = 0; i <= targetStepIndex && i < steps.length; i++) {
-    const stepElements = steps[i].current.elements;
+    const stepElements = steps[i].elements;
 
     stepElements.forEach((element) => {
       if (!finalStyles.has(element.id)) {

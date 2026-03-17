@@ -1,4 +1,4 @@
-import { useGraphStore } from "@/contexts/graph-context";
+import { useGraphStore } from "@/stores/graph-context";
 import { useMemo, useState } from "react";
 import { ChevronUp } from "lucide-react";
 import { cn } from "@/utils/cn";
