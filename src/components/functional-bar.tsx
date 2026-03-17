@@ -1,12 +1,18 @@
 import { MousePointer2, PlusCircle, Trash2, SplinePointer } from "lucide-react";
-import { useGraphStore } from "@/contexts/graph-context";
 import FunctionButton from "@/components/ui/function-button";
+import { useGraphDataStore, useUIStore, useAlgorithmStore } from "@/stores";
+import { graphService } from "@/services/graph-service";
 
 function FunctionalBar() {
-  const { mode, setMode, clearGraph } = useGraphStore();
+  const interactionMode = useUIStore((s) => s.mode);
+  const setMode = useUIStore((s) => s.setMode);
+  const clearGraphData = useGraphDataStore((s) => s.clearGraphData);
+  const setSteps = useAlgorithmStore((s) => s.setSteps);
 
   const handleClear = () => {
-    clearGraph();
+    graphService.clearCanvas();
+    clearGraphData();
+    setSteps([]);
   };
 
   return (
@@ -16,7 +22,7 @@ function FunctionalBar() {
         tooltipContent="Select / Move"
         icon={MousePointer2}
         side="bottom"
-        active={mode === "view"}
+        active={interactionMode === "view"}
       />
 
       <FunctionButton
@@ -24,7 +30,7 @@ function FunctionalBar() {
         tooltipContent="Add Edge"
         icon={SplinePointer}
         side="bottom"
-        active={mode === "add-edge"}
+        active={interactionMode === "add-edge"}
       />
 
       <FunctionButton
@@ -32,7 +38,7 @@ function FunctionalBar() {
         tooltipContent="Add Node"
         icon={PlusCircle}
         side="bottom"
-        active={mode === "add-node"}
+        active={interactionMode === "add-node"}
       />
 
       <FunctionButton

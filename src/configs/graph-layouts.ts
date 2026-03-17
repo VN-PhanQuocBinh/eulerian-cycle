@@ -1,4 +1,4 @@
-import { GraphAlgorithm } from "@/types/graph";
+import { GraphAlgorithm } from "@/types/algorithm-store";
 import cytoscape from "cytoscape";
 
 export const ALGORITHM_LAYOUT_CONFIGS: Record<GraphAlgorithm, cytoscape.LayoutOptions> = {
@@ -18,7 +18,7 @@ export const ALGORITHM_LAYOUT_CONFIGS: Record<GraphAlgorithm, cytoscape.LayoutOp
 
   "eulerian-cycle": {
     name: "dagre", // Layered layout: Hiển thị luồng đi cực tốt
-    rankDir: "LR", // Trái sang Phải: Phù hợp để đọc tiến trình
+    rankDir: "TB", // Trái sang Phải: Phù hợp để đọc tiến trình
     nodeSep: 60, // Khoảng cách giữa các node
     edgeSep: 100, // Khoảng cách giữa các cạnh (tránh đè đa cạnh)
     rankSep: 10, // Khoảng cách giữa các tầng

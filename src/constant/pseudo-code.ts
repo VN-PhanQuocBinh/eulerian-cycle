@@ -44,3 +44,30 @@ export const CONNECTED_COMPONENTS_PSEUDOCODE: PseudoCodeLine[] = [
   { id: 17, text: "add Component to Components", indent: 3 },
   { id: 18, text: "return Components", indent: 1 },
 ];
+
+export const TARJAN_SCC_PSEUDOCODE: PseudoCodeLine[] = [
+  // DFS procedure
+  { id: 1, text: "procedure DFS(u)", indent: 0 },
+  { id: 2, text: "disc[u] = lowLink[u] = ++timer", indent: 1 },
+  { id: 3, text: "push u onto stack and mark u as inStack", indent: 1 },
+  { id: 4, text: "for each neighbor v of u", indent: 1 },
+  { id: 5, text: "if v is not visited", indent: 2 },
+  { id: 6, text: "DFS(v)", indent: 3 },
+  { id: 7, text: "lowLink[u] = min(lowLink[u], lowLink[v])", indent: 3 },
+  { id: 8, text: "else if v is in stack", indent: 2 },
+  { id: 9, text: "lowLink[u] = min(lowLink[u], disc[v])", indent: 3 },
+  { id: 10, text: "if lowLink[u] == disc[u]  // u is SCC root", indent: 1 },
+  { id: 11, text: "pop stack into new SCC until w == u", indent: 2 },
+  { id: 12, text: "add SCC to allSCCs", indent: 2 },
+  { id: 13, text: "end procedure", indent: 0 },
+
+  { id: 0, text: "", indent: 0 }, // Blank line
+
+  // Main procedure
+  { id: 14, text: "procedure FindSCCs(Graph)", indent: 0 },
+  { id: 15, text: "initialize disc, lowLink, stack, inStack, allSCCs", indent: 1 },
+  { id: 16, text: "for each vertex u in Graph", indent: 1 },
+  { id: 17, text: "if u is not visited", indent: 2 },
+  { id: 18, text: "DFS(u)", indent: 3 },
+  { id: 19, text: "return allSCCs", indent: 1 },
+];

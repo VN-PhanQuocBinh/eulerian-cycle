@@ -1,5 +1,5 @@
 import { generateNodeId, generateEdgeId } from "@/utils/generate-id";
-import type { GraphNode, GraphEdge } from "@/types/graph";
+import type { GraphNode, GraphEdge, GraphState } from "@/types/graph";
 
 export const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 export const generateEdgeSelector = (sourceId: string, targetId: string) => {
@@ -67,3 +67,8 @@ export function parseEdgeList(text: string): { nodes: GraphNode[]; edges: GraphE
 
   return { nodes, edges };
 }
+
+export const arrayToString = (arr: string[]) => {
+  let result: string = arr.join(", ");
+  return "[" + result + "]";
+};

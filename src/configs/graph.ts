@@ -25,11 +25,15 @@ export const graphStyles: cytoscape.StylesheetJson = [
     style: NODE_STYLES,
   },
   {
+    selector: "node.default",
+    style: NODE_STYLES,
+  },
+  {
     selector: "edge",
     style: EDGE_STYLES,
   },
   {
-    selector: "edge.directed",
+    selector: "edge[?isDirected]", 
     style: {
       "target-arrow-shape": "triangle",
     },
@@ -88,22 +92,6 @@ export const graphStyles: cytoscape.StylesheetJson = [
     },
   },
 
-  ...COMPONENT_COLORS.map((color, index) => ({
-    selector: `node.component-${index}`,
-    style: {
-      "background-color": color,
-    },
-  })),
-
-  ...COMPONENT_COLORS.map((color, index) => ({
-    selector: `edge.component-${index}`,
-    style: {
-      "line-color": color,
-      "target-arrow-color": color,
-      width: 4,
-    } as cytoscape.Css.Edge,
-  })),
-
   {
     selector: "node.exploring",
     style: {
@@ -128,4 +116,41 @@ export const graphStyles: cytoscape.StylesheetJson = [
       width: 4,
     } as cytoscape.Css.Edge,
   },
+
+  // ========== STYLES FOR SCC ANIMATION ==========
+  {
+    selector: "node.scc-visiting",
+    style: {
+      "background-color": "#f59e0b", // vàng cam - đang active
+    },
+  },
+  {
+    selector: "node.scc-in-stack",
+    style: {
+      "background-color": "#6366f1", // tím nhạt - đang trên stack
+    },
+  },
+  {
+    selector: "edge.scc-visiting",
+    style: {
+      "line-color": "#6366f1",
+      "target-arrow-color": "#6366f1",
+    },
+  },
+
+  ...COMPONENT_COLORS.map((color, index) => ({
+    selector: `node.component-${index}`,
+    style: {
+      "background-color": color,
+    },
+  })),
+
+  ...COMPONENT_COLORS.map((color, index) => ({
+    selector: `edge.component-${index}`,
+    style: {
+      "line-color": color,
+      "target-arrow-color": color,
+      width: 4,
+    } as cytoscape.Css.Edge,
+  })),
 ];

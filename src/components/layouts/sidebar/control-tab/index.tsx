@@ -1,5 +1,4 @@
-import { useGraphStore } from "@/contexts/graph-context";
-import { useEffect, useState, useCallback, useRef, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useDebounce } from "@/hooks/use-debounce";
 import {
   RunConfigSelect,
@@ -7,12 +6,14 @@ import {
   SpeedControl,
   FileOperation,
   PrimaryControlButtons,
-  // GraphTypeSelect,
+  GraphTypeSelect,
 } from "@/components/layouts/sidebar/index";
-import type { GraphAlgorithm, RunMode, StoredStep } from "@/types/graph";
+import { GraphAlgorithm, RunMode } from "@/types/algorithm-store";
 import { useToast } from "@/components/ui/toast";
-import { generateEdgeSelector } from "@/utils";
 import { cn } from "@/utils/cn";
+import { useAlgorithmStore, useGraphDataStore } from "@/stores";
+import { graphService } from "@/services/graph-service";
+import { useStepControl } from "@/hooks/use-step-control";
 
 export const BASE_ANIMATION_SPEED = 2000; // in milliseconds
 
@@ -21,151 +22,34 @@ const ALGORITHM_OPTIONS: { label: string; value: GraphAlgorithm }[] = [
   { label: "Connected Components", value: "connected-components" },
 ];
 
-function Sidebar({ className }: { className?: string }) {
+function ControlTab({ className }: { className?: string }) {
   // Graph store
-  const isDirected = useGraphStore((state) => state.isDirected);
-  const edges = useGraphStore((state) => state.edges);
-  const nodes = useGraphStore((state) => state.nodes);
-  const cyInstance = useGraphStore((state) => state.cyInstance);
-  const steps = useGraphStore((state) => state.steps);
-  const currentAlgorithm = useGraphStore((state) => state.currentAlgorithm);
-  const speed = useGraphStore((state) => state.speed);
-  const isAnimating = useGraphStore((state) => state.isAnimating);
-  const setIsDirected = useGraphStore((state) => state.setIsDirected);
-  const setIsAnimating = useGraphStore((state) => state.setIsAnimating);
-  const setSteps = useGraphStore((state) => state.setSteps);
-  const nextStepStore = useGraphStore((state) => state.nextStep);
-  const prevStepStore = useGraphStore((state) => state.prevStep);
-  const setCurrentAlgorithm = useGraphStore((state) => state.setCurrentAlgorithm);
-  const setCurrentStepIndex = useGraphStore((state) => state.setCurrentStepIndex);
-  const setSpeed = useGraphStore((state) => state.setSpeed);
-  const highlightNode = useGraphStore((state) => state.highlightNode);
-  const highlightEdge = useGraphStore((state) => state.highlightEdge);
-  const findConnectedComponents = useGraphStore((state) => state.findConnectedComponents);
-  const findEulerianCycle = useGraphStore((state) => state.findEulerianCycle);
-  const resetGraph = useGraphStore((state) => state.resetGraph);
+  const isDirected = useGraphDataStore((state) => state.isDirected);
+  const nodes = useGraphDataStore((state) => state.nodes);
+  const setIsDirected = useGraphDataStore((state) => state.setIsDirected);
+
+  const steps = useAlgorithmStore((state) => state.steps);
+  const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
+  const speed = useAlgorithmStore((state) => state.speed);
+  const isAnimating = useAlgorithmStore((state) => state.isAnimating);
+  const startNodeId = useAlgorithmStore((state) => state.startNodeId);
+  const setIsAnimating = useAlgorithmStore((state) => state.setIsAnimating);
+  const setCurrentAlgorithm = useAlgorithmStore((state) => state.setCurrentAlgorithm);
+  const setStartNodeId = useAlgorithmStore((state) => state.setStartNodeId);
+  const setCurrentStepIndex = useAlgorithmStore((state) => state.setCurrentStepIndex);
+  const setSpeed = useAlgorithmStore((state) => state.setSpeed);
+  const setSteps = useAlgorithmStore((state) => state.setSteps);
+
+  const { next, previous, isLastStep, canForward, canBackward } = useStepControl();
 
   // Local state
   const showToast = useToast().showToast;
   const [runMode, setRunMode] = useState<RunMode>("continuous");
   const debouncedSpeed = useDebounce(speed, 300);
-  // const [isAnimating, setIsAnimating] = useState(false);
-  const [canBackward, setCanBackward] = useState(true);
-  const [canForward, setCanForward] = useState(true);
   const startNodeOptions = useMemo(
     () => nodes.map((node) => ({ label: node.label, value: node.id })),
     [nodes],
   );
-  const [startNodeId, setStartNodeId] = useState<string>(nodes[0]?.id || "");
-
-  // Ensure startNodeId is valid when nodes change
-  useEffect(() => {
-    if (nodes.length > 0) {
-      const nodeExists = nodes.some((node) => node.id === startNodeId);
-      if (!startNodeId || !nodeExists) {
-        setStartNodeId(nodes[0].id);
-      }
-    } else {
-      setStartNodeId("");
-    }
-  }, [nodes]);
-
-  const highlightElement = useCallback(
-    (element: StoredStep["current"]["elements"][number]) => {
-      if (element.type === "node") {
-        highlightNode(element.id, element.classes, true);
-      } else if (element.type === "edge") {
-        highlightEdge(element.source.id, element.target.id, element.classes);
-      }
-    },
-    [highlightEdge, highlightNode],
-  );
-
-  // Load steps when algorithm or graph changes
-  useEffect(() => {
-    switch (currentAlgorithm) {
-      case "connected-components": {
-        const { steps, message } = findConnectedComponents(startNodeId);
-        console.log(message);
-        setSteps(steps || []);
-
-        break;
-      }
-      case "eulerian-cycle": {
-        const { steps } = findEulerianCycle(startNodeId);
-        setSteps(steps || []);
-        break;
-      }
-      default:
-        setSteps([]);
-    }
-  }, [edges, nodes, startNodeId, isDirected, currentAlgorithm]);
-
-  // Step controls
-  const nextStep = useCallback(() => {
-    const currentStepValue = useGraphStore.getState().currentStepIndex + 1;
-    nextStepStore();
-
-    if (currentStepValue >= steps.length) {
-      showToast?.({
-        message: "No more steps available. Please reset or run a different algorithm.",
-        type: "info",
-      });
-      return;
-    }
-
-    const step = steps[currentStepValue].current;
-
-    step.elements.forEach(highlightElement);
-
-    setCanBackward(currentStepValue > 0);
-    setCanForward(currentStepValue + 1 < steps.length);
-  }, [steps, isAnimating, runMode, highlightElement, nextStepStore]);
-
-  const previousStep = useCallback(() => {
-    const currentStepValue = useGraphStore.getState().currentStepIndex;
-
-    if (currentStepValue > 0 && cyInstance) {
-      const currentStepData = steps[currentStepValue - 1].current;
-      const prevStepData = steps[currentStepValue - 1].prev;
-      const currentStepElements = currentStepData.elements;
-      const prevStepElements = prevStepData.elements;
-
-      if (
-        !prevStepData ||
-        !currentStepElements ||
-        currentStepElements.length !== prevStepElements.length
-      ) {
-        showToast?.({
-          message: "Cannot revert step due to inconsistent step data.",
-          type: "error",
-        });
-        return;
-      }
-
-      currentStepElements.forEach((element, index) => {
-        if (element.type === "node") {
-          const revertNode = cyInstance.getElementById(element.id);
-          if (revertNode) {
-            revertNode.removeClass(element.classes);
-            revertNode.addClass(prevStepElements[index].classes);
-          }
-        } else if (element.type === "edge") {
-          const revertEdge = cyInstance.edges(
-            generateEdgeSelector(element.source.id, element.target.id),
-          );
-          if (revertEdge) {
-            revertEdge.removeClass(element.classes);
-            revertEdge.addClass(prevStepElements[index].classes);
-          }
-        }
-      });
-
-      prevStepStore();
-      setCanBackward(currentStepValue > 0);
-      setCanForward(currentStepValue < steps.length);
-    }
-  }, [steps, cyInstance, prevStepStore]);
 
   // Animation effect
   useEffect(() => {
@@ -174,10 +58,10 @@ function Sidebar({ className }: { className?: string }) {
     }
 
     const animationInterval: NodeJS.Timeout = setInterval(() => {
-      const currentStepValue = useGraphStore.getState().currentStepIndex;
+      const currentStepValue = useAlgorithmStore.getState().currentStepIndex;
 
-      if (currentStepValue < steps.length) {
-        nextStep();
+      if (!isLastStep(currentStepValue)) {
+        next();
       } else {
         clearInterval(animationInterval);
         setIsAnimating(false);
@@ -187,10 +71,10 @@ function Sidebar({ className }: { className?: string }) {
     return () => {
       clearInterval(animationInterval);
     };
-  }, [isAnimating, runMode, steps, debouncedSpeed]);
+  }, [isAnimating, runMode, steps, debouncedSpeed, isLastStep, next]);
 
   const handleToggleRun = async () => {
-    const currentStepValue = useGraphStore.getState().currentStepIndex;
+    const currentStepValue = useAlgorithmStore.getState().currentStepIndex;
 
     if (isAnimating) {
       // Pause animation
@@ -205,7 +89,7 @@ function Sidebar({ className }: { className?: string }) {
         return;
       }
 
-      if (currentStepValue >= steps.length) {
+      if (currentStepValue >= steps.length - 1) {
         handleReset();
       }
 
@@ -215,17 +99,15 @@ function Sidebar({ className }: { className?: string }) {
 
   const handleAlgorithmChange = (algorithm: GraphAlgorithm) => {
     handleReset();
+    setSteps([]);
     setCurrentAlgorithm(algorithm);
   };
 
   const handleReset = () => {
-    resetGraph();
+    graphService.resetGraph();
+
     setCurrentStepIndex(-1);
     setIsAnimating(false);
-    setSteps([]);
-
-    setCanForward(true);
-    setCanBackward(false);
   };
 
   const handleStartNodeChange = (nodeId: string) => {
@@ -246,11 +128,11 @@ function Sidebar({ className }: { className?: string }) {
       )}
     >
       {/* GRAPH TYPE */}
-      {/* <GraphTypeSelect
+      <GraphTypeSelect
         isDirected={isDirected}
         isAnimating={isAnimating}
         onSelect={handleGraphTypeChange}
-      /> */}
+      />
 
       {/* ALGORITHM SELECTION */}
       <RunConfigSelect<GraphAlgorithm>
@@ -264,7 +146,7 @@ function Sidebar({ className }: { className?: string }) {
       <RunConfigSelect
         title="Starting Node"
         options={startNodeOptions}
-        currentValue={startNodeId}
+        currentValue={startNodeId || ""}
         isAnimating={isAnimating}
         onSelect={handleStartNodeChange}
       />
@@ -283,8 +165,8 @@ function Sidebar({ className }: { className?: string }) {
       <PrimaryControlButtons
         onToggleRun={handleToggleRun}
         onReset={handleReset}
-        onNext={nextStep}
-        onPrevious={previousStep}
+        onNext={next}
+        onPrevious={previous}
         canForward={canForward}
         canBackward={canBackward}
         isAnimating={isAnimating}
@@ -297,4 +179,4 @@ function Sidebar({ className }: { className?: string }) {
   );
 }
 
-export default Sidebar;
+export default ControlTab;
