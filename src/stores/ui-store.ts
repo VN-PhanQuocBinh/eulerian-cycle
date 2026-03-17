@@ -5,7 +5,7 @@ import { GraphMode } from "@/types/ui-store";
 
 export const useUIStore = create<UIStore>()(
   devtools(
-    (set, get) => ({
+    (set) => ({
       mode: "view",
       enableSmartScroll: true,
       bottomPanelTab: "steps",

@@ -4,7 +4,6 @@ import { graphService } from "@/services/graph-service";
 import { useAlgorithmStore } from "@/stores";
 
 function ZoomBar() {
-  const isAnimating = useAlgorithmStore((state) => state.isAnimating);
   const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
 
   const handleZoomIn = () => {

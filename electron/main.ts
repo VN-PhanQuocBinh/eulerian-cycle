@@ -1,10 +1,10 @@
 import { app, BrowserWindow, ipcMain, dialog, Menu } from "electron";
-import { createRequire } from "node:module";
+// import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import fs from "node:fs/promises";
 
-const require = createRequire(import.meta.url);
+// const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // The built directory structure
@@ -31,7 +31,8 @@ let win: BrowserWindow | null;
 
 function createWindow() {
   win = new BrowserWindow({
-    icon: path.join(process.env.VITE_PUBLIC, "electron-vite.svg"),
+    // icon: path.join(process.env.VITE_PUBLIC, "electron-vite.svg"),
+    icon: path.join(process.env.VITE_PUBLIC, "icon.ico"),
     webPreferences: {
       preload: path.join(__dirname, "preload.mjs"),
     },
@@ -163,7 +164,7 @@ ipcMain.handle("load-graph", async () => {
   }
 });
 
-ipcMain.handle("save-image", async (event, base64Data) => {
+ipcMain.handle("save-image", async (_event, base64Data) => {
   try {
     const { filePath, canceled } = await dialog.showSaveDialog({
       title: "Export Graph as Image",

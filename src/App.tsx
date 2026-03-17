@@ -5,7 +5,7 @@ import { NodeInputProvider } from "./components/ui/node-input";
 import { ToastProvider } from "./components/ui/toast";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import type { PanelImperativeHandle } from "react-resizable-panels";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useAlgorithmSync } from "./hooks/use-algorithm-sync";
 import { useUIStore } from "./stores";
 

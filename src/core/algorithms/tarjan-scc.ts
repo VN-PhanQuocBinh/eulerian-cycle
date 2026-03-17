@@ -1,28 +1,12 @@
 import { COMPONENT_COLORS } from "@/types/styles";
 import { GraphData, GraphNode, GraphEdge } from "@/types/graph-data-store";
-import { Step, AlgorithmStore, StepNodeElement } from "@/types/algorithm-store";
+import { Step } from "@/types/algorithm-store";
 import { createGraphUtils } from "@/core/helpers/graph-utils";
-import { read } from "original-fs";
 
 interface SCCResult {
   components: string[][];
   steps: Step[];
   message: string;
-}
-
-interface FindSCCParams {
-  data: GraphData;
-}
-
-interface RunSCCParams {
-  steps: Step[];
-  u: StepNodeElement;
-  disc: Map<string, number>;
-  lowLink: Map<string, number>;
-  stack: string[];
-  inStack: Set<string>;
-  timer: { value: number };
-  allSCCs: string[][];
 }
 
 // Tarjan's algorithm implementation for finding strongly connected components
