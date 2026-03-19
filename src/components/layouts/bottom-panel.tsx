@@ -4,9 +4,9 @@ import { PseudoCodeViewer } from "./bottom-panel/pseudo-code-viewer";
 import { GraphReport } from "./bottom-panel/graph-report";
 import { useAlgorithmStore, useUIStore } from "@/stores";
 import { Button } from "@/components/ui/button";
-import { ScanEye, EyeClosed, ChevronUp, X } from "lucide-react";
-import { createPortal } from "react-dom";
-import { useRef, useState, useEffect, useCallback } from "react";
+import { ScanEye, EyeClosed, X } from "lucide-react";
+// import { createPortal } from "react-dom";
+import { useRef, useEffect, useCallback } from "react";
 
 export type BottomPanelTab = "steps" | "pseudo-code" | "reports";
 
@@ -28,48 +28,48 @@ export function BottomPanel() {
   const toggleBottomPanel = useUIStore((state) => state.toggleBottomPanel);
 
   const tabsRootRef = useRef<HTMLDivElement | null>(null);
-  const [triggerRect, setTriggerRect] = useState<{
-    left: number;
-    top: number;
-    width: number;
-  } | null>(null);
+  // const [triggerRect, setTriggerRect] = useState<{
+  //   left: number;
+  //   top: number;
+  //   width: number;
+  // } | null>(null);
 
-  const updateTriggerRect = useCallback(() => {
-    const el = tabsRootRef.current;
-    if (!el) return;
+  // const updateTriggerRect = useCallback(() => {
+  //   const el = tabsRootRef.current;
+  //   if (!el) return;
 
-    const rect = el.getBoundingClientRect();
-    setTriggerRect({
-      left: rect.left,
-      top: Math.max(0, rect.top - 60), // h-10 = 40px, nằm ngay trên Tabs
-      width: rect.width,
-    });
-  }, []);
+  //   const rect = el.getBoundingClientRect();
+  //   setTriggerRect({
+  //     left: rect.left,
+  //     top: Math.max(0, rect.top - 60), // h-10 = 40px, nằm ngay trên Tabs
+  //     width: rect.width,
+  //   });
+  // }, []);
 
-  useEffect(() => {
-    if (isBottomPanelOpen) {
-      setTriggerRect(null);
-      return;
-    }
+  // useEffect(() => {
+  //   if (isBottomPanelOpen) {
+  //     setTriggerRect(null);
+  //     return;
+  //   }
 
-    updateTriggerRect();
+  //   updateTriggerRect();
 
-    const observer =
-      typeof ResizeObserver !== "undefined" ? new ResizeObserver(updateTriggerRect) : null;
+  //   const observer =
+  //     typeof ResizeObserver !== "undefined" ? new ResizeObserver(updateTriggerRect) : null;
 
-    if (observer && tabsRootRef.current) {
-      observer.observe(tabsRootRef.current);
-    }
+  //   if (observer && tabsRootRef.current) {
+  //     observer.observe(tabsRootRef.current);
+  //   }
 
-    window.addEventListener("resize", updateTriggerRect);
-    window.addEventListener("scroll", updateTriggerRect, true);
+  //   window.addEventListener("resize", updateTriggerRect);
+  //   window.addEventListener("scroll", updateTriggerRect, true);
 
-    return () => {
-      observer?.disconnect();
-      window.removeEventListener("resize", updateTriggerRect);
-      window.removeEventListener("scroll", updateTriggerRect, true);
-    };
-  }, [isBottomPanelOpen, updateTriggerRect]);
+  //   return () => {
+  //     observer?.disconnect();
+  //     window.removeEventListener("resize", updateTriggerRect);
+  //     window.removeEventListener("scroll", updateTriggerRect, true);
+  //   };
+  // }, [isBottomPanelOpen, updateTriggerRect]);
 
   return (
     <Tabs
@@ -79,7 +79,7 @@ export function BottomPanel() {
       onValueChange={(tab) => setBottomPanelTab(tab as BottomPanelTab)}
     >
       {/* Mouse Trigger */}
-      {!isBottomPanelOpen &&
+      {/* {!isBottomPanelOpen &&
         triggerRect &&
         createPortal(
           <div
@@ -98,7 +98,7 @@ export function BottomPanel() {
             </button>
           </div>,
           document.body,
-        )}
+        )} */}
 
       <div className="flex items-center mb-2 py-2">
         <TabsList variant="line" className="">

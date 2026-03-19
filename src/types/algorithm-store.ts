@@ -54,7 +54,6 @@ export interface AlgorithmStore {
   nextStep: () => void;
   prevStep: () => void;
   jumpToStep: (index: number) => void;
-  updateUItoStep: (targetStepIndex: number) => void;
 
   // Helpers
   highlightNode: (nodeId: string, className: string[], pulse?: boolean) => void;

@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import cytoscape from "cytoscape";
 import edgehandles from "cytoscape-edgehandles";
 import FunctionalBar from "./functional-bar";
-import ZoomBar from "./zoom-bar";
+import FloatintPrimaryControl from "./floating-primary-control";
 import dagre from "cytoscape-dagre";
 import { useGraphDataStore } from "@/stores/graph-data-store";
 import { graphService } from "@/services/graph-service";
@@ -66,12 +66,12 @@ const GraphCanvas = () => {
   }, [interactionMode]);
 
   return (
-    <div className=" relative flex-1 h-full bg-slate-50 border border-slate-200 rounded-lg overflow-hidden">
+    <div className=" relative flex-1 h-full bg-slate-200 border border-slate-200 overflow-hidden">
       {/* Canvas */}
       <div ref={containerRef} className="w-full h-full" />
 
       <FunctionalBar />
-      <ZoomBar />
+      <FloatintPrimaryControl />
     </div>
   );
 };

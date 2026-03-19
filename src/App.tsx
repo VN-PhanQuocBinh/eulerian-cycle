@@ -68,7 +68,7 @@ function App() {
           <ResizablePanel>
             <main className="flex-1 h-full">
               <ResizablePanelGroup orientation="vertical">
-                <ResizablePanel defaultSize="75%" minSize="25%" className="p-4">
+                <ResizablePanel defaultSize="75%" minSize="25%" className="">
                   <NodeInputProvider>
                     <GraphCanvas />
                   </NodeInputProvider>

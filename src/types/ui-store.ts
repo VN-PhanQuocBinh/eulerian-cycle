@@ -1,5 +1,5 @@
-export type GraphMode = "view" | "add-node" | "add-edge" | "delete";
 import { BottomPanelTab } from "@/components/layouts/bottom-panel";
+export type GraphMode = "view" | "add-node" | "add-edge" | "delete";
 
 export interface UIStore {
   // State

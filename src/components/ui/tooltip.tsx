@@ -34,13 +34,20 @@ interface TooltipProps {
   content: React.ReactNode;
   side?: "top" | "right" | "bottom" | "left";
   delayDuration?: number;
+  asChild?: boolean;
 }
 
-const Tooltip = ({ children, content, side = "bottom", delayDuration = 200 }: TooltipProps) => {
+const Tooltip = ({
+  children,
+  content,
+  side = "bottom",
+  delayDuration = 200,
+  asChild = true,
+}: TooltipProps) => {
   return (
     <TooltipProvider delayDuration={delayDuration}>
       <TooltipRoot>
-        <TooltipTrigger asChild>{children}</TooltipTrigger>
+        <TooltipTrigger asChild={asChild}>{children}</TooltipTrigger>
         <TooltipContent side={side}>{content}</TooltipContent>
       </TooltipRoot>
     </TooltipProvider>
