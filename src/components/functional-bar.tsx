@@ -21,6 +21,14 @@ const modes: { value: GraphMode; label: string; icon: LucideIcon }[] = [
   { value: "add-node", label: "Add Node", icon: PlusCircle },
 ];
 
+function Separator() {
+  return <div className="w-px min-h-full bg-gray-300" />;
+}
+
+function ButtonGroup({ children }: { children: React.ReactNode }) {
+  return <div className="flex items-center py-1 gap-1">{children}</div>;
+}
+
 function FunctionalBar() {
   const interactionMode = useUIStore((s) => s.mode);
   const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
@@ -52,7 +60,7 @@ function FunctionalBar() {
 
   return (
     <div className="absolute top-4 right-4 z-10 flex gap-1 bg-white shadow-md px-1 rounded-md">
-      <div className="flex items-center py-1 gap-1">
+      <ButtonGroup>
         <ToggleGroup
           type="single"
           className="gap-0 bg-gray-100 px-1 rounded-sm h-full"
@@ -78,34 +86,39 @@ function FunctionalBar() {
           icon={LayoutDashboard}
           side="bottom"
         />
-      </div>
+      </ButtonGroup>
 
       {/* Separator */}
-      <div className="w-px min-h-full bg-gray-100" />
+      <Separator />
 
-      <FunctionButton
-        onClick={handleZoomIn}
-        tooltipContent="Zoom In"
-        icon={ZoomIn}
-        className=""
-        side="bottom"
-      />
-      <FunctionButton
-        onClick={handleZoomOut}
-        tooltipContent="Zoom Out"
-        icon={ZoomOut}
-        className=""
-        side="bottom"
-      />
-      <div className="w-px min-h-full bg-gray-100" />
+      <ButtonGroup>
+        <FunctionButton
+          onClick={handleZoomIn}
+          tooltipContent="Zoom In"
+          icon={ZoomIn}
+          className=""
+          side="bottom"
+        />
+        <FunctionButton
+          onClick={handleZoomOut}
+          tooltipContent="Zoom Out"
+          icon={ZoomOut}
+          className=""
+          side="bottom"
+        />
+      </ButtonGroup>
 
-      <FunctionButton
-        onClick={handleClear}
-        tooltipContent="Clear Graph"
-        icon={BrushCleaning}
-        side="bottom"
-        className=" hover:text-red-600 hover:bg-red-100"
-      />
+      <Separator />
+
+      <ButtonGroup>
+        <FunctionButton
+          onClick={handleClear}
+          tooltipContent="Clear Graph"
+          icon={BrushCleaning}
+          side="bottom"
+          className=" hover:text-red-600 hover:bg-red-100"
+        />
+      </ButtonGroup>
     </div>
   );
 }
