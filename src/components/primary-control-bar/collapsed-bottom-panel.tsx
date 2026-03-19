@@ -1,34 +1,27 @@
 import { ReactNode, useMemo } from "react";
-import { SkipBack, SkipForward, RotateCcw, ListChevronsDownUp, ListChevronsUpDown } from "lucide-react";
+import { ListChevronsDownUp, ListChevronsUpDown, Ellipsis } from "lucide-react";
 import FunctionButton from "../ui/function-button";
 import { useAlgorithmStore, useUIStore } from "@/stores";
-import { graphService } from "@/services/graph-service";
-import { useStepControl } from "@/hooks/use-step-control";
 import { GraphAlgorithm } from "@/types/algorithm-store";
-import { cn } from "@/utils/cn";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Tooltip } from "@/components/ui/tooltip";
 
 const ALGORITHM_LABELS: Record<GraphAlgorithm, string> = {
   "eulerian-cycle": "Eulerian Cycle",
   "connected-components": "Connected Components",
 };
 
-function Separator() {
-  return <div className="w-px min-h-full bg-gray-300" />;
-}
-
-function ButtonGroup({ children }: { children: ReactNode }) {
-  return <div className="flex items-center py-1 gap-1">{children}</div>;
-}
-
 function CollapsedBottomPanel() {
   const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
   const currentStepIndex = useAlgorithmStore((state) => state.currentStepIndex);
   const steps = useAlgorithmStore((state) => state.steps);
-  const isAnimating = useAlgorithmStore((state) => state.isAnimating);
-  const setCurrentStepIndex = useAlgorithmStore((state) => state.setCurrentStepIndex);
-  const setIsAnimating = useAlgorithmStore((state) => state.setIsAnimating);
   const isBottomPanelOpen = useUIStore((state) => state.isBottomPanelOpen);
+  const showStack = useUIStore((state) => state.showStack);
+  const showQueue = useUIStore((state) => state.showQueue);
   const toggleBottomPanel = useUIStore((state) => state.toggleBottomPanel);
+  const toggleShowStack = useUIStore((state) => state.toggleShowStack);
+  const toggleShowQueue = useUIStore((state) => state.toggleShowQueue);
 
   const algorithmLabel = useMemo(
     () => ALGORITHM_LABELS[currentAlgorithm] ?? "Unknown",
@@ -38,49 +31,72 @@ function CollapsedBottomPanel() {
   const currentStepDisplay =
     steps.length === 0 ? 0 : Math.min(Math.max(currentStepIndex + 1, 0), steps.length);
 
-  const handleReset = () => {
-    graphService.resetGraph();
-    setCurrentStepIndex(-1);
-    setIsAnimating(false);
-  };
-
   const handleToggleDetailsPanel = () => {
     toggleBottomPanel(!isBottomPanelOpen);
   };
 
   return (
-    <div className="flex items-center gap-1 bg-white shadow-md px-1 rounded-md">
-      <ButtonGroup>
-        <div className="flex items-center gap-2 px-3 py-2 rounded-sm bg-gray-100">
-          <span
-            className={cn(
-              "size-2 rounded-full",
-              isAnimating ? "bg-emerald-500 animate-pulse" : "bg-slate-400",
-            )}
-          />
-          <div className="leading-tight">
-            <p className="text-[10px] uppercase tracking-wide text-slate-500">Algorithm</p>
-            <p className="text-xs font-semibold text-slate-700">{algorithmLabel}</p>
+    <div className="flex items-stretch gap-1 bg-white shadow-md px-1 rounded-md">
+      <div className="flex items-stretch py-1 gap-1">
+        <Tooltip content="Algorithm in action" side="top">
+          <div className=" h-full flex items-center gap-2 px-3 rounded-sm bg-gray-100">
+            <p className="text-xs font-semibold text-nowrap text-slate-700">{algorithmLabel}</p>
           </div>
-        </div>
+        </Tooltip>
 
-        <div className="px-3 py-2 rounded-sm bg-gray-100 leading-tight">
-          <p className="text-[10px] uppercase tracking-wide text-slate-500">Step</p>
-          <p className="text-xs font-semibold text-slate-700">
-            {currentStepDisplay} / {steps.length}
-          </p>
-        </div>
-      </ButtonGroup>
+        <Tooltip content="Current step" side="top">
+          <div className=" h-full flex items-center px-3 rounded-sm bg-gray-100 ">
+            <p className="text-xs font-semibold text-nowrap text-slate-700">
+              {currentStepDisplay} / {steps.length}
+            </p>
+          </div>
+        </Tooltip>
+      </div>
 
-      <Separator />
+      <div className="flex items-center py-1 gap-1">
+        <FunctionButton
+          onClick={handleToggleDetailsPanel}
+          tooltipContent={isBottomPanelOpen ? "Hide Details Panel" : "Show Details Panel"}
+          icon={isBottomPanelOpen ? ListChevronsDownUp : ListChevronsUpDown}
+          className=""
+          side="top"
+        />
 
-      <FunctionButton
-        onClick={handleToggleDetailsPanel}
-        tooltipContent={isBottomPanelOpen ? "Hide Details Panel" : "Show Details Panel"}
-        icon={isBottomPanelOpen ? ListChevronsDownUp : ListChevronsUpDown}
-        className=""
-        side="top"
-      />
+        <Popover>
+          <PopoverTrigger asChild>
+            <FunctionButton tooltipContent="More options" icon={Ellipsis} side="top" />
+          </PopoverTrigger>
+          <PopoverContent className="w-56" side="top">
+            <div className="flex flex-col gap-2">
+              <span className="text-sm font-semibold text-slate-700">More Options</span>
+
+              <label
+                htmlFor="toggle-show-stack"
+                className="flex items-center justify-between px-2 py-1.5 rounded hover:bg-gray-100 cursor-pointer"
+              >
+                <span className="text-sm text-slate-700">Show Stack</span>
+                <Checkbox
+                  id="toggle-show-stack"
+                  checked={showStack}
+                  onCheckedChange={(checked) => toggleShowStack(checked === true)}
+                />
+              </label>
+
+              <label
+                htmlFor="toggle-show-queue"
+                className="flex items-center justify-between px-2 py-1.5 rounded hover:bg-gray-100 cursor-pointer"
+              >
+                <span className="text-sm text-slate-700">Show Queue</span>
+                <Checkbox
+                  id="toggle-show-queue"
+                  checked={showQueue}
+                  onCheckedChange={(checked) => toggleShowQueue(checked === true)}
+                />
+              </label>
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
     </div>
   );
 }

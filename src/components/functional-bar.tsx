@@ -22,7 +22,7 @@ const modes: { value: GraphMode; label: string; icon: LucideIcon }[] = [
 ];
 
 function Separator() {
-  return <div className="w-px min-h-full bg-gray-300" />;
+  return <div className="w-px min-h-full bg-gray-100" />;
 }
 
 function ButtonGroup({ children }: { children: React.ReactNode }) {

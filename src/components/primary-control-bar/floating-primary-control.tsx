@@ -1,15 +1,7 @@
-import { useEffect, useCallback } from "react";
-import {
-  SkipForward,
-  SkipBack,
-  Play,
-  Pause,
-  RotateCcw,
-  ListChevronsUpDown,
-  ListChevronsDownUp,
-} from "lucide-react";
+import { ReactNode, useEffect } from "react";
+import { SkipForward, SkipBack, Play, Pause, RotateCcw } from "lucide-react";
 import FunctionButton from "@/components/ui/function-button";
-import { useGraphDataStore, useUIStore, useAlgorithmStore } from "@/stores";
+import { useAlgorithmStore } from "@/stores";
 import { graphService } from "@/services/graph-service";
 import { useStepControl } from "@/hooks/use-step-control";
 import SpeedControl from "./speed-control";
@@ -17,23 +9,22 @@ import { useToast } from "../ui/toast";
 
 export const BASE_ANIMATION_SPEED = 2000; // in milliseconds
 
-function FloatintPrimaryControl() {
-  const isDirected = useGraphDataStore((state) => state.isDirected);
-  const nodes = useGraphDataStore((state) => state.nodes);
-  const setIsDirected = useGraphDataStore((state) => state.setIsDirected);
+function Separator() {
+  return <div className="w-px min-h-full bg-gray-300" />;
+}
 
+function ButtonGroup({ children }: { children: ReactNode }) {
+  return <div className="flex items-center py-1 gap-1">{children}</div>;
+}
+
+function FloatintPrimaryControl() {
   const steps = useAlgorithmStore((state) => state.steps);
-  const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
   const speed = useAlgorithmStore((state) => state.speed);
   const isAnimating = useAlgorithmStore((state) => state.isAnimating);
-  const startNodeId = useAlgorithmStore((state) => state.startNodeId);
   const setIsAnimating = useAlgorithmStore((state) => state.setIsAnimating);
-  const setCurrentAlgorithm = useAlgorithmStore((state) => state.setCurrentAlgorithm);
-  const setStartNodeId = useAlgorithmStore((state) => state.setStartNodeId);
   const setCurrentStepIndex = useAlgorithmStore((state) => state.setCurrentStepIndex);
   const setSpeed = useAlgorithmStore((state) => state.setSpeed);
-  const setSteps = useAlgorithmStore((state) => state.setSteps);
-  
+
   const { showToast } = useToast();
 
   const {
@@ -100,7 +91,7 @@ function FloatintPrimaryControl() {
     <div className="  flex items-center gap-1 bg-white shadow-md px-1 rounded-md">
       <SpeedControl speed={speed} disabled={false} setSpeed={setSpeed} />
 
-      <div className="flex items-center py-1 gap-1">
+      <ButtonGroup>
         <FunctionButton
           tooltipContent="Backward"
           icon={SkipBack}
@@ -124,10 +115,10 @@ function FloatintPrimaryControl() {
           className="bg-gray-100"
           disabled={!canForward}
         />
-      </div>
+      </ButtonGroup>
 
       {/* Separator */}
-      <div className="w-px min-h-full bg-gray-300" />
+      <Separator />
 
       <FunctionButton
         tooltipContent="Reset"
