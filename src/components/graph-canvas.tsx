@@ -67,7 +67,7 @@ const GraphCanvas = () => {
   }, [interactionMode]);
 
   return (
-    <div className=" relative flex-1 h-full bg-slate-200 border border-slate-200 overflow-hidden">
+    <div className=" relative flex-1 h-full bg-(--od-bg-1) overflow-hidden">
       {/* Canvas */}
       <div ref={containerRef} className="w-full h-full" />
 

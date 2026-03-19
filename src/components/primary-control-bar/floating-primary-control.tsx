@@ -10,7 +10,7 @@ import { useToast } from "../ui/toast";
 export const BASE_ANIMATION_SPEED = 2000; // in milliseconds
 
 function Separator() {
-  return <div className="w-px min-h-full bg-gray-300" />;
+  return <div className="w-px min-h-full bg-(--od-border)" />;
 }
 
 function ButtonGroup({ children }: { children: ReactNode }) {
@@ -88,15 +88,20 @@ function FloatintPrimaryControl() {
   };
 
   return (
-    <div className="  flex items-center gap-1 bg-white shadow-md px-1 rounded-md">
-      <SpeedControl speed={speed} disabled={false} setSpeed={setSpeed} />
+    <div className="flex items-center gap-1 rounded-md border border-(--od-border) bg-(--od-bg-2) px-1 shadow-md">
+      <SpeedControl
+        speed={speed}
+        disabled={false}
+        setSpeed={setSpeed}
+        className="border-(--od-border) bg-(--od-bg-2) text-(--od-fg-1) hover:bg-(--od-bg-3) focus:ring-(--od-blue)"
+      />
 
       <ButtonGroup>
         <FunctionButton
           tooltipContent="Backward"
           icon={SkipBack}
           side="top"
-          className="bg-gray-100"
+          className="border border-(--od-border) text-(--od-fg-1) hover:bg-(--od-bg-3)"
           onClick={backward}
           disabled={!canBackward}
         />
@@ -105,27 +110,26 @@ function FloatintPrimaryControl() {
           tooltipContent="Toggle Run"
           icon={isAnimating ? Pause : Play}
           side="top"
-          className=" bg-green-600 not-disabled:hover:bg-green-700 text-white disabled:opacity-50 disabled:cursor-not-allowed!"
+          className="border border-(--od-blue) bg-(--od-blue) text-(--od-fg-0) not-disabled:hover:bg-(--od-blue)/50 disabled:opacity-50 disabled:cursor-not-allowed"
         />
         <FunctionButton
           onClick={forward}
           tooltipContent="Forward"
           icon={SkipForward}
           side="top"
-          className="bg-gray-100"
+          className="border border-(--od-border) text-(--od-fg-1) hover:bg-(--od-bg-3)"
           disabled={!canForward}
         />
       </ButtonGroup>
 
-      {/* Separator */}
       <Separator />
 
       <FunctionButton
         tooltipContent="Reset"
         icon={RotateCcw}
-        className=""
         side="top"
         onClick={handleReset}
+        className="border border-(--od-border) text-(--od-fg-1) hover:bg-(--od-bg-3)"
       />
     </div>
   );

@@ -23,7 +23,6 @@ function ControlTab({ className }: { className?: string }) {
   const setIsDirected = useGraphDataStore((state) => state.setIsDirected);
 
   const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
-  const speed = useAlgorithmStore((state) => state.speed);
   const isAnimating = useAlgorithmStore((state) => state.isAnimating);
   const startNodeId = useAlgorithmStore((state) => state.startNodeId);
   const setIsAnimating = useAlgorithmStore((state) => state.setIsAnimating);
@@ -63,7 +62,7 @@ function ControlTab({ className }: { className?: string }) {
   return (
     <aside
       className={cn(
-        "w-full h-full bg-white border-r space-y-4 border-slate-200 flex flex-col gap-4 overflow-y-auto",
+        "w-full h-full bg-(--od-bg-0) border-r border-(--od-border) space-y-4 flex flex-col gap-4 overflow-y-auto text-(--od-fg-1)",
         className,
       )}
     >

@@ -1,34 +1,37 @@
+import { useMemo } from "react";
 import { useAlgorithmStore, useGraphDataStore } from "@/stores";
 import { SCCStepsTable } from "./scc-steps-table";
 import { Step } from "@/types/algorithm-store";
 import { createGraphUtils } from "@/core/helpers/graph-utils";
-import { useMemo } from "react";
 
 export function SCCResult({ steps }: { steps: Step[] }) {
   const currentStepIndex = useAlgorithmStore((state) => state.currentStepIndex);
   const currentStep = steps[currentStepIndex] ?? steps[steps.length - 1];
 
   if (steps.length === 0) {
-    return <div>...</div>;
+    return (
+      <div className="grid h-full place-items-center text-sm text-(--od-fg-2)">
+        No steps to display. Run the algorithm first.
+      </div>
+    );
   }
 
   return (
-    <div className="flex gap-4 h-full ">
-      {/* Left: Steps table */}
-      <div className="flex-1 max-h-full overflow-y-auto custom-scrollbar">
+    <div className="flex h-full gap-4 bg-(--od-bg-0) text-(--od-fg-1)">
+      <div className="min-w-0 flex-1 max-h-full overflow-y-auto rounded-md border border-(--od-border) bg-(--od-bg-1) custom-scrollbar">
         <SCCStepsTable steps={steps} />
       </div>
 
-      {/* Right: disc/lowLink panel */}
-      <div className="top-0 w-56 basis-[200px] border-l p-3 overflow-y-auto custom-scrollbar">
-        <div className="text-xs font-semibold text-gray-500 mb-2 uppercase">disc / low-link</div>
+      <div className="top-0 w-56 basis-[220px] overflow-y-auto rounded-md border border-(--od-border) bg-(--od-bg-1) p-3 custom-scrollbar">
+        <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-(--od-fg-2)">
+          disc / low-link
+        </div>
         <DiscLowLinkTable disc={currentStep?.dsc} lowLink={currentStep?.lowLink} />
       </div>
     </div>
   );
 }
 
-// Sub-component hiển thị Map<nodeId, number>
 function DiscLowLinkTable({
   disc,
   lowLink,
@@ -49,30 +52,36 @@ function DiscLowLinkTable({
   }, [nodes, edges, isDirected]);
 
   if (!disc || disc.size === 0) {
-    return <span className="text-xs text-gray-400 italic">—</span>;
+    return <span className="text-xs italic text-(--od-fg-2)">—</span>;
   }
 
   return (
     <div className="space-y-1">
-      {/* Header */}
-      <div className="flex text-xs font-medium text-gray-400 pb-1 border-b">
+      <div className="flex border-b border-(--od-border) pb-1 text-xs font-medium text-(--od-fg-2)">
         <span className="flex-1">Node</span>
         <span className="w-10 text-center">disc</span>
         <span className="w-10 text-center">low</span>
       </div>
-      {Array.from(disc.entries()).map(([nodeId, discValue]) => (
-        <div key={nodeId} className="flex text-xs items-center">
-          <span className="flex-1 text-gray-700">
-            {graphUtils.getNode(nodeId)?.label || nodeId}
-          </span>
-          <span className="w-10 text-center font-mono text-blue-600">
-            {discValue === -1 ? "—" : discValue}
-          </span>
-          <span className="w-10 text-center font-mono text-indigo-600">
-            {lowLink?.get(nodeId) === -1 ? "—" : lowLink?.get(nodeId)}
-          </span>
-        </div>
-      ))}
+
+      {Array.from(disc.entries()).map(([nodeId, discValue]) => {
+        const lowValue = lowLink?.get(nodeId);
+        return (
+          <div
+            key={nodeId}
+            className="flex items-center rounded px-1 py-1 text-xs transition-colors hover:bg-(--od-bg-2)"
+          >
+            <span className="flex-1 truncate text-(--od-fg-0)">
+              {graphUtils.getNode(nodeId)?.label || nodeId}
+            </span>
+            <span className="w-10 text-center font-mono text-(--od-blue)">
+              {discValue === -1 ? "—" : discValue}
+            </span>
+            <span className="w-10 text-center font-mono text-(--od-purple)">
+              {lowValue === -1 || lowValue === undefined ? "—" : lowValue}
+            </span>
+          </div>
+        );
+      })}
     </div>
   );
 }

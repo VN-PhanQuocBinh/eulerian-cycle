@@ -62,16 +62,14 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
     <TableRow
       key={index}
       ref={rowRef}
-      className={cn("group", {
-        "bg-blue-50! border-l-4 border-l-blue-500": isActive,
+      className={cn("group border-b border-border hover:bg-(--od-bg-1)", {
+        "bg-(--od-bg-2)! border-l-4 border-l-(--od-blue)": isActive,
       })}
     >
       {/* Step Number */}
       <TableCell
-        className="border-l-4 text-center"
-        style={{
-          borderColor: componentColor,
-        }}
+        className="border-l-4 text-center text-foreground"
+        style={{ borderColor: componentColor }}
       >
         <JumpButton index={index} />
       </TableCell>
@@ -79,13 +77,15 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
       {/* Element */}
       <TableCell className="px-3 py-2 text-center text-nowrap">
         {element?.type === "node" ? (
-          <span className="px-2 py-0.5 rounded text-gray-700 bg-gray-100">{element.label}</span>
+          <span className="px-2 py-0.5 rounded border border-border bg-(--od-bg-2) text-foreground">
+            {element.label}
+          </span>
         ) : element?.type === "edge" ? (
-          <span className="text-gray-600">
+          <span className="text-foreground">
             {element.source.label} → {element.target.label}
           </span>
         ) : (
-          <span className="text-gray-400 italic">_</span>
+          <span className="text-(--od-fg-1) italic">_</span>
         )}
       </TableCell>
 
@@ -93,10 +93,10 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
       <TableCell className="px-3 py-2">
         {componentIndex >= 0 && (
           <span
-            className={cn("px-2 py-0.5 rounded bg-gray-100 font-medium text-nowrap")}
-            style={{
-              color: componentColor,
-            }}
+            className={cn(
+              "px-2 py-0.5 rounded border border-border bg-(--od-bg-1) font-medium text-nowrap",
+            )}
+            style={{ color: componentColor }}
           >
             Component {componentIndex + 1}
           </span>
@@ -111,8 +111,8 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
               <div className="flex-1 flex items-center gap-2 flex-wrap">
                 {visitedNodes.map((nodeLabel, idx) => (
                   <span
-                    key={idx}
-                    className="px-1.5 py-0.5 rounded text-xs text-gray-700 bg-gray-100"
+                    key={nodeLabel + idx}
+                    className="px-1.5 py-0.5 rounded text-xs border border-border bg-(--od-bg-1) text-(--od-fg-1)"
                   >
                     {nodeLabel}
                   </span>
@@ -121,7 +121,7 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
               <CopyButton text={arrayToString(visitedNodes)} />
             </>
           ) : (
-            <span className="text-gray-400 italic">No nodes visited</span>
+            <span className="text-(--od-fg-1) italic">No nodes visited</span>
           )}
         </div>
       </TableCell>
@@ -135,7 +135,7 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
                 {queueNodes.map((node) => (
                   <span
                     key={node.id}
-                    className="size-5 w-max text-purple-700 bg-purple-100 px-1.5 py-0.5 rounded text-xs"
+                    className="size-5 w-max px-1.5 py-0.5 rounded text-xs border border-(--od-border) bg-(--od-bg-1) text-(--od-fg-1)"
                   >
                     {node?.label}
                   </span>
@@ -144,13 +144,13 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
               <CopyButton text={arrayToString(queueNodes.map((node) => node?.label))} />
             </>
           ) : (
-            <span className="text-gray-400 italic">Empty Queue</span>
+            <span className="text-(--od-fg-1) italic">Empty Queue</span>
           )}
         </div>
       </TableCell>
 
       {/* Message */}
-      <TableCell className="px-3 py-2 text-gray-600 text-left">
+      <TableCell className="px-3 py-2 text-[#ABB2BF] text-left">
         {step.message?.map((msg, idx) => (
           <div key={idx}>- {msg}</div>
         ))}

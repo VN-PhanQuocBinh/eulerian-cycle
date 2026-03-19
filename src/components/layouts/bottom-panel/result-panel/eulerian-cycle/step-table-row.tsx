@@ -3,8 +3,7 @@ import { createGraphUtils } from "@/core/helpers/graph-utils";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { CopyButton } from "@/components/copy-button";
 import JumpButton from "../../jump-button";
-import { Step } from "@/types/algorithm-store";
-import { StepNodeElement } from "@/types/algorithm-store";
+import { Step, StepNodeElement } from "@/types/algorithm-store";
 import { cn } from "@/utils/cn";
 import { arrayToString } from "@/utils";
 import { useSmartScroll } from "@/hooks/use-smart-scroll";
@@ -29,66 +28,64 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
   }, [elements]);
 
   const stackNodes = useMemo(() => {
-    const stack = step.stack?.map((nodeId) => ({
-      id: nodeId,
-      label: graphUtils.getNode(nodeId)?.label || nodeId,
-    }));
-
-    return stack;
+    return (
+      step.stack?.map((nodeId) => ({
+        id: nodeId,
+        label: graphUtils.getNode(nodeId)?.label || nodeId,
+      })) ?? []
+    );
   }, [step.stack, graphUtils]);
 
   const circuitNodes = useMemo(() => {
-    return step.circuit?.map((nodeId) => ({
-      id: nodeId,
-      label: graphUtils.getNode(nodeId)?.label || nodeId,
-    }));
+    return (
+      step.circuit?.map((nodeId) => ({
+        id: nodeId,
+        label: graphUtils.getNode(nodeId)?.label || nodeId,
+      })) ?? []
+    );
   }, [step.circuit, graphUtils]);
 
   return (
     <TableRow
       key={index}
       ref={rowRef}
-      className={cn("group", {
-        "bg-blue-50! border-l-4 border-l-blue-500": isActive,
+      className={cn("group border-b border-(--od-border) hover:bg-(--od-bg-2)", {
+        "bg-(--od-bg-2) border-l-4 border-l-(--od-blue)": isActive,
       })}
     >
-      {/* Step Number */}
-      <TableCell>
+      <TableCell className="text-(--od-fg-1)">
         <JumpButton index={index} />
       </TableCell>
 
-      {/* Element */}
       <TableCell className="px-3 py-2 text-center">
         {currentNode ? (
-          <span className="size-5 text-gray-700 bg-slate-100 px-2 py-0.5 rounded">
+          <span className="inline-flex rounded border border-(--od-border) bg-(--od-bg-2) px-2 py-0.5 text-(--od-fg-0)">
             {currentNode.label}
           </span>
         ) : (
-          <span className="text-gray-400 italic">_</span>
+          <span className="italic text-(--od-fg-2)">_</span>
         )}
       </TableCell>
 
-      {/* Element */}
       <TableCell className="px-3 py-2 text-center">
         {nextNode ? (
-          <span className="size-5 text-gray-700 bg-slate-100 px-2 py-0.5 rounded">
+          <span className="inline-flex rounded border border-(--od-border) bg-(--od-bg-2) px-2 py-0.5 text-(--od-fg-0)">
             {nextNode.label}
           </span>
         ) : (
-          <span className="text-gray-400 italic">_</span>
+          <span className="italic text-(--od-fg-2)">_</span>
         )}
       </TableCell>
 
-      {/* Stack */}
       <TableCell className="px-3 py-2">
-        <div className="flex items-center max-w-[150px]">
-          {stackNodes && stackNodes.length > 0 ? (
+        <div className="flex max-w-[160px] items-center">
+          {stackNodes.length > 0 ? (
             <>
-              <div className="flex-1 flex items-center gap-2 flex-wrap">
+              <div className="flex flex-1 flex-wrap items-center gap-2">
                 {stackNodes.map((node, idx) => (
                   <span
-                    key={idx}
-                    className="size-5 w-max text-purple-700 bg-purple-100 px-1.5 py-0.5 rounded text-xs"
+                    key={node.id + "-" + idx}
+                    className="w-max rounded border border-(--od-border-strong) bg-(--od-bg-2) px-1.5 py-0.5 text-xs text-(--od-purple)"
                   >
                     {node.label}
                   </span>
@@ -97,21 +94,20 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
               <CopyButton text={arrayToString(stackNodes.map((node) => node.label))} />
             </>
           ) : (
-            <span className="text-gray-400 italic">Empty stack</span>
+            <span className="italic text-(--od-fg-2)">Empty stack</span>
           )}
         </div>
       </TableCell>
 
-      {/* Circuit */}
       <TableCell className="px-3 py-2">
-        <div className="flex items-center max-w-[200px]">
-          {circuitNodes && circuitNodes.length > 0 ? (
+        <div className="flex max-w-[220px] items-center">
+          {circuitNodes.length > 0 ? (
             <>
-              <div className="flex-1 flex items-center gap-2 flex-wrap">
+              <div className="flex flex-1 flex-wrap items-center gap-2">
                 {circuitNodes.map((node, idx) => (
                   <span
-                    key={idx}
-                    className="size-5 w-max text-orange-700 bg-orange-100 px-1.5 py-0.5 rounded text-xs"
+                    key={node.id + "-" + idx}
+                    className="w-max rounded border border-(--od-border-strong) bg-(--od-bg-2) px-1.5 py-0.5 text-xs text-(--od-yellow)"
                   >
                     {node.label}
                   </span>
@@ -120,13 +116,12 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
               <CopyButton text={arrayToString(circuitNodes.map((node) => node.label))} />
             </>
           ) : (
-            <span className="text-gray-400 italic">Empty circuit</span>
+            <span className="italic text-(--od-fg-2)">Empty circuit</span>
           )}
         </div>
       </TableCell>
 
-      {/* Message */}
-      <TableCell className="px-3 py-2 text-gray-600 text-left">
+      <TableCell className="px-3 py-2 text-left text-(--od-fg-1)">
         {step.message.map((msg, idx) => (
           <div key={idx}>- {msg}</div>
         ))}

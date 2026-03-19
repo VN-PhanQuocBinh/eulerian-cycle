@@ -74,7 +74,7 @@ function App() {
                   </NodeInputProvider>
                 </ResizablePanel>
 
-                <ResizableHandle withHandle className="bg-slate-300 hover:bg-slate-400" />
+                <ResizableHandle withHandle />
 
                 <ResizablePanel
                   panelRef={bottomPanelRef}

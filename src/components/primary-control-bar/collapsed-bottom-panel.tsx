@@ -36,29 +36,28 @@ function CollapsedBottomPanel() {
   };
 
   return (
-    <div className="flex items-stretch gap-1 bg-white shadow-md px-1 rounded-md">
-      <div className="flex items-stretch py-1 gap-1">
+    <div className="flex items-stretch gap-1 rounded-md border border-(--od-border) bg-(--od-bg-2) px-1 shadow-md">
+      <div className="flex items-stretch gap-1 py-1">
         <Tooltip content="Algorithm in action" side="top">
-          <div className=" h-full flex items-center gap-2 px-3 rounded-sm bg-gray-100">
-            <p className="text-xs font-semibold text-nowrap text-slate-700">{algorithmLabel}</p>
+          <div className="h-full flex items-center gap-2 rounded-sm border border-(--od-border) bg-(--od-bg-1) px-3">
+            <p className="text-xs font-semibold text-nowrap text-(--od-fg-0)">{algorithmLabel}</p>
           </div>
         </Tooltip>
 
         <Tooltip content="Current step" side="top">
-          <div className=" h-full flex items-center px-3 rounded-sm bg-gray-100 ">
-            <p className="text-xs font-semibold text-nowrap text-slate-700">
+          <div className="h-full flex items-center rounded-sm border border-(--od-border) bg-(--od-bg-1) px-3">
+            <p className="text-xs font-semibold text-nowrap text-(--od-fg-1)">
               {currentStepDisplay} / {steps.length}
             </p>
           </div>
         </Tooltip>
       </div>
 
-      <div className="flex items-center py-1 gap-1">
+      <div className="flex items-center gap-1 py-1">
         <FunctionButton
           onClick={handleToggleDetailsPanel}
           tooltipContent={isBottomPanelOpen ? "Hide Details Panel" : "Show Details Panel"}
           icon={isBottomPanelOpen ? ListChevronsDownUp : ListChevronsUpDown}
-          className=""
           side="top"
         />
 
@@ -66,15 +65,16 @@ function CollapsedBottomPanel() {
           <PopoverTrigger asChild>
             <FunctionButton tooltipContent="More options" icon={Ellipsis} side="top" />
           </PopoverTrigger>
-          <PopoverContent className="w-56" side="top">
+
+          <PopoverContent className="w-56 border-(--od-border) bg-(--od-bg-1)" side="top">
             <div className="flex flex-col gap-2">
-              <span className="text-sm font-semibold text-slate-700">More Options</span>
+              <span className="text-sm font-semibold text-(--od-fg-0)">More Options</span>
 
               <label
                 htmlFor="toggle-show-stack"
-                className="flex items-center justify-between px-2 py-1.5 rounded hover:bg-gray-100 cursor-pointer"
+                className="flex cursor-pointer items-center justify-between rounded px-2 py-1.5 hover:bg-(--od-bg-2)"
               >
-                <span className="text-sm text-slate-700">Show Stack</span>
+                <span className="text-sm text-(--od-fg-1)">Show Stack</span>
                 <Checkbox
                   id="toggle-show-stack"
                   checked={showStack}
@@ -84,9 +84,9 @@ function CollapsedBottomPanel() {
 
               <label
                 htmlFor="toggle-show-queue"
-                className="flex items-center justify-between px-2 py-1.5 rounded hover:bg-gray-100 cursor-pointer"
+                className="flex cursor-pointer items-center justify-between rounded px-2 py-1.5 hover:bg-(--od-bg-2)"
               >
-                <span className="text-sm text-slate-700">Show Queue</span>
+                <span className="text-sm text-(--od-fg-1)">Show Queue</span>
                 <Checkbox
                   id="toggle-show-queue"
                   checked={showQueue}

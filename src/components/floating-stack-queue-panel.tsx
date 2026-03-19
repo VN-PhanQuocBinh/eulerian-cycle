@@ -10,30 +10,30 @@ function StackDeck({ values }: { values: string[] }) {
   const hiddenCount = Math.max(0, values.length - MAX_STACK_VISIBLE);
 
   return (
-    <div className="rounded-lg bg-white p-1 shadow-md px-3 py-2 min-w-[200px] max-w-[200px]">
-      <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-slate-600">
+    <div className="min-w-[200px] max-w-[200px] rounded-lg border border-(--od-border) bg-(--od-bg-2) p-1 px-3 py-2 shadow-md">
+      <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-(--od-fg-1)">
         <Layers3 size={14} />
         <span>Stack</span>
-        <span className="flex-1 text-right">{values.length} items</span>
+        <span className="flex-1 text-right text-(--od-fg-2)">{values.length} items</span>
       </div>
 
-      <div className=" relative h-[200px]">
-        <div className="h-full space-y-1 overflow-y-auto small-scrollbar pr-1 py-2">
+      <div className="relative h-[200px]">
+        <div className="small-scrollbar h-full space-y-1 overflow-y-auto py-2 pr-1">
           {visibleCards.length > 0 ? (
             visibleCards.map((value, index) => {
               return (
                 <div
                   key={String(value) + "-" + String(index)}
-                  className=" left-0 right-0 origin-top rounded-md border border-purple-200 bg-white px-2 py-1.5 shadow-sm"
+                  className="left-0 right-0 origin-top rounded-md border border-(--od-border-strong) bg-(--od-bg-2) px-2 py-1.5 shadow-sm"
                 >
-                  <span className="block truncate text-xs text-center font-medium text-purple-700">
+                  <span className="block truncate text-center text-xs font-medium text-(--od-purple)">
                     {value}
                   </span>
                 </div>
               );
             })
           ) : (
-            <div className="h-full grid place-items-center text-xs italic text-slate-400">
+            <div className="grid h-full place-items-center text-xs italic text-(--od-fg-2)">
               Empty stack
             </div>
           )}
@@ -41,7 +41,7 @@ function StackDeck({ values }: { values: string[] }) {
       </div>
 
       {hiddenCount > 0 && (
-        <p className="text-[11px] font-medium text-purple-600">+{hiddenCount} more</p>
+        <p className="text-[11px] font-medium text-(--od-purple)">+{hiddenCount} more</p>
       )}
     </div>
   );
@@ -59,11 +59,11 @@ function QueueRail({ values }: { values: string[] }) {
   };
 
   return (
-    <div className="rounded-lg bg-white p-1 shadow-md px-3 py-2 min-w-[200px] max-w-[360px]">
-      <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-slate-600">
+    <div className="min-w-[200px] max-w-[360px] rounded-lg border border-(--od-border) bg-(--od-bg-2) p-1 px-3 py-2 shadow-md">
+      <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-(--od-fg-1)">
         <ListOrdered size={14} />
         <span>Queue</span>
-        <span className="flex-1 text-right">{values.length} items</span>
+        <span className="flex-1 text-right text-(--od-fg-2)">{values.length} items</span>
       </div>
 
       <div
@@ -73,15 +73,14 @@ function QueueRail({ values }: { values: string[] }) {
       >
         {values.length > 0 ? (
           <div className="inline-flex min-w-max items-center gap-1.5">
-            {/* [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] */}
             {values.map((value, index) => {
               return (
                 <span
                   key={String(value) + "-" + String(index)}
                   className={
                     index === 0
-                      ? "rounded-sm border border-emerald-600 bg-emerald-600 px-2.5 py-1 text-xs font-semibold text-white"
-                      : "rounded-sm border border-emerald-200 bg-white px-2.5 py-1 text-xs font-medium text-emerald-700"
+                      ? "rounded-sm border border-(--od-green) bg-(--od-green) px-2.5 py-1 text-xs font-semibold text-(--primary-foreground)"
+                      : "rounded-sm border border-(--od-border-strong) bg-(--od-bg-2) px-2.5 py-1 text-xs font-medium text-(--od-fg-1)"
                   }
                 >
                   {value}
@@ -90,11 +89,11 @@ function QueueRail({ values }: { values: string[] }) {
             })}
           </div>
         ) : (
-          <div className="py-1 text-xs italic text-slate-400">Empty queue</div>
+          <div className="py-1 text-xs italic text-(--od-fg-2)">Empty queue</div>
         )}
       </div>
 
-      <div className="mt-1 flex items-center justify-between text-[10px] uppercase tracking-wide text-slate-400">
+      <div className="mt-1 flex items-center justify-between text-[10px] uppercase tracking-wide text-(--od-fg-2)">
         <span>Front</span>
         <span>Rear</span>
       </div>
@@ -125,7 +124,7 @@ function FloatingStackQueuePanel() {
   });
 
   return (
-    <div className="absolute bottom-4 right-4 flex flex-col items-end z-20 max-w-[min(96vw,640px)] space-y-2">
+    <div className="absolute bottom-4 right-4 z-20 flex max-w-[min(96vw,640px)] flex-col items-end space-y-2">
       {showStack && <StackDeck values={stackValues} />}
       {showQueue && <QueueRail values={queueValues} />}
     </div>

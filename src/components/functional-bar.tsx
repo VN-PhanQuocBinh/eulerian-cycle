@@ -22,7 +22,7 @@ const modes: { value: GraphMode; label: string; icon: LucideIcon }[] = [
 ];
 
 function Separator() {
-  return <div className="w-px min-h-full bg-gray-100" />;
+  return <div className="w-px min-h-full bg-(--od-border)" />;
 }
 
 function ButtonGroup({ children }: { children: React.ReactNode }) {
@@ -61,11 +61,11 @@ function FunctionalBar() {
   };
 
   return (
-    <div className="absolute top-4 right-4 z-10 flex gap-1 bg-white shadow-md px-1 rounded-md">
+    <div className="absolute top-4 right-4 z-10 flex gap-1 rounded-md border border-(--od-border) bg-(--od-bg-2) px-1 shadow-md">
       <ButtonGroup>
         <ToggleGroup
           type="single"
-          className="gap-0 bg-gray-100 px-1 rounded-sm h-full"
+          className="h-full gap-0 rounded-sm bg-(--od-bg-1) px-1"
           onValueChange={handleValueChange}
           value={interactionMode}
         >
@@ -73,7 +73,7 @@ function FunctionalBar() {
             <Tooltip key={value} content={label} asChild={false}>
               <ToggleGroupItem
                 value={value}
-                className="data-[state=on]:bg-blue-600 data-[state=on]:text-white outline-none"
+                className="text-(--od-fg-1) hover:bg-(--od-bg-3) data-[state=on]:bg-(--od-blue) data-[state=on]:text-(--primary-foreground) outline-none"
                 asChild
               >
                 <Icon />
@@ -90,7 +90,6 @@ function FunctionalBar() {
         />
       </ButtonGroup>
 
-      {/* Separator */}
       <Separator />
 
       <ButtonGroup>
@@ -98,14 +97,12 @@ function FunctionalBar() {
           onClick={handleZoomIn}
           tooltipContent="Zoom In"
           icon={ZoomIn}
-          className=""
           side="bottom"
         />
         <FunctionButton
           onClick={handleZoomOut}
           tooltipContent="Zoom Out"
           icon={ZoomOut}
-          className=""
           side="bottom"
         />
       </ButtonGroup>
@@ -118,7 +115,7 @@ function FunctionalBar() {
           tooltipContent="Clear Graph"
           icon={BrushCleaning}
           side="bottom"
-          className=" hover:text-red-600 hover:bg-red-100"
+          className="hover:bg-(--od-bg-3) hover:text-(--od-red)"
         />
       </ButtonGroup>
     </div>
