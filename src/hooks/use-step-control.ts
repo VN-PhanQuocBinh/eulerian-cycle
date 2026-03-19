@@ -26,8 +26,13 @@ export const useStepControl = () => {
 
     if (!isLastStep(currentStepIndex)) {
       const nextIdx = currentStepIndex + 1;
+      const elements = steps[nextIdx].elements;
+
+      elements.forEach((elem) => {
+        graphService.highlightElement(elem.id, elem.classes, elem.type === "node");
+      });
+
       nextStep();
-      syncUIToStep(nextIdx);
     }
   }, [nextStep, syncUIToStep, isLastStep, steps]);
 

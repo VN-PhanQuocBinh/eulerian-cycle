@@ -43,6 +43,8 @@ function FunctionalBar() {
   };
 
   const handleValueChange = (value: GraphMode) => {
+    if (!value) return;
+
     setMode(value);
   };
 

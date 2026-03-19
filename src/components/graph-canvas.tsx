@@ -2,13 +2,14 @@ import { useEffect, useRef } from "react";
 import cytoscape from "cytoscape";
 import edgehandles from "cytoscape-edgehandles";
 import FunctionalBar from "./functional-bar";
-import FloatintPrimaryControl from "./floating-primary-control";
+import FloatintPrimaryControl from "./primary-control-bar/floating-primary-control";
 import dagre from "cytoscape-dagre";
 import { useGraphDataStore } from "@/stores/graph-data-store";
 import { graphService } from "@/services/graph-service";
 import { useGraphInteractions } from "@/hooks/use-graph-interactions";
 import { useUIStore } from "@/stores";
 import { useFileOperations } from "@/hooks/use-file-operations";
+import BottomToolbar from "./bottom-toolbar";
 
 cytoscape.use(edgehandles);
 cytoscape.use(dagre);
@@ -71,7 +72,7 @@ const GraphCanvas = () => {
       <div ref={containerRef} className="w-full h-full" />
 
       <FunctionalBar />
-      <FloatintPrimaryControl />
+      <BottomToolbar />
     </div>
   );
 };

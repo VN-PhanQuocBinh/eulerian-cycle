@@ -8,7 +8,7 @@ export const ALGORITHM_LAYOUT_CONFIGS: Record<GraphAlgorithm, cytoscape.LayoutOp
     animationDuration: 800,
     refresh: 20,
     fit: true,
-    padding: 50,
+    padding: 100,
     nodeRepulsion: () => 8000, // Đẩy các cụm xa nhau ra
     idealEdgeLength: () => 50,
     edgeElasticity: () => 100,
@@ -24,7 +24,7 @@ export const ALGORITHM_LAYOUT_CONFIGS: Record<GraphAlgorithm, cytoscape.LayoutOp
     rankSep: 10, // Khoảng cách giữa các tầng
     animate: true,
     animationDuration: 600,
-    padding: 30,
+    padding: 100,
     fit: true,
   } as cytoscape.LayoutOptions,
 };
