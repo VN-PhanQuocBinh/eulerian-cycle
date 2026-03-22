@@ -61,7 +61,7 @@ function FunctionalBar() {
   };
 
   return (
-    <div className="absolute top-4 right-4 z-10 flex gap-1 rounded-md border border-(--od-border) bg-(--od-bg-2) px-1 shadow-md">
+    <div className="absolute top-4 right-4 z-10 flex gap-1 rounded-md border-4 border-(--od-border) bg-(--od-bg-2) px-1 shadow-md">
       <ButtonGroup>
         <ToggleGroup
           type="single"
@@ -115,7 +115,7 @@ function FunctionalBar() {
           tooltipContent="Clear Graph"
           icon={BrushCleaning}
           side="bottom"
-          className="hover:bg-(--od-bg-3) hover:text-(--od-red)"
+          className="hover:bg-(--od-red)/20 text-(--od-red)"
         />
       </ButtonGroup>
     </div>

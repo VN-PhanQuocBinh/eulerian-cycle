@@ -88,7 +88,7 @@ function FloatintPrimaryControl() {
   };
 
   return (
-    <div className="flex items-center gap-1 rounded-md border border-(--od-border) bg-(--od-bg-2) px-1 shadow-md">
+    <div className="flex items-center gap-1 rounded-md border-4 border-(--od-border) bg-(--od-bg-2) px-1 shadow-md">
       <SpeedControl
         speed={speed}
         disabled={false}

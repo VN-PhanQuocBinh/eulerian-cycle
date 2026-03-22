@@ -6,6 +6,7 @@ import { GraphAlgorithm } from "@/types/algorithm-store";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tooltip } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 
 const ALGORITHM_LABELS: Record<GraphAlgorithm, string> = {
   "eulerian-cycle": "Eulerian Cycle",
@@ -36,17 +37,22 @@ function CollapsedBottomPanel() {
   };
 
   return (
-    <div className="flex items-stretch gap-1 rounded-md border border-(--od-border) bg-(--od-bg-2) px-1 shadow-md">
+    <div className="flex items-stretch gap-1 rounded-md border-4 border-(--od-border) bg-(--od-bg-2) px-1 shadow-md">
       <div className="flex items-stretch gap-1 py-1">
         <Tooltip content="Algorithm in action" side="top">
-          <div className="h-full flex items-center gap-2 rounded-sm border border-(--od-border) bg-(--od-bg-1) px-3">
-            <p className="text-xs font-semibold text-nowrap text-(--od-fg-0)">{algorithmLabel}</p>
+          <div className="h-full flex items-center gap-2 rounded-sm px-3">
+            <p className="text-base font-semibold text-nowrap text-(--od-yellow) select-none">{algorithmLabel}</p>
           </div>
         </Tooltip>
 
         <Tooltip content="Current step" side="top">
-          <div className="h-full flex items-center rounded-sm border border-(--od-border) bg-(--od-bg-1) px-3">
-            <p className="text-xs font-semibold text-nowrap text-(--od-fg-1)">
+          <div
+            className={cn(
+              "h-full flex items-center rounded-sm border border-(--od-border) bg-(--od-bg-1) text-(--od-fg-1) px-3",
+              { "bg-(--od-fg-0) text-(--od-bg-1)": currentStepDisplay === steps.length },
+            )}
+          >
+            <p className="text-xs font-semibold text-nowrap select-none">
               {currentStepDisplay} / {steps.length}
             </p>
           </div>
