@@ -8,6 +8,7 @@ import type { PanelImperativeHandle } from "react-resizable-panels";
 import { useEffect, useRef } from "react";
 import { useAlgorithmSync } from "./hooks/use-algorithm-sync";
 import { useUIStore } from "./stores";
+import TopMenuBar from "@/components/layouts/top-menu-bar";
 
 function App() {
   const isSidebarOpen = useUIStore((state) => state.isSidebarOpen);
@@ -19,24 +20,17 @@ function App() {
   useAlgorithmSync();
 
   useEffect(() => {
-    if (isSidebarOpen) {
-      sidebarPanelRef.current?.expand();
-    } else {
-      sidebarPanelRef.current?.collapse();
-    }
+    if (isSidebarOpen) sidebarPanelRef.current?.expand();
+    else sidebarPanelRef.current?.collapse();
   }, [isSidebarOpen]);
 
   useEffect(() => {
-    if (isBottomPanelOpen) {
-      bottomPanelRef.current?.expand();
-    } else {
-      bottomPanelRef.current?.collapse();
-    }
+    if (isBottomPanelOpen) bottomPanelRef.current?.expand();
+    else bottomPanelRef.current?.collapse();
   }, [isBottomPanelOpen]);
 
   const handleResize = () => {
     if (!sidebarPanelRef.current) return;
-
     const isCollapsed = sidebarPanelRef.current.isCollapsed();
     toggleSidebar(!isCollapsed);
   };
@@ -49,47 +43,51 @@ function App() {
 
   return (
     <ToastProvider>
-      <div className="flex h-screen w-screen bg-slate-100 overflow-hidden text-slate-900">
-        <ResizablePanelGroup orientation="horizontal">
-          <ResizablePanel
-            minSize={260}
-            defaultSize={300}
-            maxSize={450}
-            panelRef={sidebarPanelRef}
-            collapsible
-            collapsedSize={56}
-            onResize={handleResize}
-          >
-            <NewSidebar isOpen={isSidebarOpen} onOpenChange={toggleSidebar} />
-          </ResizablePanel>
+      <div className="flex h-screen w-screen flex-col overflow-hidden bg-(--od-bg-0) text-(--od-fg-0)">
+        <TopMenuBar />
 
-          <ResizableHandle withHandle />
+        <div className="flex-1 overflow-hidden">
+          <ResizablePanelGroup orientation="horizontal" className="h-full">
+            <ResizablePanel
+              minSize={260}
+              defaultSize={300}
+              maxSize={450}
+              panelRef={sidebarPanelRef}
+              collapsible
+              collapsedSize={56}
+              onResize={handleResize}
+            >
+              <NewSidebar isOpen={isSidebarOpen} onOpenChange={toggleSidebar} />
+            </ResizablePanel>
 
-          <ResizablePanel>
-            <main className="flex-1 h-full">
-              <ResizablePanelGroup orientation="vertical">
-                <ResizablePanel defaultSize="75%" minSize="25%" className="">
-                  <NodeInputProvider>
-                    <GraphCanvas />
-                  </NodeInputProvider>
-                </ResizablePanel>
+            <ResizableHandle withHandle />
 
-                <ResizableHandle withHandle />
+            <ResizablePanel>
+              <main className="flex h-full flex-1">
+                <ResizablePanelGroup orientation="vertical">
+                  <ResizablePanel defaultSize="75%" minSize="25%">
+                    <NodeInputProvider>
+                      <GraphCanvas />
+                    </NodeInputProvider>
+                  </ResizablePanel>
 
-                <ResizablePanel
-                  panelRef={bottomPanelRef}
-                  collapsible
-                  collapsedSize={0}
-                  defaultSize="25%"
-                  minSize="25%"
-                  onResize={handleBottomPanelResize}
-                >
-                  <BottomPanel />
-                </ResizablePanel>
-              </ResizablePanelGroup>
-            </main>
-          </ResizablePanel>
-        </ResizablePanelGroup>
+                  <ResizableHandle withHandle />
+
+                  <ResizablePanel
+                    panelRef={bottomPanelRef}
+                    collapsible
+                    collapsedSize={0}
+                    defaultSize="25%"
+                    minSize="25%"
+                    onResize={handleBottomPanelResize}
+                  >
+                    <BottomPanel />
+                  </ResizablePanel>
+                </ResizablePanelGroup>
+              </main>
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        </div>
       </div>
     </ToastProvider>
   );

@@ -284,3 +284,34 @@ button {
     @apply bg-background text-foreground;
   }
 }
+
+.window-drag {
+  -webkit-app-region: drag;
+}
+
+.window-no-drag {
+  -webkit-app-region: no-drag;
+}
+
+.menu-item {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 13px;
+  color: var(--od-fg-1);
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.menu-item:hover {
+  background: var(--od-bg-3);
+  color: var(--od-fg-0);
+}
+
+.menu-item span {
+  color: var(--od-fg-2);
+  font-size: 12px;
+}

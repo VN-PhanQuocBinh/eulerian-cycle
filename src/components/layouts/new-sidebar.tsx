@@ -30,7 +30,7 @@ export function NewSidebar({ isOpen, onOpenChange }: NewSidebarProps) {
         onOpenChange(true);
       }}
       orientation="vertical"
-      className="h-screen tabs-bar gap-0"
+      className="h-full tabs-bar gap-0"
     >
       <TabsList variant="line" className="flex flex-col justify-start p-0 py-2 bg-(--od-bg-1) ">
         <TabsTrigger

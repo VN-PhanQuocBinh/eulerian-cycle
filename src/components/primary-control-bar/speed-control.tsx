@@ -44,7 +44,7 @@ function SpeedControl({ className, speed, disabled, setSpeed }: SpeedControlProp
         </Select.Icon>
       </Select.Trigger>
 
-      <SelectContent position="popper" side="top" sideOffset={8} align="center">
+      <SelectContent position="popper" side="top" sideOffset={8} align="center" className="bg-(--od-bg-0)">
         <Select.Viewport className="p-1">
           {SPEED_VALUES.map((value) => (
             <SelectItem key={String(value)} value={String(value)}>
