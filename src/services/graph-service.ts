@@ -254,7 +254,7 @@ class GraphService implements IGraphService {
       this.cy!.animate({
         fit: {
           eles: this.cy!.elements(),
-          padding: 50,
+          padding: 100,
         },
         duration: 500,
         easing: "ease-in-out-cubic",

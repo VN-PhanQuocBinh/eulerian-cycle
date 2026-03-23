@@ -26,23 +26,23 @@ export function EulerianCycleStepsTable({ steps }: Props) {
 
   if (steps.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-400 text-sm">
+      <div className="grid h-full place-items-center py-8 text-sm text-(--od-fg-2)">
         No steps to display. Run the algorithm first.
       </div>
     );
   }
 
   return (
-    <div className="bg-white px-4 h-full overflow-y-auto custom-scrollbar">
-      <Table className="">
-        <TableHeader className="">
-          <TableRow className="top-0 border-b border-blue-200">
-            <TableHead className="w-10 bg-gray-100 text-blue-800">Step</TableHead>
-            <TableHead className="bg-gray-100 text-blue-800 text-center">Current</TableHead>
-            <TableHead className="bg-gray-100 text-blue-800 text-center">Next</TableHead>
-            <TableHead className="bg-gray-100 text-blue-800">Stack</TableHead>
-            <TableHead className="bg-gray-100 text-blue-800">Circuit</TableHead>
-            <TableHead className="bg-gray-100 text-blue-800">Explain</TableHead>
+    <div className="h-full overflow-y-auto custom-scrollbar rounded-md border border-(--od-border) bg-(--od-bg-1) px-4">
+      <Table className="text-(--od-fg-1)">
+        <TableHeader>
+          <TableRow className="top-0 border-b border-(--od-border) hover:bg-transparent">
+            <TableHead className="w-10 bg-(--od-bg-2) text-(--od-blue)">Step</TableHead>
+            <TableHead className="bg-(--od-bg-2) text-(--od-blue) text-center">Current</TableHead>
+            <TableHead className="bg-(--od-bg-2) text-(--od-blue) text-center">Next</TableHead>
+            <TableHead className="bg-(--od-bg-2) text-(--od-blue)">Stack</TableHead>
+            <TableHead className="bg-(--od-bg-2) text-(--od-blue)">Circuit</TableHead>
+            <TableHead className="bg-(--od-bg-2) text-(--od-blue)">Explain</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

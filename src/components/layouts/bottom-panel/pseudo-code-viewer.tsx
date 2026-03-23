@@ -93,33 +93,42 @@ export function PseudoCodeViewer({ className }: PseudoCodeViewerProps) {
   return (
     <div
       className={cn(
-        "h-full overflow-y-auto custom-scrollbar bg-slate-50 dark:bg-slate-900/50",
+        "h-full overflow-y-auto custom-scrollbar rounded-md border border-(--od-border) bg-(--od-bg-1)",
         className,
       )}
     >
-      <div className="p-4 font-mono text-sm">
-        {lines.map((line) => (
-          <div
-            key={line.id + line.text} // Add timestamp to force re-render when lines change
-            className={cn("py-1.5 px-3 rounded transition-colors duration-200 flex", {
-              "bg-primary/10": currentHighlightedIds.includes(line.id),
-            })}
-          >
-            <span className="inline-block w-8 text-slate-400 select-none mr-4 shrink-0">
-              {line.id}
-            </span>
-            <span
-              className={cn("text-slate-900 dark:text-slate-300", {
-                "font-semibold text-slate-900 dark:text-slate-100": currentHighlightedIds.includes(
-                  line.id,
-                ),
-              })}
-              style={{ paddingLeft: `${line.indent * 24}px` }}
+      <div className="p-4 font-mono text-sm text-(--od-fg-1)">
+        {lines.length === 0 && (
+          <div className="py-8 text-center text-(--od-fg-2)">No pseudo code available.</div>
+        )}
+
+        {lines.map((line, index) => {
+          const isActive = currentHighlightedIds.includes(line.id);
+
+          return (
+            <div
+              key={String(line.id) + line.text}
+              className={cn(
+                "flex border border-transparent px-3 py-1.5 transition-colors duration-200",
+                {
+                  "bg-(--od-bg-3) ": isActive,
+                },
+              )}
             >
-              {line.text}
-            </span>
-          </div>
-        ))}
+              <span className="mr-4 inline-block w-8 shrink-0 select-none text-right text-(--od-fg-2)">
+                {index + 1}
+              </span>
+              <span
+                className={cn("text-(--od-fg-1)", {
+                  "font-semibold text-(--od-fg-0)": isActive,
+                })}
+                style={{ paddingLeft: String(line.indent * 24) + "px" }}
+              >
+                {line.text}
+              </span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

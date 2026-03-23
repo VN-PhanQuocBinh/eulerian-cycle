@@ -55,16 +55,16 @@ export function ConnectedComponentsStepsTable({ steps }: Props) {
   });
 
   return (
-    <div className="bg-white px-4 h-full overflow-y-auto custom-scrollbar">
-      <Table>
+    <div className="h-full overflow-y-auto custom-scrollbar bg-[#1E2127] px-4">
+      <Table className="text-[#ABB2BF]">
         <TableHeader>
-          <TableRow className="border-b border-blue-200">
-            <TableHead className="w-10 bg-gray-100 text-blue-800">Step</TableHead>
-            <TableHead className="bg-gray-100 text-blue-800 text-center">Element</TableHead>
-            <TableHead className="bg-gray-100 text-blue-800">Component</TableHead>
-            <TableHead className="bg-gray-100 text-blue-800">Visited Nodes</TableHead>
-            <TableHead className="bg-gray-100 text-blue-800">Queue</TableHead>
-            <TableHead className="bg-gray-100 text-blue-800">Explain</TableHead>
+          <TableRow className="border-b border-[#3E4451]">
+            <TableHead className="w-10 bg-[#282C34] text-[#61AFEF]">Step</TableHead>
+            <TableHead className="bg-[#282C34] text-[#61AFEF] text-center">Element</TableHead>
+            <TableHead className="bg-[#282C34] text-[#61AFEF]">Component</TableHead>
+            <TableHead className="bg-[#282C34] text-[#61AFEF]">Visited Nodes</TableHead>
+            <TableHead className="bg-[#282C34] text-[#61AFEF]">Queue</TableHead>
+            <TableHead className="bg-[#282C34] text-[#61AFEF]">Explain</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

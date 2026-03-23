@@ -27,19 +27,19 @@ function RunConfigSelect<T extends string>({
 }: AlgorithmsSelectProps<T>) {
   return (
     <section className={cn("", className)}>
-      <h3 className="text-base font-semibold text-slate-700 mb-2 flex items-center gap-2">
+      <h3 className="text-base font-semibold text-(--od-fg-0) mb-2 flex items-center gap-2">
         {title}
       </h3>
 
       <Select.Root defaultValue={currentValue} value={currentValue as T} onValueChange={onSelect}>
         <Select.Trigger
-          className="w-full flex items-center data-placeholder:text-slate-400 data-placeholder:italic justify-between px-3 py-2 bg-gray-100 border border-slate-300 rounded-lg text-sm text-slate-700 hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full flex items-center data-placeholder:text-(--od-fg-2) data-placeholder:italic justify-between px-3 py-2 bg-(--od-bg-2) border border-(--od-border) rounded-lg text-sm text-(--od-fg-1) hover:border-(--od-border-strong) focus:outline-none focus:ring-2 focus:ring-(--od-blue) transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           disabled={isAnimating || options.length === 0}
         >
           <Select.Value placeholder={placeholder} defaultValue={currentValue} className="" />
 
           <Select.Icon>
-            <ChevronDown size={16} className="text-slate-400" />
+            <ChevronDown size={16} className="text-(--od-fg-2)" />
           </Select.Icon>
         </Select.Trigger>
 

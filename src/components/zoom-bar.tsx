@@ -1,11 +1,8 @@
-import { ZoomIn, ZoomOut, LayoutDashboard } from "lucide-react";
+import { ZoomIn, ZoomOut } from "lucide-react";
 import FunctionButton from "@/components/ui/function-button";
 import { graphService } from "@/services/graph-service";
-import { useAlgorithmStore } from "@/stores";
 
 function ZoomBar() {
-  const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
-
   const handleZoomIn = () => {
     graphService.zoomGraph("in");
   };
@@ -14,22 +11,22 @@ function ZoomBar() {
     graphService.zoomGraph("out");
   };
 
-  const handleAutoLayout = () => {
-    graphService.autoLayout(currentAlgorithm);
-  };
-
   return (
-    <div className="absolute bottom-4 right-4 z-50 flex flex-row gap-2">
+    <div className="absolute bottom-4 right-4 z-50 flex flex-col gap-2">
       <FunctionButton
-        onClick={handleAutoLayout}
-        tooltipContent="Auto layout"
-        icon={LayoutDashboard}
-        className="mr-6"
+        onClick={handleZoomIn}
+        tooltipContent="Zoom In"
+        icon={ZoomIn}
+        className="bg-white shadow"
+        side="left"
       />
-
-      <FunctionButton onClick={handleZoomOut} tooltipContent="Zoom Out" icon={ZoomOut} />
-
-      <FunctionButton onClick={handleZoomIn} tooltipContent="Zoom In" icon={ZoomIn} />
+      <FunctionButton
+        onClick={handleZoomOut}
+        tooltipContent="Zoom Out"
+        icon={ZoomOut}
+        className="bg-white shadow"
+        side="left"
+      />
     </div>
   );
 }

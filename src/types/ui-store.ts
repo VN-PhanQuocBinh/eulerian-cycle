@@ -1,5 +1,5 @@
-export type GraphMode = "view" | "add-node" | "add-edge" | "delete";
 import { BottomPanelTab } from "@/components/layouts/bottom-panel";
+export type GraphMode = "view" | "add-node" | "add-edge" | "delete";
 
 export interface UIStore {
   // State
@@ -9,6 +9,8 @@ export interface UIStore {
   bottomPanelTab: BottomPanelTab;
   isBottomPanelOpen: boolean;
   isSidebarOpen: boolean;
+  showStack: boolean;
+  showQueue: boolean;
 
   // Actions
   setMode: (mode: GraphMode) => void;
@@ -16,4 +18,6 @@ export interface UIStore {
   setBottomPanelTab: (tab: BottomPanelTab) => void;
   toggleBottomPanel: (isOpen: boolean) => void;
   toggleSidebar: (isOpen: boolean) => void;
+  toggleShowStack: (show: boolean) => void;
+  toggleShowQueue: (show: boolean) => void;
 }

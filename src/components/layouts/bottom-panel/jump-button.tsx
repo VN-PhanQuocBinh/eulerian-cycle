@@ -14,7 +14,7 @@ function JumpButton({ index }: Props) {
       <Tooltip content={`Jump to step ${index + 1}`} side="right">
         <button
           onClick={() => jumpTo(index)}
-          className="text-gray-800 p-1 rounded hidden group-hover:block"
+          className="text-foreground p-1 rounded hidden group-hover:block"
         >
           <Target size={24} />
         </button>

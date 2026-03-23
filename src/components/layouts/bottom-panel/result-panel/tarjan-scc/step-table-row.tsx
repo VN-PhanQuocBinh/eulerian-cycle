@@ -58,13 +58,13 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
     <TableRow
       key={index}
       ref={rowRef}
-      className={cn("group", {
-        "bg-blue-50! border-l-4 border-l-blue-500": isActive,
+      className={cn("group border-b border-(--od-border) hover:bg-(--od-bg-2)", {
+        "bg-(--od-bg-2)": isActive,
       })}
     >
       {/* Step Number */}
       <TableCell
-        className="border-l-4"
+        className="border-l-4 text-(--od-fg-1)"
         style={{ borderColor: componentIndex >= 0 ? componentColor : "transparent" }}
       >
         <JumpButton index={index} />
@@ -73,15 +73,15 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
       {/* Element */}
       <TableCell className="px-3 py-2 text-center">
         {element?.type === "node" ? (
-          <span className={cn("px-2 py-0.5 rounded font-medium text-gray-700 bg-gray-100")}>
+          <span className="px-2 py-0.5 rounded font-medium text-(--od-fg-0) bg-(--od-bg-2) border border-(--od-border)">
             {element.label}
           </span>
         ) : element?.type === "edge" && step.elements.length > 1 ? (
-          <span className="text-gray-600">
+          <span className="text-(--od-fg-1)">
             {element.source.label} → {element.target.label}
           </span>
         ) : (
-          <span className="text-gray-400 italic">_</span>
+          <span className="text-(--od-fg-2) italic">_</span>
         )}
       </TableCell>
 
@@ -94,7 +94,7 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
                 {stackNodes.map((node) => (
                   <span
                     key={node.id}
-                    className="px-1.5 py-0.5 rounded text-xs text-indigo-700 bg-indigo-100"
+                    className="px-1.5 py-0.5 rounded text-xs text-(--od-purple) bg-(--od-bg-2) border border-(--od-border-strong)"
                   >
                     {node.label}
                   </span>
@@ -103,7 +103,7 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
               <CopyButton text={`[${stackNodes.map((n) => n.label).join(", ")}]`} />
             </>
           ) : (
-            <span className="text-gray-400 italic">Empty</span>
+            <span className="text-(--od-fg-2) italic">Empty</span>
           )}
         </div>
       </TableCell>
@@ -112,18 +112,18 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
       <TableCell className="px-3 py-2">
         {componentIndex >= 0 ? (
           <span
-            className="px-2 py-0.5 rounded bg-gray-100 font-medium"
+            className="px-2 py-0.5 rounded bg-(--od-bg-2) border border-(--od-border) font-medium"
             style={{ color: componentColor }}
           >
             SCC {componentIndex + 1}
           </span>
         ) : (
-          <span className="text-gray-400 italic">—</span>
+          <span className="text-(--od-fg-2) italic">—</span>
         )}
       </TableCell>
 
       {/* Message */}
-      <TableCell className="px-3 py-2 text-gray-600 text-left">
+      <TableCell className="px-3 py-2 text-(--od-fg-1) text-left">
         {step.message?.map((msg, idx) => (
           <div key={idx}>- {msg}</div>
         ))}

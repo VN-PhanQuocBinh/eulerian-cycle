@@ -15,8 +15,8 @@ const TooltipContent = React.forwardRef<
     ref={ref}
     sideOffset={sideOffset}
     className={`
-      z-50 overflow-hidden rounded-lg border border-slate-200 bg-white px-3 py-1.5 
-      text-xs text-slate-700 shadow-md animate-in fade-in-0 zoom-in-95 
+      z-50 overflow-hidden rounded-lg bg-(--dark-color-2) px-3 py-1.5 
+      text-xs text-white shadow-md animate-in fade-in-0 zoom-in-95 
       data-[state=closed]:animate-out data-[state=closed]:fade-out-0 
       data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 
       data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 
@@ -34,13 +34,20 @@ interface TooltipProps {
   content: React.ReactNode;
   side?: "top" | "right" | "bottom" | "left";
   delayDuration?: number;
+  asChild?: boolean;
 }
 
-const Tooltip = ({ children, content, side = "bottom", delayDuration = 200 }: TooltipProps) => {
+const Tooltip = ({
+  children,
+  content,
+  side = "bottom",
+  delayDuration = 200,
+  asChild = true,
+}: TooltipProps) => {
   return (
     <TooltipProvider delayDuration={delayDuration}>
       <TooltipRoot>
-        <TooltipTrigger asChild>{children}</TooltipTrigger>
+        <TooltipTrigger asChild={asChild}>{children}</TooltipTrigger>
         <TooltipContent side={side}>{content}</TooltipContent>
       </TooltipRoot>
     </TooltipProvider>

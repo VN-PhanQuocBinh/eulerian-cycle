@@ -1,8 +1,8 @@
+import { useMemo } from "react";
 import { Table, TableHeader, TableBody, TableRow, TableHead } from "@/components/ui/table";
 import { useAlgorithmStore, useGraphDataStore } from "@/stores";
 import { Step } from "@/types/algorithm-store";
 import { createGraphUtils } from "@/core/helpers/graph-utils";
-import { useMemo } from "react";
 import StepTableRow from "./step-table-row";
 
 interface Props {
@@ -25,24 +25,25 @@ export function SCCStepsTable({ steps }: Props) {
 
   if (steps.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-400 text-sm">
+      <div className="grid h-full place-items-center py-8 text-sm text-(--od-fg-2)">
         No steps to display. Run the algorithm first.
       </div>
     );
   }
 
   return (
-    <div className="bg-white p-4">
-      <Table>
+    <div className="h-full overflow-y-auto custom-scrollbar rounded-md border border-(--od-border) bg-(--od-bg-1) p-4">
+      <Table className="text-(--od-fg-1)">
         <TableHeader>
-          <TableRow className="border-b border-blue-200">
-            <TableHead className="w-10 bg-gray-100 text-blue-800">Step</TableHead>
-            <TableHead className="bg-gray-100 text-blue-800 text-center">Element</TableHead>
-            <TableHead className="bg-gray-100 text-blue-800">Stack</TableHead>
-            <TableHead className="bg-gray-100 text-blue-800">SCC</TableHead>
-            <TableHead className="bg-gray-100 text-blue-800">Explain</TableHead>
+          <TableRow className="border-b border-(--od-border) hover:bg-transparent">
+            <TableHead className="w-10 bg-(--od-bg-2) text-(--od-blue)">Step</TableHead>
+            <TableHead className="bg-(--od-bg-2) text-(--od-blue) text-center">Element</TableHead>
+            <TableHead className="bg-(--od-bg-2) text-(--od-blue)">Stack</TableHead>
+            <TableHead className="bg-(--od-bg-2) text-(--od-blue)">SCC</TableHead>
+            <TableHead className="bg-(--od-bg-2) text-(--od-blue)">Explain</TableHead>
           </TableRow>
         </TableHeader>
+
         <TableBody>
           {steps.map((step, index) => (
             <StepTableRow

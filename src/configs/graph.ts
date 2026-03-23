@@ -1,22 +1,24 @@
 import { COMPONENT_COLORS } from "@/types/styles";
 
 export const NODE_STYLES: cytoscape.Css.Node = {
-  "background-color": "#3b82f6",
+  "background-color": "#1e2227", // Tiệp màu nền nhưng tối hơn một chút
+  "border-width": "2px",
+  "border-color": "#abb2bf", // Viền xám sáng
   label: "data(label)",
-  color: "#fff",
+  color: "#ffffff", // Chữ trắng tinh để nổi bật
+  "font-size": "14px",
   "text-valign": "center",
   "text-halign": "center",
-  width: 40,
-  height: 40,
+  width: 35,
+  height: 35,
 };
 
 export const EDGE_STYLES: cytoscape.Css.Edge = {
   width: 3,
-  "line-color": "#94a3b8",
-  "target-arrow-color": "#94a3b8",
-  // "target-arrow-shape": "triangle", // Mũi tên cho đồ thị có hướng
+  "line-color": "#b6bdca", // edge mặc định sáng hơn rõ rệt trên nền tối
+  "target-arrow-color": "#b6bdca",
   "curve-style": "bezier",
-  "control-point-step-size": 40, // Khoảng cách uốn cong giữa các cạnh
+  "control-point-step-size": 40,
 };
 
 export const graphStyles: cytoscape.StylesheetJson = [
@@ -33,7 +35,7 @@ export const graphStyles: cytoscape.StylesheetJson = [
     style: EDGE_STYLES,
   },
   {
-    selector: "edge[?isDirected]", 
+    selector: "edge[?isDirected]",
     style: {
       "target-arrow-shape": "triangle",
     },
@@ -41,14 +43,14 @@ export const graphStyles: cytoscape.StylesheetJson = [
   {
     selector: "node:selected",
     style: {
-      "background-color": "#f0c002", // Viền đỏ khi chọn
-      color: "#000",
+      "background-color": "#e5c07b",
+      color: "#1f2430",
     },
   },
   {
     selector: "edge:selected",
     style: {
-      "line-color": "#f0c002",
+      "line-color": "#e5c07b",
       width: 5,
     },
   },
@@ -66,9 +68,9 @@ export const graphStyles: cytoscape.StylesheetJson = [
   {
     selector: "node.highlighted",
     style: {
-      "background-color": "#ccc",
+      "background-color": "#3e4451",
       "border-width": "4px",
-      "border-color": "#ff5722",
+      "border-color": "#e06c75",
       "z-index": 999,
     },
   },
@@ -95,24 +97,24 @@ export const graphStyles: cytoscape.StylesheetJson = [
   {
     selector: "node.exploring",
     style: {
-      "background-color": "#f59e0b",
-      "border-color": "#f59e0b",
+      "background-color": "#e5c07b",
+      "border-color": "#e5c07b",
       "border-width": "4px",
     },
   },
   {
     selector: "node.in-cycle",
     style: {
-      "background-color": "#10b981",
-      "border-color": "#10b981",
+      "background-color": "#98c379",
+      "border-color": "#98c379",
       "border-width": "4px",
     },
   },
   {
     selector: "edge.in-cycle",
     style: {
-      "line-color": "#10b981",
-      "target-arrow-color": "#10b981",
+      "line-color": "#98c379",
+      "target-arrow-color": "#98c379",
       width: 4,
     } as cytoscape.Css.Edge,
   },
@@ -121,35 +123,37 @@ export const graphStyles: cytoscape.StylesheetJson = [
   {
     selector: "node.scc-visiting",
     style: {
-      "background-color": "#f59e0b", // vàng cam - đang active
+      "background-color": "#e5c07b",
     },
   },
   {
     selector: "node.scc-in-stack",
     style: {
-      "background-color": "#6366f1", // tím nhạt - đang trên stack
+      "background-color": "#c678dd",
     },
   },
   {
     selector: "edge.scc-visiting",
     style: {
-      "line-color": "#6366f1",
-      "target-arrow-color": "#6366f1",
+      "line-color": "#c678dd",
+      "target-arrow-color": "#c678dd",
     },
   },
 
-  ...COMPONENT_COLORS.map((color, index) => ({
+  ...COMPONENT_COLORS.map(({ bg, border, text }, index) => ({
     selector: `node.component-${index}`,
     style: {
-      "background-color": color,
+      "background-color": bg,
+      "border-color": border,
+      color: text,
     },
   })),
 
-  ...COMPONENT_COLORS.map((color, index) => ({
+  ...COMPONENT_COLORS.map(({ bg }, index) => ({
     selector: `edge.component-${index}`,
     style: {
-      "line-color": color,
-      "target-arrow-color": color,
+      "line-color": bg,
+      "target-arrow-color": bg,
       width: 4,
     } as cytoscape.Css.Edge,
   })),
