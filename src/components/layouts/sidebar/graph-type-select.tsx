@@ -10,17 +10,20 @@ interface GraphTypeSelectProps {
 function GraphTypeSelect({ className, isDirected, isAnimating, onSelect }: GraphTypeSelectProps) {
   return (
     <section className={cn("", className)}>
-      <h3 className="text-base font-semibold text-slate-700 mb-2 flex items-center gap-2">
+      <h3 className="text-base font-semibold text-(--od-fg-0) mb-2 flex items-center gap-2">
         Graph Type
       </h3>
-      <div className="flex rounded-md border border-slate-200 overflow-hidden">
+
+      <div className="flex rounded-md border border-(--od-border) overflow-hidden bg-(--od-bg-2)">
         <button
           type="button"
           onClick={() => onSelect(false)}
           disabled={isAnimating}
           className={cn(
             "flex-1 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50",
-            !isDirected ? "bg-blue-600 text-white" : "bg-white text-slate-600 hover:bg-slate-50",
+            !isDirected
+              ? "bg-(--od-blue) text-(--primary-foreground)"
+              : "bg-(--od-bg-2) text-(--od-fg-1) hover:bg-(--od-bg-3)",
           )}
         >
           Undirected
@@ -30,8 +33,10 @@ function GraphTypeSelect({ className, isDirected, isAnimating, onSelect }: Graph
           onClick={() => onSelect(true)}
           disabled={isAnimating}
           className={cn(
-            "flex-1 py-1.5 text-sm font-medium transition-colors border-l border-slate-200 disabled:cursor-not-allowed disabled:opacity-50",
-            isDirected ? "bg-blue-600 text-white" : "bg-white text-slate-600 hover:bg-slate-50",
+            "flex-1 py-1.5 text-sm font-medium transition-colors border-l border-(--od-border) disabled:cursor-not-allowed disabled:opacity-50",
+            isDirected
+              ? "bg-(--od-blue) text-(--primary-foreground)"
+              : "bg-(--od-bg-2) text-(--od-fg-1) hover:bg-(--od-bg-3)",
           )}
         >
           Directed

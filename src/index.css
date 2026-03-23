@@ -49,6 +49,44 @@
   --sidebar-accent-foreground: oklch(0.21 0.034 264.665);
   --sidebar-border: oklch(0.928 0.006 264.531);
   --sidebar-ring: oklch(0.707 0.022 261.325);
+
+  --dark-color-1: #23272e;
+  --dark-color-2: #1e2227;
+
+  /* One Dark Theme */
+  --od-bg-0: #1e2127;
+  --od-bg-1: #282c34;
+  --od-bg-2: #2c313c;
+  --od-bg-3: #313843;
+  --od-border: #3e4451;
+  --od-border-strong: #4b5263;
+  --od-fg-0: #d7dae0;
+  --od-fg-1: #abb2bf;
+  --od-fg-2: #7f848e;
+  --od-blue: #61afef;
+  --od-red: #e06c75;
+  --od-green: #98c379;
+  --od-yellow: #e5c07b;
+  --od-purple: #c678dd;
+
+  --background: var(--od-bg-0);
+  --foreground: var(--od-fg-0);
+  --card: var(--od-bg-1);
+  --card-foreground: var(--od-fg-0);
+  --popover: var(--od-bg-1);
+  --popover-foreground: var(--od-fg-0);
+  --primary: var(--od-blue);
+  --primary-foreground: #1f2430;
+  --secondary: var(--od-bg-2);
+  --secondary-foreground: var(--od-fg-1);
+  --muted: var(--od-bg-2);
+  --muted-foreground: var(--od-fg-2);
+  --accent: var(--od-bg-3);
+  --accent-foreground: var(--od-fg-0);
+  --destructive: var(--od-red);
+  --border: var(--od-border);
+  --input: var(--od-border);
+  --ring: var(--od-blue);
 }
 
 a {
@@ -85,6 +123,11 @@ button {
 *::-webkit-scrollbar {
   width: 8px;
   height: 8px;
+}
+
+*.small-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
 }
 
 *::-webkit-scrollbar-track {
@@ -240,4 +283,35 @@ button {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.window-drag {
+  -webkit-app-region: drag;
+}
+
+.window-no-drag {
+  -webkit-app-region: no-drag;
+}
+
+.menu-item {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 13px;
+  color: var(--od-fg-1);
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.menu-item:hover {
+  background: var(--od-bg-3);
+  color: var(--od-fg-0);
+}
+
+.menu-item span {
+  color: var(--od-fg-2);
+  font-size: 12px;
 }

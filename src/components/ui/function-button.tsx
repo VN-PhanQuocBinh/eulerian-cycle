@@ -1,5 +1,6 @@
 import { LucideIcon } from "lucide-react";
 import { Tooltip } from "./tooltip";
+import React, { forwardRef } from "react";
 
 import { cn } from "@/utils/cn";
 
@@ -12,21 +13,30 @@ interface FunctionButtonProps
   active?: boolean;
 }
 
-function FunctionButton({ tooltipContent, active, icon: Icon, ...props }: FunctionButtonProps) {
-  return (
-    <Tooltip content={tooltipContent} side={props.side || "top"}>
-      <button
-        {...props}
-        className={cn(
-          "flex justify-center items-center bg-white p-3 rounded-lg shadow border text-sm hover:bg-slate-50 transition-all disabled:pointer-events-none disabled:opacity-50",
-          { "bg-blue-600! text-white": active },
-          props.className,
-        )}
-      >
-        <Icon size={18} />
-      </button>
-    </Tooltip>
-  );
-}
+const FunctionButton = forwardRef<HTMLButtonElement, FunctionButtonProps>(
+  ({ tooltipContent, active, icon: Icon, ...props }, ref) => {
+    return (
+      <Tooltip content={tooltipContent} side={props.side || "top"}>
+        <button
+          ref={ref}
+          {...props}
+          className={cn(
+            "flex items-center justify-center p-3 rounded-lg text-sm",
+            "border border-(--od-border) bg-(--od-bg-2) text-(--od-fg-1)",
+            "hover:bg-(--od-bg-3) transition-all",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--od-blue)",
+            "disabled:pointer-events-none disabled:opacity-50",
+            { "bg-(--od-blue)! border-(--od-blue)! text-(--primary-foreground)": active },
+            props.className,
+          )}
+        >
+          <Icon size={18} />
+        </button>
+      </Tooltip>
+    );
+  },
+);
+
+FunctionButton.displayName = "FunctionButton";
 
 export default FunctionButton;

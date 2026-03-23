@@ -12,12 +12,12 @@ const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(
   ({ children, value, ...props }, forwardedRef) => {
     return (
       <Select.Item
-        className="relative flex items-center px-8 py-2 text-sm text-slate-700 cursor-pointer select-none hover:bg-blue-50 hover:text-blue-600 outline-none data-[highlighted]:bg-blue-50 data-[highlighted]:text-blue-600 transition-colors"
+        className="relative flex items-center px-8 py-2 text-sm text-(--od-fg-1) cursor-pointer select-none hover:bg-(--od-fg-1) hover:text-(--od-fg-0) outline-none data-highlighted:bg-(--od-bg-2) data-highlighted:text-(--od-fg-0) transition-colors"
         value={value}
         {...props}
         ref={forwardedRef}
       >
-        <Select.ItemIndicator className="absolute left-2 inline-flex items-center">
+        <Select.ItemIndicator className="absolute left-2 inline-flex items-center text-(--od-blue)">
           <Check size={16} />
         </Select.ItemIndicator>
         <Select.ItemText>{children}</Select.ItemText>
@@ -38,7 +38,7 @@ const SelectContent = forwardRef<
         {...props}
         ref={forwardedRef}
         className={cn(
-          "bg-white border border-slate-200 rounded-lg shadow-lg overflow-hidden z-50 animate-select-in ",
+          "bg-(--od-bg-1) border border-(--od-border) rounded-lg shadow-lg overflow-hidden z-50 animate-select-in",
           className,
         )}
       >

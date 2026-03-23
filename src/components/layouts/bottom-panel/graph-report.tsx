@@ -12,7 +12,7 @@ import { useAlgorithmStore, useGraphDataStore } from "@/stores";
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">
+    <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-(--od-fg-2)">
       {children}
     </h4>
   );
@@ -20,9 +20,9 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="flex justify-between text-sm py-1.5 border-b border-slate-100 last:border-0">
-      <span className="text-slate-600">{label}</span>
-      <span className="font-medium text-slate-800">{value}</span>
+    <div className="flex justify-between border-b border-(--od-border) py-1.5 text-sm last:border-0">
+      <span className="text-(--od-fg-1)">{label}</span>
+      <span className="font-medium text-(--od-fg-0)">{value}</span>
     </div>
   );
 }
@@ -101,18 +101,18 @@ export function GraphReport() {
 
   if (nodes.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-400 text-sm italic">
+      <div className="py-8 text-center text-sm italic text-(--od-fg-2)">
         No graph data available. Add nodes and edges to view reports.
       </div>
     );
   }
 
   return (
-    <div className="p-3 space-y-4 text-sm overflow-y-auto h-full">
+    <div className="h-full space-y-4 overflow-y-auto bg-(--od-bg-0) p-3 text-sm text-(--od-fg-1)">
       {/* General */}
       <section>
         <SectionTitle>General</SectionTitle>
-        <div className="bg-slate-50 rounded-md px-3 py-1">
+        <div className="rounded-md border border-(--od-border) bg-(--od-bg-1) px-3 py-1">
           <InfoRow label="Total Nodes" value={nodes.length} />
           <InfoRow label="Total Edges" value={edges.length} />
           <InfoRow label="Graph Type" value={isMultiGraph ? "Multi-Graph" : "Simple Graph"} />
@@ -122,10 +122,10 @@ export function GraphReport() {
       {/* Node Analysis */}
       <section>
         <SectionTitle>Node Analysis</SectionTitle>
-        <div className="bg-slate-50 rounded-md overflow-hidden">
+        <div className="overflow-hidden rounded-md border border-(--od-border) bg-(--od-bg-1)">
           <Table className="w-full text-sm">
             <TableHeader>
-              <TableRow className="border-b border-slate-200">
+              <TableRow className="border-b border-(--od-border)">
                 <TableHead>Node</TableHead>
                 {!isDirected ? (
                   <TableHead>Degree</TableHead>
@@ -149,12 +149,14 @@ export function GraphReport() {
                     <TableCell>{node.label}</TableCell>
 
                     <TableCell>
-                      <span className="px-1.5 py-0.5 rounded text-xs font-medium">{degree}</span>
+                      <span className="inline-flex px-1.5 py-0.5 text-xs font-medium text-(--od-fg-0)">
+                        {degree}
+                      </span>
                     </TableCell>
 
                     {isDirected && (
                       <TableCell>
-                        <span className="px-1.5 py-0.5 rounded text-xs font-medium">
+                        <span className="inline-flex px-1.5 py-0.5 text-xs font-medium text-(--od-fg-0)">
                           {inDegree}
                         </span>
                       </TableCell>
@@ -165,13 +167,13 @@ export function GraphReport() {
                         neighbors.map((n, idx) => (
                           <span
                             key={idx}
-                            className="px-1.5 py-0.5 rounded text-xs text-gray-700 bg-gray-100"
+                            className="mr-1 inline-flex rounded border border-(--od-border) bg-(--od-bg-1) px-1.5 py-0.5 text-xs text-(--od-fg-1)"
                           >
                             {graphUtils.getNode(n)?.label}
                           </span>
                         ))
                       ) : (
-                        <span className="italic text-slate-400">—</span>
+                        <span className="italic text-(--od-fg-2)">—</span>
                       )}
                     </TableCell>
                   </TableRow>
@@ -186,18 +188,21 @@ export function GraphReport() {
       {currentAlgorithm === "connected-components" && (
         <section>
           <SectionTitle>Connected Components</SectionTitle>
-          <div className="bg-slate-50 rounded-md px-3 py-1 mb-2">
+          <div className="mb-2 rounded-md border border-(--od-border) bg-(--od-bg-1) px-3 py-1">
             <InfoRow label="Number of Connected Components" value={components.length} />
           </div>
           <div className="space-y-1.5">
             {components.map((comp, i) => {
               const labels = comp.map((id) => nodes.find((n) => n.id === id)?.label ?? id);
               return (
-                <div key={i} className="flex items-center gap-2 bg-slate-50 rounded-md px-3 py-1.5">
-                  <span className="text-xs font-bold text-gray-800 shrink-0">
+                <div
+                  key={i}
+                  className="flex items-center gap-2 rounded-md border border-(--od-border) bg-(--od-bg-1) px-3 py-1.5"
+                >
+                  <span className="shrink-0 text-xs font-bold text-(--od-fg-0)">
                     Component {i + 1} ({comp.length} nodes):
                   </span>
-                  <span className="text-slate-700">{labels.join(", ")}</span>
+                  <span className="text-(--od-fg-1)">{labels.join(", ")}</span>
                 </div>
               );
             })}
@@ -208,14 +213,14 @@ export function GraphReport() {
       {currentAlgorithm === "eulerian-cycle" && (
         <section>
           <SectionTitle>Eulerian Cycle</SectionTitle>
-          <div className="bg-slate-50 rounded-md px-3 py-1">
+          <div className="rounded-md border border-(--od-border) bg-(--od-bg-1) px-3 py-1">
             <InfoRow
               label="Odd-Degree Nodes"
               value={
                 oddDegreeNodes.length === 0 ? (
-                  <span className="text-green-600">None</span>
+                  <span className="text-(--od-green)">None</span>
                 ) : (
-                  <span className="text-orange-600">
+                  <span className="text-(--od-yellow)">
                     {oddDegreeNodes.map((n) => n.label).join(", ")}
                   </span>
                 )
@@ -233,7 +238,7 @@ export function GraphReport() {
       )}
 
       {!currentAlgorithm && (
-        <p className="text-xs text-slate-400 italic text-center">
+        <p className="text-center text-xs italic text-(--od-fg-2)">
           Select an algorithm to see specific reports. General graph information is always
           displayed.
         </p>

@@ -1,5 +1,5 @@
 import { generateNodeId, generateEdgeId } from "@/utils/generate-id";
-import type { GraphNode, GraphEdge, GraphState } from "@/types/graph";
+import type { GraphNode, GraphEdge } from "@/types/graph";
 
 export const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 export const generateEdgeSelector = (sourceId: string, targetId: string) => {

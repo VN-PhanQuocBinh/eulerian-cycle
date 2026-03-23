@@ -5,7 +5,6 @@ import type { EdgeHandlesInstance, EdgeHandlesOptions } from "cytoscape-edgehand
 import { GraphEdge, GraphNode } from "@/types/graph-data-store";
 import { GraphAlgorithm } from "@/types/algorithm-store";
 import { ALGORITHM_LAYOUT_CONFIGS } from "@/configs/graph-layouts";
-import { useAlgorithmStore } from "@/stores";
 
 interface Position {
   x: number;
@@ -63,10 +62,7 @@ class GraphService implements IGraphService {
     });
 
     let defaults: EdgeHandlesOptions = {
-      canConnect: function (
-        sourceNode: cytoscape.NodeSingular,
-        targetNode: cytoscape.NodeSingular,
-      ) {
+      canConnect: function () {
         // whether an edge can be created between source and target
         // return !sourceNode.same(targetNode); // e.g. disallow loops
         return true;
@@ -258,7 +254,7 @@ class GraphService implements IGraphService {
       this.cy!.animate({
         fit: {
           eles: this.cy!.elements(),
-          padding: 50,
+          padding: 100,
         },
         duration: 500,
         easing: "ease-in-out-cubic",

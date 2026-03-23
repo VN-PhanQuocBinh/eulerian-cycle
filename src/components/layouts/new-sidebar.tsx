@@ -30,9 +30,9 @@ export function NewSidebar({ isOpen, onOpenChange }: NewSidebarProps) {
         onOpenChange(true);
       }}
       orientation="vertical"
-      className="h-screen tabs-bar gap-0"
+      className="h-full tabs-bar gap-0"
     >
-      <TabsList variant="line" className="flex flex-col justify-start p-0 bg-white">
+      <TabsList variant="line" className="flex flex-col justify-start p-0 py-2 bg-(--od-bg-1) ">
         <TabsTrigger
           value="input-tab"
           className="w-14! h-12! flex-none justify-center! group-data-[orientation=vertical]/tabs:after:left-0"
@@ -41,7 +41,7 @@ export function NewSidebar({ isOpen, onOpenChange }: NewSidebarProps) {
         >
           <Tooltip content="Input graph data" side="right">
             {/* Wrap the icon in a span for displaying tooltip because [&_svg]:pointer-events-none*/}
-            <span>
+            <span className="">
               <FileCode2 className="size-7" />
             </span>
           </Tooltip>
@@ -53,7 +53,7 @@ export function NewSidebar({ isOpen, onOpenChange }: NewSidebarProps) {
           onClick={handleClick}
         >
           <Tooltip content="Control algorithm" side="right">
-            <span>
+            <span className="">
               <Play className="size-7" />
             </span>
           </Tooltip>
@@ -63,10 +63,10 @@ export function NewSidebar({ isOpen, onOpenChange }: NewSidebarProps) {
       {isOpen && (
         <>
           <TabsContent value="input-tab" className="overflow-hidden">
-            <InputTab className="p-4 pl-1" />
+            <InputTab className="p-4 pl-2" />
           </TabsContent>
           <TabsContent value="control-tab" className="overflow-hidden">
-            <ControlTab className="p-4 pl-1" />
+            <ControlTab className="p-4 pl-2" />
           </TabsContent>
         </>
       )}
