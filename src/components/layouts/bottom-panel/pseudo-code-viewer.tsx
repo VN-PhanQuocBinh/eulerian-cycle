@@ -102,7 +102,7 @@ export function PseudoCodeViewer({ className }: PseudoCodeViewerProps) {
           <div className="py-8 text-center text-(--od-fg-2)">No pseudo code available.</div>
         )}
 
-        {lines.map((line) => {
+        {lines.map((line, index) => {
           const isActive = currentHighlightedIds.includes(line.id);
 
           return (
@@ -116,7 +116,7 @@ export function PseudoCodeViewer({ className }: PseudoCodeViewerProps) {
               )}
             >
               <span className="mr-4 inline-block w-8 shrink-0 select-none text-right text-(--od-fg-2)">
-                {line.id}
+                {index + 1}
               </span>
               <span
                 className={cn("text-(--od-fg-1)", {

@@ -14,8 +14,6 @@ const algorithmOptions: Array<{ label: string; value: GraphAlgorithm }> = [
 ];
 
 function CollapsedBottomPanel() {
-  const nodes = useGraphDataStore((state) => state.nodes);
-
   const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
   const currentStepIndex = useAlgorithmStore((state) => state.currentStepIndex);
   const isAnimating = useAlgorithmStore((state) => state.isAnimating);
