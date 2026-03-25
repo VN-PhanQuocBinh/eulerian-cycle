@@ -18,22 +18,27 @@ export const useGraphInteractions = () => {
 
   const initCoreListeners = () => {
     graphService.bindEvents({
-      onNodeAdd: (position) => {
+      onNodeAdd: (positions) => {
         const interactionMode = useUIStore.getState().mode;
         if (interactionMode !== "add-node") return;
 
-        const { x, y } = position;
+        const { renderedPosition, position } = positions;
 
         openNodeInputAt({
-          x,
-          y,
+          x: renderedPosition.x,
+          y: renderedPosition.y,
           onComplete: (label: string) => {
             if (!label.trim()) return;
 
             const nodeId = generateNodeId(label);
 
-            graphService.addNodeToCy({ id: nodeId, label, x, y });
-            addNode({ id: nodeId, label, x, y });
+            graphService.addNodeToCy({
+              id: nodeId,
+              label,
+              x: position.x,
+              y: position.y,
+            });
+            addNode({ id: nodeId, label, x: position.x, y: position.y });
           },
         });
       },

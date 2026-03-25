@@ -38,7 +38,13 @@ interface IGraphService extends IGraphEditor, IGraphVisualizer {
   init(container: HTMLDivElement): void;
   destroy(): void;
   bindEvents(callbacks: {
-    onNodeAdd: (position: Position) => void;
+    onNodeAdd: ({
+      renderedPosition,
+      position,
+    }: {
+      renderedPosition: Position;
+      position: Position;
+    }) => void;
     onNodeUpdate: (params: { id: string; position: Position }) => void;
     onEdgeAdd: (edge: GraphEdge) => void;
   }): void;
@@ -110,8 +116,14 @@ class GraphService implements IGraphService {
     this.cy.on("dblclick", (event) => {
       if (event.target === this.cy) {
         callbacks.onNodeAdd({
-          x: event.renderedPosition.x,
-          y: event.renderedPosition.y,
+          renderedPosition: {
+            x: event.renderedPosition.x,
+            y: event.renderedPosition.y,
+          },
+          position: {
+            x: event.position.x,
+            y: event.position.y,
+          },
         });
       }
     });

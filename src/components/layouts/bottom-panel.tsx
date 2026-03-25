@@ -6,7 +6,7 @@ import { useAlgorithmStore, useUIStore } from "@/stores";
 import { Button } from "@/components/ui/button";
 import { ScanEye, EyeClosed, X } from "lucide-react";
 // import { createPortal } from "react-dom";
-import { useRef, useEffect, useCallback } from "react";
+import { useRef } from "react";
 
 export type BottomPanelTab = "steps" | "pseudo-code" | "reports";
 

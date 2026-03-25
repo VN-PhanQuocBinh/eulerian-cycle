@@ -1,5 +1,5 @@
 import FunctionButton from "../ui/function-button";
-import { useAlgorithmStore, useUIStore, useGraphDataStore } from "@/stores";
+import { useAlgorithmStore, useUIStore } from "@/stores";
 import { GraphAlgorithm } from "@/types/algorithm-store";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";

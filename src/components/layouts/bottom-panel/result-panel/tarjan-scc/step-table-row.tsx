@@ -38,7 +38,7 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
   const componentColor = useMemo(() => {
     const color =
       componentIndex >= 0
-        ? COMPONENT_COLORS[componentIndex % COMPONENT_COLORS.length]
+        ? COMPONENT_COLORS[componentIndex % COMPONENT_COLORS.length].bg
         : "transparent";
 
     return color;
