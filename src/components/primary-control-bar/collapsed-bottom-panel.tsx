@@ -1,5 +1,5 @@
 import FunctionButton from "../ui/function-button";
-import { useAlgorithmStore, useUIStore } from "@/stores";
+import { useAlgorithmStore, useUIStore, useGraphDataStore } from "@/stores";
 import { GraphAlgorithm } from "@/types/algorithm-store";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -7,6 +7,8 @@ import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { ListChevronsDownUp, ListChevronsUpDown, Ellipsis, ChevronDown } from "lucide-react";
 import { Select, SelectContent, SelectItem } from "@/components/ui/select";
+import { graphService } from "@/services/graph-service";
+import { useAlgorithmOperations } from "@/hooks/use-algorithm-operations";
 
 const algorithmOptions: Array<{ label: string; value: GraphAlgorithm }> = [
   { label: "Eulerian Cycle", value: "eulerian-cycle" },
@@ -17,7 +19,6 @@ function CollapsedBottomPanel() {
   const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
   const currentStepIndex = useAlgorithmStore((state) => state.currentStepIndex);
   const isAnimating = useAlgorithmStore((state) => state.isAnimating);
-  const setCurrentAlgorithm = useAlgorithmStore((state) => state.setCurrentAlgorithm);
   const steps = useAlgorithmStore((state) => state.steps);
 
   const isBottomPanelOpen = useUIStore((state) => state.isBottomPanelOpen);
@@ -26,6 +27,8 @@ function CollapsedBottomPanel() {
   const toggleBottomPanel = useUIStore((state) => state.toggleBottomPanel);
   const toggleShowStack = useUIStore((state) => state.toggleShowStack);
   const toggleShowQueue = useUIStore((state) => state.toggleShowQueue);
+
+  const { handleAlgorithmChange } = useAlgorithmOperations();
 
   const currentStepDisplay =
     steps.length === 0 ? 0 : Math.min(Math.max(currentStepIndex + 1, 0), steps.length);
@@ -40,7 +43,7 @@ function CollapsedBottomPanel() {
         <div className="h-full min-w-52">
           <Select.Root
             value={currentAlgorithm}
-            onValueChange={(value) => setCurrentAlgorithm(value as GraphAlgorithm)}
+            onValueChange={(value) => handleAlgorithmChange(value as GraphAlgorithm)}
             disabled={isAnimating}
           >
             <Select.Trigger className="h-full w-full flex items-center gap-2 justify-between rounded-sm border border-(--od-border) outline-none hover:bg-(--od-bg-1) px-3 text-sm font-semibold text-(--od-yellow) hover:border-(--od-border-strong) disabled:opacity-60">

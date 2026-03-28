@@ -11,6 +11,7 @@ import { useFileOperations } from "@/hooks/use-file-operations";
 import BottomToolbar from "./bottom-toolbar";
 import FloatingStackQueuePanel from "./floating-stack-queue-panel";
 import { useNodeInput } from "./ui/node-input";
+import { useAlgorithmOperations } from "@/hooks/use-algorithm-operations";
 
 import {
   ContextMenu,
@@ -41,6 +42,7 @@ const GraphCanvas = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [contextTarget, setContextTarget] = useState<ContextTarget>(null);
   const { openNodeInputAt } = useNodeInput();
+  const { handleStartNodeChange } = useAlgorithmOperations();
 
   const triggerRef = useRef<HTMLDivElement>(null);
 
@@ -181,7 +183,8 @@ const GraphCanvas = () => {
 
   const handleSetStartNode = () => {
     if (!contextTarget || contextTarget.kind !== "node") return;
-    setStartNodeId(contextTarget.id);
+    // setStartNodeId(contextTarget.id);
+    handleStartNodeChange(contextTarget.id);
     setContextTarget(null);
   };
 

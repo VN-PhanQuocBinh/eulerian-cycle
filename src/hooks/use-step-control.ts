@@ -11,11 +11,13 @@ export const useStepControl = () => {
   const currentStepIndex = useAlgorithmStore((state) => state.currentStepIndex);
 
   const isLastStep = useCallback((index: number) => index >= steps.length - 1, [steps]);
+  // console.log("Steps", steps);
 
   const syncUIToStep = useCallback(
     (index: number) => {
       if (index < 0 || index >= steps.length) return;
       const finalStyles = computeFinalStyles(steps, index);
+      console.log("Final styles to apply: ", finalStyles);
       graphService.applyStylesFromMap(finalStyles);
     },
     [steps],

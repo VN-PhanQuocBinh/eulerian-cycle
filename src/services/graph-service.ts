@@ -1,3 +1,4 @@
+import { app } from "electron";
 import cytoscape from "cytoscape";
 import { graphStyles } from "@/configs/graph";
 import { generateEdgeId } from "@/utils/generate-id";
@@ -5,6 +6,7 @@ import type { EdgeHandlesInstance, EdgeHandlesOptions } from "cytoscape-edgehand
 import { GraphEdge, GraphNode } from "@/types/graph-data-store";
 import { GraphAlgorithm } from "@/types/algorithm-store";
 import { ALGORITHM_LAYOUT_CONFIGS } from "@/configs/graph-layouts";
+import { applyNewClasses } from "@/utils/apply-new-classes";
 
 interface Position {
   x: number;
@@ -350,7 +352,12 @@ class GraphService implements IGraphService {
       for (const [elementId, classes] of styles.entries()) {
         const element = this.cy!.getElementById(elementId);
         if (element.length > 0) {
-          element.classes(Array.from(classes).join(" "));
+          // element.classes(Array.from(classes).join(" "));
+          const applyedClasses = applyNewClasses("", Array.from(classes).join(" "));
+          element.classes(applyedClasses);
+          console.log(`Applied classes: `, element.classes());
+          console.log(`Applied classes for element ${elementId}: `, applyedClasses);
+          console.log("-------------------------------")
         }
       }
     });
