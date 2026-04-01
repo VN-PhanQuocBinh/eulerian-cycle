@@ -3,15 +3,19 @@ import { graphService } from "@/services/graph-service";
 import { generateNodeId } from "@/utils/generate-id";
 import { useGraphDataStore, useUIStore } from "@/stores";
 import { useEffect } from "react";
+import { useToast } from "@/components/ui/toast";
 
 export const useGraphInteractions = () => {
   // Graph Data Store
   const addNode = useGraphDataStore((s) => s.addNode);
   const updateNode = useGraphDataStore((s) => s.updateNode);
   const addEdge = useGraphDataStore((s) => s.addEdge);
+  const isNodeExists = useGraphDataStore((s) => s.isNodeExists);
 
   const updateNodes = useGraphDataStore((s) => s.updateNodes);
   const updateEdges = useGraphDataStore((s) => s.updateEdges);
+
+  const { showToast } = useToast();
 
   // Node Input
   const { openNodeInputAt } = useNodeInput();
@@ -31,6 +35,17 @@ export const useGraphInteractions = () => {
             if (!label.trim()) return;
 
             const nodeId = generateNodeId(label);
+
+            console.log("Checking if node exists with ID:", isNodeExists(nodeId));
+
+            if (isNodeExists(nodeId)) {
+              showToast({
+                message: `A node with label "${label}" already exists.`,
+                type: "error",
+              });
+
+              return;
+            }
 
             graphService.addNodeToCy({
               id: nodeId,

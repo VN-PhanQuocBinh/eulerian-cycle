@@ -124,6 +124,21 @@ export const GRAPH_EXAMPLES: Record<"directed" | "undirected", Record<GraphAlgor
 13 11
 14
 15`,
+      `
+      A B
+B C
+D E
+F
+G
+      `,
+      `
+      p q
+q r
+r s
+t u
+v
+w x
+      `
     ],
 
     "eulerian-cycle": [

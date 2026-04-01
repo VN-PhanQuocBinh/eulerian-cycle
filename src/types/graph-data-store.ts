@@ -22,6 +22,7 @@ export interface GraphDataStore {
   edges: GraphEdge[];
   isDirected: boolean;
   graphData: GraphData;
+  nodeSet: Set<String>; // For quick node existence checks
 
   // Actions
   setIsDirected: (isDirected: boolean) => void;
@@ -38,6 +39,7 @@ export interface GraphDataStore {
   addNode: (node: GraphNode) => void;
   removeNode: (nodeId: string) => void;
   updateNode: (nodeId: string, updates: Partial<Pick<GraphNode, "label">>) => void;
+  isNodeExists: (nodeId: string) => boolean;
 
   // Edge operations
   addEdge: (edge: GraphEdge) => void;

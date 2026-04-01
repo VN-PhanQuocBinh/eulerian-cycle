@@ -60,10 +60,10 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
               pointer-events-auto px-4 py-3 rounded-lg shadow-lg
               flex items-center gap-3 min-w-[300px] max-w-[500px]
               animate-toast-in
-              ${toast.type === "success" ? "bg-green-500 text-white" : ""}
-              ${toast.type === "error" ? "bg-red-500 text-white" : ""}
-              ${toast.type === "warning" ? "bg-yellow-500 text-white" : ""}
-              ${toast.type === "info" ? "bg-blue-500 text-white" : ""}
+              ${toast.type === "success" ? "bg-(--od-green) text-white" : ""}
+              ${toast.type === "error" ? "bg-(--od-red) text-white" : ""}
+              ${toast.type === "warning" ? "bg-(--od-yellow) text-white" : ""}
+              ${toast.type === "info" ? "bg-(--od-blue) text-white" : ""}
             `}
           >
             <span className="flex-1">{toast.message}</span>

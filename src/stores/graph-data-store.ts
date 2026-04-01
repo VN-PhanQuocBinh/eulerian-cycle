@@ -9,6 +9,7 @@ export const useGraphDataStore = create<GraphDataStore>()(
       nodes: [],
       edges: [],
       isDirected: false,
+      nodeSet: new Set(),
 
       setIsDirected: (isDirected) => set({ isDirected }),
       getCurrentNodesData: () => {
@@ -32,19 +33,35 @@ export const useGraphDataStore = create<GraphDataStore>()(
         if (!node.label.trim()) return;
 
         set((state) => ({ nodes: [...state.nodes, node] }));
+        set((state) => {
+          const newSet = new Set(state.nodeSet);
+          newSet.add(node.id);
+          return { nodeSet: newSet };
+        });
       },
 
-      removeNode: (nodeId) =>
+      removeNode: (nodeId) => {
         set((state) => ({
           nodes: state.nodes.filter((n) => n.id !== nodeId),
           // Also remove connected edges
           edges: state.edges.filter((e) => e.source !== nodeId && e.target !== nodeId),
-        })),
+        }));
+        set((state) => {
+          const newSet = new Set(state.nodeSet);
+          newSet.delete(nodeId);
+          return { nodeSet: newSet };
+        });
+      },
 
       updateNode: (nodeId, updates) => {
         set((state) => ({
           nodes: state.nodes.map((n) => (n.id === nodeId ? { ...n, ...updates } : n)),
         }));
+      },
+
+      isNodeExists: (nodeId) => {
+        const { nodeSet } = get();
+        return nodeSet.has(nodeId);
       },
 
       // Edge operations
