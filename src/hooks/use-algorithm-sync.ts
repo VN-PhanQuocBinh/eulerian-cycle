@@ -6,7 +6,7 @@ export const useAlgorithmSync = () => {
   const startNodeId = useAlgorithmStore((state) => state.startNodeId);
   const nodes = useGraphDataStore((state) => state.nodes);
   const edges = useGraphDataStore((state) => state.edges);
-  const isDirected = useGraphDataStore((state) => state.isDirected);
+  const isDirected = useGraphDataStore((state) => state.isDirected); 
   const recalculateSteps = useAlgorithmStore((state) => state.recalculateSteps);
   const setStartNodeId = useAlgorithmStore((state) => state.setStartNodeId);
   const isNodeExists = useGraphDataStore((state) => state.isNodeExists);

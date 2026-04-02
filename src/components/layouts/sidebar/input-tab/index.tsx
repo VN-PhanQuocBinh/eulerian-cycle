@@ -5,9 +5,13 @@ import { cn } from "@/utils/cn";
 import { graphToEdgeList, parseEdgeList } from "@/utils";
 import { copyToClipboard } from "@/utils/copy-to-clipboard";
 import { useToast } from "@/components/ui/toast";
-import { GRAPH_EXAMPLES } from "@/constant/graph-examples";
+import { GRAPH_EXAMPLES, GraphExampleLine } from "@/constant/graph-examples";
 import { useGraphDataStore, useAlgorithmStore } from "@/stores";
 import { graphService } from "@/services/graph-service";
+
+function parseGraphExample(lines: GraphExampleLine[]): string {
+  return lines.map(line => line.join(" ")).join("\n");
+}
 
 function InputTab({ className }: { className?: string }) {
   const { showToast } = useToast();
@@ -65,7 +69,7 @@ function InputTab({ className }: { className?: string }) {
     const examples =
       GRAPH_EXAMPLES[isDirected ? "directed" : "undirected"]?.[currentAlgorithm!] || [];
     const randomExample = examples[Math.floor(Math.random() * examples.length)];
-    setText(randomExample.trim());
+    setText(parseGraphExample(randomExample));
   };
 
   return (

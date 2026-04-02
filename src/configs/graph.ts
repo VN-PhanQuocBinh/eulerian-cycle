@@ -19,6 +19,9 @@ export const EDGE_STYLES: cytoscape.Css.Edge = {
   "target-arrow-color": "#b6bdca",
   "curve-style": "bezier",
   "control-point-step-size": 40,
+  label: "data(label)",
+  color: "#ffffff",
+  "font-size": "12px",
 };
 
 export const graphStyles: cytoscape.StylesheetJson = [

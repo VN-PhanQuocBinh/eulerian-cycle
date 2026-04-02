@@ -100,9 +100,6 @@ const GraphCanvas = () => {
   }, []);
 
   useEffect(() => {
-    console.log(useGraphDataStore.getState().nodes);
-    console.log(useGraphDataStore.getState().edges);
-
     graphService.toggleDrawMode(interactionMode === "add-edge");
   }, [interactionMode]);
 

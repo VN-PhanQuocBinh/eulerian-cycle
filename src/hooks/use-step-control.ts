@@ -5,13 +5,12 @@ import { useCallback } from "react";
 
 export const useStepControl = () => {
   const steps = useAlgorithmStore((state) => state.steps);
+  const currentStepIndex = useAlgorithmStore((state) => state.currentStepIndex);
   const nextStep = useAlgorithmStore((state) => state.nextStep);
   const prevStep = useAlgorithmStore((state) => state.prevStep);
   const jumpToStep = useAlgorithmStore((state) => state.jumpToStep);
-  const currentStepIndex = useAlgorithmStore((state) => state.currentStepIndex);
 
   const isLastStep = useCallback((index: number) => index >= steps.length - 1, [steps]);
-  // console.log("Steps", steps);
 
   const syncUIToStep = useCallback(
     (index: number) => {
@@ -32,6 +31,9 @@ export const useStepControl = () => {
 
       elements.forEach((elem) => {
         graphService.highlightElement(elem.id, elem.classes, elem.type === "node");
+        if (elem.type === "edge" && elem.label) {
+          graphService.applyLabelToEdge(elem.id, elem.label);
+        }
       });
 
       nextStep();

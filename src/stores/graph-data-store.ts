@@ -25,9 +25,21 @@ export const useGraphDataStore = create<GraphDataStore>()(
         return { nodes, edges, isDirected };
       },
 
-      updateNodes: (nodes) => set({ nodes }),
+      updateNodes: (nodes) => {
+        const { nodeSet } = get();
+        const newNodeSet = new Set(nodeSet);
+        nodes.forEach((node) => newNodeSet.add(node.id));
+        set({ nodes, nodeSet: newNodeSet });
+      },
+
       updateEdges: (edges) => set({ edges }),
-      updateGraphData: (graphData) => set({ ...graphData }),
+      updateGraphData: (graphData) => {
+        const { nodeSet } = get();
+        const newNodeSet = new Set(nodeSet);
+        graphData.nodes.forEach((node) => newNodeSet.add(node.id));
+
+        set({ ...graphData, nodeSet: newNodeSet });
+      },
 
       addNode: (node) => {
         if (!node.label.trim()) return;
@@ -88,7 +100,7 @@ export const useGraphDataStore = create<GraphDataStore>()(
           edges: state.edges.filter((e) => e.id !== edgeId),
         })),
 
-      clearGraphData: () => set({ nodes: [], edges: [] }),
+      clearGraphData: () => set({ nodes: [], edges: [], nodeSet: new Set() }),
     }),
     { name: "GraphDataStore" },
   ),

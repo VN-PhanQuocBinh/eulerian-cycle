@@ -1,4 +1,3 @@
-import { app } from "electron";
 import cytoscape from "cytoscape";
 import { graphStyles } from "@/configs/graph";
 import { generateEdgeId } from "@/utils/generate-id";
@@ -30,6 +29,7 @@ interface IGraphEditor {
 interface IGraphVisualizer {
   autoLayout(algorithm: GraphAlgorithm, animate?: boolean): void;
   highlightElement(elementId: string, className: string[], pulse?: boolean): void;
+  applyLabelToEdge(edgeId: string, label: string): void;
   toggleDirected(isDirected: boolean): void;
   applyStylesFromMap(styles: Map<string, Set<string>>): void;
   zoomGraph(type: "in" | "out"): void;
@@ -265,6 +265,7 @@ class GraphService implements IGraphService {
     this.cy.batch(() => {
       this.cy!.elements().classes("");
       this.cy!.elements().unselect();
+      this.cy!.edges().data("label", "");
       this.cy!.animate({
         fit: {
           eles: this.cy!.elements(),
@@ -357,10 +358,16 @@ class GraphService implements IGraphService {
           element.classes(applyedClasses);
           console.log(`Applied classes: `, element.classes());
           console.log(`Applied classes for element ${elementId}: `, applyedClasses);
-          console.log("-------------------------------")
+          console.log("-------------------------------");
         }
       }
     });
+  }
+
+  applyLabelToEdge(edgeId: string, label: string) {
+    if (!this.cy) return;
+    const edge = this.cy.getElementById(edgeId);
+    edge.data("label", label);
   }
 
   zoomGraph(type: "in" | "out") {

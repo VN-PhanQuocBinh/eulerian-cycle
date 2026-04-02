@@ -14,6 +14,7 @@ export type StepEdgeElement = {
   id: string;
   source: StepNodeElement;
   target: StepNodeElement;
+  label?: string;
 };
 
 export type Step = {

@@ -109,8 +109,6 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
               setSteps(steps || []);
             } else {
               const { steps, message } = findConnectedComponents(data, startNodeIdToUse);
-              console.log("Connected Components Steps:", steps);
-              console.log("Connected Components Message:", message);
               setSteps(steps || []);
             }
 
