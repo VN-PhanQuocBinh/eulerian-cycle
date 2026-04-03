@@ -15,9 +15,12 @@ export const useStepControl = () => {
   const syncUIToStep = useCallback(
     (index: number) => {
       if (index < 0 || index >= steps.length) return;
-      const finalStyles = computeFinalStyles(steps, index);
-      console.log("Final styles to apply: ", finalStyles);
+      const { finalStyles, finalLabels } = computeFinalStyles(steps, index);
+
       graphService.applyStylesFromMap(finalStyles);
+
+      graphService.clearLabelsFromEdges({ all: true });
+      graphService.applyLabelsToEdges(finalLabels);
     },
     [steps],
   );
@@ -32,7 +35,7 @@ export const useStepControl = () => {
       elements.forEach((elem) => {
         graphService.highlightElement(elem.id, elem.classes, elem.type === "node");
         if (elem.type === "edge" && elem.label) {
-          graphService.applyLabelToEdge(elem.id, elem.label);
+          graphService.applyLabelsToEdges(new Map([[elem.id, elem.label]]));
         }
       });
 
@@ -46,6 +49,13 @@ export const useStepControl = () => {
       const prevIdx = currentStepIndex - 1;
       prevStep();
       syncUIToStep(prevIdx);
+      const edgeWithLabelElements = steps[prevIdx].elements.filter(
+        (elem) => elem.type === "edge" && elem.label,
+      );
+
+      graphService.clearLabelsFromEdges({
+        edgeIds: edgeWithLabelElements.map((elem) => elem.id),
+      });
     }
   }, [prevStep, syncUIToStep]);
 

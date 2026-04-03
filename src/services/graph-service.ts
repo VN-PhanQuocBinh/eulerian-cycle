@@ -29,7 +29,8 @@ interface IGraphEditor {
 interface IGraphVisualizer {
   autoLayout(algorithm: GraphAlgorithm, animate?: boolean): void;
   highlightElement(elementId: string, className: string[], pulse?: boolean): void;
-  applyLabelToEdge(edgeId: string, label: string): void;
+  applyLabelsToEdges(labels: Map<string, string>): void;
+  clearLabelsFromEdges({ edgeIds, all }: { edgeIds?: string[]; all?: boolean }): void;
   toggleDirected(isDirected: boolean): void;
   applyStylesFromMap(styles: Map<string, Set<string>>): void;
   zoomGraph(type: "in" | "out"): void;
@@ -363,11 +364,28 @@ class GraphService implements IGraphService {
     });
   }
 
-  applyLabelToEdge(edgeId: string, label: string) {
+  applyLabelsToEdges(labels: Map<string, string>) {
     if (!this.cy) return;
-    const edge = this.cy.getElementById(edgeId);
-    edge.data("label", label);
+
+    for (const [edgeId, label] of labels.entries()) {
+      const edge = this.cy.getElementById(edgeId);
+      edge.data("label", label);
+    }
   }
+
+  clearLabelsFromEdges: IGraphService["clearLabelsFromEdges"] = ({ edgeIds = [], all = false }) => {
+    if (!this.cy) return;
+
+    if (all) {
+      this.cy.edges().data("label", "");
+      return;
+    }
+
+    edgeIds.forEach((edgeId) => {
+      const edge = this.cy!.getElementById(edgeId);
+      edge.data("label", "");
+    });
+  };
 
   zoomGraph(type: "in" | "out") {
     if (!this.cy) return;

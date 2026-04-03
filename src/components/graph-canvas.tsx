@@ -12,6 +12,7 @@ import BottomToolbar from "./bottom-toolbar";
 import FloatingStackQueuePanel from "./floating-stack-queue-panel";
 import { useNodeInput } from "./ui/node-input";
 import { useAlgorithmOperations } from "@/hooks/use-algorithm-operations";
+import FullscreenButton from "./fullscreen-button";
 
 import {
   ContextMenu,
@@ -239,6 +240,7 @@ const GraphCanvas = () => {
       <FunctionalBar />
       <BottomToolbar />
       <FloatingStackQueuePanel />
+      <FullscreenButton />
     </div>
   );
 };

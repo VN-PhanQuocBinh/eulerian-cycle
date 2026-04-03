@@ -97,12 +97,12 @@ function InputTab({ className }: { className?: string }) {
         </span>
       </div>
 
-      <div className="relative group flex-1 w-full ">
+      <div className="relative group flex-1 w-full">
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
           spellCheck={false}
-          placeholder={"# one edge per line\nA B\nB C\nC A"}
+          placeholder={"# one edge or alone node per line\n\nA B\nB C\nC A"}
           className={cn(
             "w-full h-full resize-none rounded-md border border-gray-600 px-3 py-2 text-sm font-mono placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-transparent bg-transparent text-white",
             {
@@ -127,7 +127,7 @@ function InputTab({ className }: { className?: string }) {
         )}
       </div>
 
-      <Button variant="secondary" size="sm" className="min-w-[120px]" onClick={handleSuggest}>
+      <Button variant="secondary" size="sm" className="min-w-[120px]" onClick={handleSuggest} disabled={suggested}>
         <WandSparkles className={cn("transition-transform", suggested && "animate-suggest-spin")} />
         Suggest Graph
       </Button>
