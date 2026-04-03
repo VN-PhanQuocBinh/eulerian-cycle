@@ -34,8 +34,7 @@ export const useGraphDataStore = create<GraphDataStore>()(
 
       updateEdges: (edges) => set({ edges }),
       updateGraphData: (graphData) => {
-        const { nodeSet } = get();
-        const newNodeSet = new Set(nodeSet);
+        const newNodeSet = new Set<string>();
         graphData.nodes.forEach((node) => newNodeSet.add(node.id));
 
         set({ ...graphData, nodeSet: newNodeSet });

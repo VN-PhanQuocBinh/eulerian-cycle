@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { RotateCcw, RefreshCw, Copy, Check, WandSparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/utils/cn";
@@ -10,7 +10,7 @@ import { useGraphDataStore, useAlgorithmStore } from "@/stores";
 import { graphService } from "@/services/graph-service";
 
 function parseGraphExample(lines: GraphExampleLine[]): string {
-  return lines.map(line => line.join(" ")).join("\n");
+  return lines.map((line) => line.join(" ")).join("\n");
 }
 
 function InputTab({ className }: { className?: string }) {
@@ -20,11 +20,20 @@ function InputTab({ className }: { className?: string }) {
   const updateGraphData = useGraphDataStore((state) => state.updateGraphData);
   const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
   const isDirected = useGraphDataStore((state) => state.isDirected);
+  const suggestedIndexRef = useRef<number | null>(null);
 
   const getStoreText = () => graphToEdgeList(nodes, edges);
 
   const [text, setText] = useState(getStoreText);
   const [copyStatus, setCopyStatus] = useState<"idle" | "success" | "error">("idle");
+
+  const [suggested, setSuggested] = useState(false);
+
+  useEffect(() => {
+    if (!suggested) return;
+    const t = setTimeout(() => setSuggested(false), 700);
+    return () => clearTimeout(t);
+  }, [suggested]);
 
   // Sync textarea khi store thay đổi từ bên ngoài (canvas)
   useEffect(() => {
@@ -68,8 +77,16 @@ function InputTab({ className }: { className?: string }) {
   const handleSuggest = () => {
     const examples =
       GRAPH_EXAMPLES[isDirected ? "directed" : "undirected"]?.[currentAlgorithm!] || [];
-    const randomExample = examples[Math.floor(Math.random() * examples.length)];
+
+    let randomIndex;
+
+    do {
+      randomIndex = Math.floor(Math.random() * examples.length);
+    } while (randomIndex === suggestedIndexRef.current);
+
+    const randomExample = examples[randomIndex];
     setText(parseGraphExample(randomExample));
+    setSuggested(true);
   };
 
   return (
@@ -86,7 +103,12 @@ function InputTab({ className }: { className?: string }) {
           onChange={(e) => setText(e.target.value)}
           spellCheck={false}
           placeholder={"# one edge per line\nA B\nB C\nC A"}
-          className="w-full h-full resize-none rounded-md border border-gray-600 px-3 py-2 text-sm font-mono placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-transparent bg-transparent text-white"
+          className={cn(
+            "w-full h-full resize-none rounded-md border border-gray-600 px-3 py-2 text-sm font-mono placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-transparent bg-transparent text-white",
+            {
+              "animate-suggest-flash": suggested,
+            },
+          )}
         />
         {text && (
           <Button
@@ -106,7 +128,7 @@ function InputTab({ className }: { className?: string }) {
       </div>
 
       <Button variant="secondary" size="sm" className="min-w-[120px]" onClick={handleSuggest}>
-        <WandSparkles />
+        <WandSparkles className={cn("transition-transform", suggested && "animate-suggest-spin")} />
         Suggest Graph
       </Button>
 

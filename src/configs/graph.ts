@@ -46,14 +46,13 @@ export const graphStyles: cytoscape.StylesheetJson = [
   {
     selector: "node:selected",
     style: {
-      "background-color": "#e5c07b",
-      color: "#1f2430",
+      "background-color": "#5c6370",
     },
   },
   {
     selector: "edge:selected",
     style: {
-      "line-color": "#e5c07b",
+      "line-color": "#5c6370",
       width: 5,
     },
   },
@@ -112,6 +111,14 @@ export const graphStyles: cytoscape.StylesheetJson = [
       "border-color": "#98c379",
       "border-width": "4px",
     },
+  },
+  {
+    selector: "edge.exploring",
+    style: {
+      "line-color": "#e5c07b",
+      "target-arrow-color": "#e5c07b",
+      width: 4,
+    } as cytoscape.Css.Edge,
   },
   {
     selector: "edge.in-cycle",

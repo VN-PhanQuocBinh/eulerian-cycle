@@ -213,7 +213,7 @@ export class EulerianCycle {
                 label: currentNodeLabel,
               },
               target: { type: "node", id: nextNodeId, label: nextNodeLabel },
-              classes: ["in-cycle"],
+              classes: ["exploring"],
             },
           ],
           highlightedPseudoCodeLineIds: [[6, 7], 8, [9, 10], 11],

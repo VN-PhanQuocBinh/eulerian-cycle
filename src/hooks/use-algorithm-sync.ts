@@ -6,15 +6,23 @@ export const useAlgorithmSync = () => {
   const startNodeId = useAlgorithmStore((state) => state.startNodeId);
   const nodes = useGraphDataStore((state) => state.nodes);
   const edges = useGraphDataStore((state) => state.edges);
-  const isDirected = useGraphDataStore((state) => state.isDirected); 
+  const isDirected = useGraphDataStore((state) => state.isDirected);
   const recalculateSteps = useAlgorithmStore((state) => state.recalculateSteps);
   const setStartNodeId = useAlgorithmStore((state) => state.setStartNodeId);
   const isNodeExists = useGraphDataStore((state) => state.isNodeExists);
 
   useEffect(() => {
     const graphData = { nodes, edges, isDirected };
-    if ((!startNodeId && nodes.length > 0) || (startNodeId && !isNodeExists(startNodeId))) {
-      setStartNodeId(nodes[0].id);
+    // if ((!startNodeId && nodes.length > 0) || (startNodeId && !isNodeExists(startNodeId))) {
+    //   setStartNodeId(nodes[0].id : null);
+    // }
+
+    if (nodes.length > 0) {
+      if (!startNodeId || !isNodeExists(startNodeId)) {
+        setStartNodeId(nodes[0].id);
+      }
+    } else {
+      setStartNodeId(null);
     }
 
     recalculateSteps(graphData);

@@ -353,7 +353,6 @@ class GraphService implements IGraphService {
       for (const [elementId, classes] of styles.entries()) {
         const element = this.cy!.getElementById(elementId);
         if (element.length > 0) {
-          // element.classes(Array.from(classes).join(" "));
           const applyedClasses = applyNewClasses("", Array.from(classes).join(" "));
           element.classes(applyedClasses);
           console.log(`Applied classes: `, element.classes());
