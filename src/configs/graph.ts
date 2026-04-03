@@ -19,7 +19,26 @@ export const EDGE_STYLES: cytoscape.Css.Edge = {
   "target-arrow-color": "#b6bdca",
   "curve-style": "bezier",
   "control-point-step-size": 40,
+  label: "data(label)",
+  color: "#ffffff",
+  "font-size": "12px",
 };
+
+const priorityStyles: cytoscape.StylesheetJson = [
+  {
+    selector: "node:selected",
+    style: {
+      "background-color": "#5c6370",
+    },
+  },
+  {
+    selector: "edge:selected",
+    style: {
+      "line-color": "#5c6370",
+      width: 5,
+    },
+  },
+];
 
 export const graphStyles: cytoscape.StylesheetJson = [
   {
@@ -38,20 +57,6 @@ export const graphStyles: cytoscape.StylesheetJson = [
     selector: "edge[?isDirected]",
     style: {
       "target-arrow-shape": "triangle",
-    },
-  },
-  {
-    selector: "node:selected",
-    style: {
-      "background-color": "#e5c07b",
-      color: "#1f2430",
-    },
-  },
-  {
-    selector: "edge:selected",
-    style: {
-      "line-color": "#e5c07b",
-      width: 5,
     },
   },
   {
@@ -111,6 +116,14 @@ export const graphStyles: cytoscape.StylesheetJson = [
     },
   },
   {
+    selector: "edge.exploring",
+    style: {
+      "line-color": "#e5c07b",
+      "target-arrow-color": "#e5c07b",
+      width: 4,
+    } as cytoscape.Css.Edge,
+  },
+  {
     selector: "edge.in-cycle",
     style: {
       "line-color": "#98c379",
@@ -157,4 +170,6 @@ export const graphStyles: cytoscape.StylesheetJson = [
       width: 4,
     } as cytoscape.Css.Edge,
   })),
+
+  ...priorityStyles,
 ];

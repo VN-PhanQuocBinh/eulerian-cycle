@@ -8,6 +8,7 @@ import { GraphAlgorithm } from "@/types/algorithm-store";
 import { cn } from "@/utils/cn";
 import { useAlgorithmStore, useGraphDataStore } from "@/stores";
 import { graphService } from "@/services/graph-service";
+import { useAlgorithmOperations } from "@/hooks/use-algorithm-operations";
 
 export const BASE_ANIMATION_SPEED = 2000; // in milliseconds
 
@@ -20,44 +21,17 @@ function ControlTab({ className }: { className?: string }) {
   // Graph store
   const isDirected = useGraphDataStore((state) => state.isDirected);
   const nodes = useGraphDataStore((state) => state.nodes);
-  const setIsDirected = useGraphDataStore((state) => state.setIsDirected);
 
   const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
   const isAnimating = useAlgorithmStore((state) => state.isAnimating);
   const startNodeId = useAlgorithmStore((state) => state.startNodeId);
-  const setIsAnimating = useAlgorithmStore((state) => state.setIsAnimating);
-  const setCurrentAlgorithm = useAlgorithmStore((state) => state.setCurrentAlgorithm);
-  const setStartNodeId = useAlgorithmStore((state) => state.setStartNodeId);
-  const setCurrentStepIndex = useAlgorithmStore((state) => state.setCurrentStepIndex);
-  const setSteps = useAlgorithmStore((state) => state.setSteps);
+  const { handleAlgorithmChange, handleStartNodeChange, handleGraphTypeChange } =
+    useAlgorithmOperations();
 
   const startNodeOptions = useMemo(
     () => nodes.map((node) => ({ label: node.label, value: node.id })),
     [nodes],
   );
-
-  const handleAlgorithmChange = (algorithm: GraphAlgorithm) => {
-    handleReset();
-    setSteps([]);
-    setCurrentAlgorithm(algorithm);
-  };
-
-  const handleReset = () => {
-    graphService.resetGraph();
-
-    setCurrentStepIndex(-1);
-    setIsAnimating(false);
-  };
-
-  const handleStartNodeChange = (nodeId: string) => {
-    handleReset();
-    setStartNodeId(nodeId);
-  };
-
-  const handleGraphTypeChange = (directed: boolean) => {
-    handleReset();
-    setIsDirected(directed);
-  };
 
   return (
     <aside

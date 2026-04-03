@@ -5,18 +5,22 @@ import { useCallback } from "react";
 
 export const useStepControl = () => {
   const steps = useAlgorithmStore((state) => state.steps);
+  const currentStepIndex = useAlgorithmStore((state) => state.currentStepIndex);
   const nextStep = useAlgorithmStore((state) => state.nextStep);
   const prevStep = useAlgorithmStore((state) => state.prevStep);
   const jumpToStep = useAlgorithmStore((state) => state.jumpToStep);
-  const currentStepIndex = useAlgorithmStore((state) => state.currentStepIndex);
 
   const isLastStep = useCallback((index: number) => index >= steps.length - 1, [steps]);
 
   const syncUIToStep = useCallback(
     (index: number) => {
       if (index < 0 || index >= steps.length) return;
-      const finalStyles = computeFinalStyles(steps, index);
+      const { finalStyles, finalLabels } = computeFinalStyles(steps, index);
+
       graphService.applyStylesFromMap(finalStyles);
+
+      graphService.clearLabelsFromEdges({ all: true });
+      graphService.applyLabelsToEdges(finalLabels);
     },
     [steps],
   );
@@ -30,6 +34,9 @@ export const useStepControl = () => {
 
       elements.forEach((elem) => {
         graphService.highlightElement(elem.id, elem.classes, elem.type === "node");
+        if (elem.type === "edge" && elem.label) {
+          graphService.applyLabelsToEdges(new Map([[elem.id, elem.label]]));
+        }
       });
 
       nextStep();
@@ -42,6 +49,13 @@ export const useStepControl = () => {
       const prevIdx = currentStepIndex - 1;
       prevStep();
       syncUIToStep(prevIdx);
+      const edgeWithLabelElements = steps[prevIdx].elements.filter(
+        (elem) => elem.type === "edge" && elem.label,
+      );
+
+      graphService.clearLabelsFromEdges({
+        edgeIds: edgeWithLabelElements.map((elem) => elem.id),
+      });
     }
   }, [prevStep, syncUIToStep]);
 

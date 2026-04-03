@@ -66,14 +66,16 @@ export class EulerianCycle {
     return { exists: true };
   }
 
-  checkSCC(startNodeId: string) {
+  checkSCC(startNodeId: string): AlgorithmCheckResult {
     const { components } = new TarjanSCC({
       nodes: this.nodes,
       edges: this.edges,
       isDirected: this.isDirected,
     }).execute(startNodeId);
 
+    const circuitArea: Set<string> = new Set();
     const aloneNodes = new Set();
+
     this.nodes.forEach((node) => {
       if (!this.adjacencyList.get(node.id) || this.adjacencyList.get(node.id)!.length === 0) {
         aloneNodes.add(node.id);
@@ -86,6 +88,8 @@ export class EulerianCycle {
           exists: false,
           reasons: [`Node ${component[0]} is not strongly connected to any other node.`],
         };
+      } else if (component.length > 1) {
+        component.forEach((nodeId) => circuitArea.add(nodeId));
       }
     }
 
@@ -96,6 +100,8 @@ export class EulerianCycle {
     if (this.nodes.length === 0) {
       return { exists: false, reasons: ["Graph is empty."] };
     }
+
+    const circuitArea: Set<string> = new Set();
 
     if (this.isDirected) {
       const balancedDegreesCheck = this.checkBalancedDegrees();
@@ -115,6 +121,8 @@ export class EulerianCycle {
             reasons: [`Node ${node.id} has odd degree ${degree}.`],
           };
         }
+
+        circuitArea.add(node.id);
       }
     }
 
@@ -150,6 +158,7 @@ export class EulerianCycle {
     // Hierholzer's Algorithm
     const circuit: string[] = [];
     const stack: string[] = [this.nodes[startIndex].id];
+    const visitedEdgeStack: string[] = [];
     const visitedEdges = new Set<string>();
 
     this.steps.push({
@@ -204,7 +213,7 @@ export class EulerianCycle {
                 label: currentNodeLabel,
               },
               target: { type: "node", id: nextNodeId, label: nextNodeLabel },
-              classes: ["in-cycle"],
+              classes: ["exploring"],
             },
           ],
           highlightedPseudoCodeLineIds: [[6, 7], 8, [9, 10], 11],
@@ -219,19 +228,41 @@ export class EulerianCycle {
 
         visitedEdges.add(edgeId);
         stack.push(nextNodeId);
+        visitedEdgeStack.push(edgeId);
       } else {
         circuit.push(stack.pop()!);
 
         const currentNodeLabel = this.utils.getNode(currentNodeId)?.label || currentNodeId;
-        this.steps.push({
-          elements: [
-            {
+        const currentEdgeId = visitedEdgeStack.length > 0 ? visitedEdgeStack.pop()! : null;
+        const currentEdge = currentEdgeId && this.utils.getEdgeById(currentEdgeId);
+
+        const stepElements = [
+          {
+            type: "node",
+            id: currentNodeId,
+            label: this.utils.getNode(currentNodeId)?.label || currentNodeId,
+            classes: ["in-cycle"],
+          },
+          currentEdge && {
+            type: "edge",
+            id: currentEdge.id,
+            source: {
               type: "node",
-              id: currentNodeId,
-              label: this.utils.getNode(currentNodeId)?.label || currentNodeId,
-              classes: ["in-cycle"],
+              id: currentEdge.source,
+              label: this.utils.getNode(currentEdge.source)?.label || currentEdge.source,
             },
-          ],
+            target: {
+              type: "node",
+              id: currentEdge.target,
+              label: this.utils.getNode(currentEdge.target)?.label || currentEdge.target,
+            },
+            label: stack.length.toString(),
+            classes: ["in-cycle"],
+          },
+        ].filter(Boolean) as Step["elements"];
+
+        this.steps.push({
+          elements: stepElements,
           highlightedPseudoCodeLineIds: [[6, 7], 12, 13, 14],
           message: [
             `Exploring from node ${currentNodeLabel}`,
@@ -241,6 +272,8 @@ export class EulerianCycle {
           stack: [...stack],
           circuit: [...circuit],
         });
+
+        
       }
     }
 
