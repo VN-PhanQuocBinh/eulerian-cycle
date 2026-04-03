@@ -33,7 +33,7 @@ function RunConfigSelect<T extends string>({
 
       <Select.Root defaultValue={currentValue} value={currentValue as T} onValueChange={onSelect}>
         <Select.Trigger
-          className="w-full flex items-center data-placeholder:text-(--od-fg-2) data-placeholder:italic justify-between px-3 py-2 bg-(--od-bg-2) border border-(--od-border) rounded-lg text-sm text-(--od-fg-1) hover:border-(--od-border-strong) focus:outline-none focus:ring-2 focus:ring-(--od-blue) transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full flex items-center data-placeholder:text-(--od-fg-2) data-placeholder:italic justify-between px-3 py-2 bg-(--od-bg-0) border border-(--od-border) rounded-lg text-sm text-(--od-fg-1) hover:border-(--od-border-strong) focus:outline-none focus:ring-2 focus:ring-(--od-blue) transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           disabled={isAnimating || options.length === 0}
         >
           <Select.Value placeholder={placeholder} defaultValue={currentValue} className="" />

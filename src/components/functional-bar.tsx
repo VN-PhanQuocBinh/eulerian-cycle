@@ -61,7 +61,7 @@ function FunctionalBar() {
   };
 
   return (
-    <div className="absolute top-4 right-4 z-10 flex gap-1 rounded-md border-4 border-(--od-border) bg-(--od-bg-2) px-1 shadow-md">
+    <div className="absolute top-4 right-4 z-10 flex gap-1 rounded-md border-2 border-(--od-border) bg-(--od-bg-2) px-1 shadow-md">
       <ButtonGroup>
         <ToggleGroup
           type="single"

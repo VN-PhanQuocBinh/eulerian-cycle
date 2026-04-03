@@ -38,7 +38,7 @@ function CollapsedBottomPanel() {
   };
 
   return (
-    <div className="flex items-stretch gap-1 rounded-md border-4 border-(--od-border) bg-(--od-bg-2) px-1 shadow-md">
+    <div className="flex items-stretch gap-1 rounded-md border-2 border-(--od-border) bg-(--od-bg-2) px-1 shadow-md">
       <div className="flex items-stretch gap-1 py-1">
         <div className="h-full min-w-52">
           <Select.Root

@@ -187,7 +187,7 @@ const GraphCanvas = () => {
   };
 
   return (
-    <div className="relative flex-1 h-full overflow-hidden bg-(--od-bg-1)">
+    <div className="relative flex-1 h-full overflow-hidden bg-(--od-bg-0)">
       <ContextMenu>
         <ContextMenuTrigger asChild>
           <div ref={triggerRef} className="h-full w-full">

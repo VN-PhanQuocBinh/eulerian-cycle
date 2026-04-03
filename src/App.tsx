@@ -9,6 +9,7 @@ import { useEffect, useRef } from "react";
 import { useAlgorithmSync } from "./hooks/use-algorithm-sync";
 import { useUIStore } from "./stores";
 import TopMenuBar from "@/components/layouts/top-menu-bar";
+import { useAppHotkeys } from "./hooks/use-app-hotkeys";
 
 function App() {
   const isSidebarOpen = useUIStore((state) => state.isSidebarOpen);
@@ -18,6 +19,7 @@ function App() {
   const toggleBottomPanel = useUIStore((state) => state.toggleBottomPanel);
   const toggleSidebar = useUIStore((state) => state.toggleSidebar);
   useAlgorithmSync();
+  useAppHotkeys();
 
   useEffect(() => {
     if (isSidebarOpen) sidebarPanelRef.current?.expand();

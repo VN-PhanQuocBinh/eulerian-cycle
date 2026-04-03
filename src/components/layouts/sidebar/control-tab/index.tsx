@@ -36,7 +36,7 @@ function ControlTab({ className }: { className?: string }) {
   return (
     <aside
       className={cn(
-        "w-full h-full bg-(--od-bg-0) border-r border-(--od-border) space-y-4 flex flex-col gap-4 overflow-y-auto text-(--od-fg-1)",
+        "w-full h-full bg-(--od-bg-1) border-r border-(--od-border) space-y-4 flex flex-col gap-4 overflow-y-auto text-(--od-fg-1)",
         className,
       )}
     >
