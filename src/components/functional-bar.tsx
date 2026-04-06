@@ -14,6 +14,8 @@ import { graphService } from "@/services/graph-service";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { GraphMode } from "@/types/ui-store";
 import { Tooltip } from "@/components/ui/tooltip";
+import { useRegisterHotkey } from "@/hooks/use-register-hotkey";
+import { useRef } from "react";
 
 const modes: { value: GraphMode; label: string; icon: LucideIcon }[] = [
   { value: "view", label: "Select / Move", icon: MousePointer2 },
@@ -35,6 +37,7 @@ function FunctionalBar() {
   const setMode = useUIStore((s) => s.setMode);
   const clearGraphData = useGraphDataStore((s) => s.clearGraphData);
   const setSteps = useAlgorithmStore((s) => s.setSteps);
+  const prevModeRef = useRef<GraphMode | null>(null);
 
   const handleClear = () => {
     graphService.clearCanvas();
@@ -47,6 +50,23 @@ function FunctionalBar() {
 
     setMode(value);
   };
+
+  useRegisterHotkey({
+    type: "hold",
+    combo: "space",
+    keyDownHandler: () => {
+      handleValueChange("view");
+      prevModeRef.current = interactionMode;
+    },
+    keyUpHandler: () => {
+      if (prevModeRef.current) {
+        setMode(prevModeRef.current);
+        prevModeRef.current = null;
+      } else {
+        setMode("view");
+      }
+    },
+  });
 
   const handleAutoLayout = () => {
     graphService.autoLayout(currentAlgorithm);

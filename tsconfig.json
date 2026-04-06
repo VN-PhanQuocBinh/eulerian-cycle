@@ -26,6 +26,6 @@
     },
     "typeRoots": ["./node_modules/@types", "./src/types"]
   },
-  "include": ["src", "electron", "src/types/**/*"],
+  "include": ["src", "src/global.d.ts", "electron", "src/types/**/*"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

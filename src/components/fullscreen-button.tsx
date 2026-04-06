@@ -1,9 +1,8 @@
 import { Maximize2, Minimize2 } from "lucide-react";
 import FunctionButton from "./ui/function-button";
 import { useUIStore } from "@/stores/ui-store";
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import { useRegisterHotkey } from "@/hooks/use-register-hotkey";
-import { HotkeyProcessor } from "@/types/hotkey-store";
 
 function FullscreenButton() {
   const isSidebarOpen = useUIStore((s) => s.isSidebarOpen);

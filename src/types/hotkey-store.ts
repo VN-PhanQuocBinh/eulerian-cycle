@@ -1,4 +1,4 @@
-type Modifier = "ctrl" | "shift" | "alt" | "meta";
+type Modifier = "ctrl" | "control" | "shift" | "alt" | "meta";
 
 type Hotkey =
   | "enter"
@@ -6,6 +6,7 @@ type Hotkey =
   | "tab"
   | "backspace"
   | "delete"
+  | "space"
   | "arrowup"
   | "arrowdown"
   | "arrowleft"
