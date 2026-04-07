@@ -14,7 +14,7 @@ function GraphTypeSelect({ className, isDirected, isAnimating, onSelect }: Graph
         Graph Type
       </h3>
 
-      <div className="flex rounded-md border border-(--od-border) overflow-hidden bg-(--od-bg-2)">
+      <div className="flex rounded-md border border-(--od-border) overflow-hidden">
         <button
           type="button"
           onClick={() => onSelect(false)}
@@ -23,7 +23,7 @@ function GraphTypeSelect({ className, isDirected, isAnimating, onSelect }: Graph
             "flex-1 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50",
             !isDirected
               ? "bg-(--od-blue) text-(--primary-foreground)"
-              : "bg-(--od-bg-2) text-(--od-fg-1) hover:bg-(--od-bg-3)",
+              : "bg-(--od-bg-0) text-(--od-fg-1) hover:bg-(--od-bg-3)",
           )}
         >
           Undirected
@@ -36,7 +36,7 @@ function GraphTypeSelect({ className, isDirected, isAnimating, onSelect }: Graph
             "flex-1 py-1.5 text-sm font-medium transition-colors border-l border-(--od-border) disabled:cursor-not-allowed disabled:opacity-50",
             isDirected
               ? "bg-(--od-blue) text-(--primary-foreground)"
-              : "bg-(--od-bg-2) text-(--od-fg-1) hover:bg-(--od-bg-3)",
+              : "bg-(--od-bg-0) text-(--od-fg-1) hover:bg-(--od-bg-3)",
           )}
         >
           Directed

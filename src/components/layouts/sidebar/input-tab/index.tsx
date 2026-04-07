@@ -90,7 +90,7 @@ function InputTab({ className }: { className?: string }) {
   };
 
   return (
-    <div className={cn("flex flex-col h-full gap-3 bg-(--od-bg-0)", className)}>
+    <div className={cn("flex flex-col h-full gap-3 bg-(--od-bg-1)", className)}>
       <div className="flex items-center justify-between">
         <span className="text-xs font-semibold text-gray-300 uppercase tracking-wide">
           Edge List
@@ -104,7 +104,7 @@ function InputTab({ className }: { className?: string }) {
           spellCheck={false}
           placeholder={"# one edge or alone node per line\n\nA B\nB C\nC A"}
           className={cn(
-            "w-full h-full resize-none rounded-md border border-gray-600 px-3 py-2 text-sm font-mono placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-transparent bg-transparent text-white",
+            " w-full h-full resize-none rounded-md border border-gray-600 px-3 py-2 text-sm font-mono placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-transparent bg-(--od-bg-0) text-white",
             {
               "animate-suggest-flash": suggested,
             },

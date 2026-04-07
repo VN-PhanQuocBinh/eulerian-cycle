@@ -4,6 +4,7 @@ import InputTab from "./sidebar/input-tab";
 import ControlTab from "./sidebar/control-tab";
 import { FileCode2, Play } from "lucide-react";
 import { Tooltip } from "@/components/ui/tooltip";
+import { useRegisterHotkey } from "@/hooks/use-register-hotkey";
 
 interface NewSidebarProps {
   isOpen: boolean;
@@ -21,6 +22,12 @@ export function NewSidebar({ isOpen, onOpenChange }: NewSidebarProps) {
   const handleClick = () => {
     if (wasActiveRef.current) onOpenChange(false);
   };
+
+  useRegisterHotkey({
+    type: "click",
+    combo: "ctrl+b",
+    handler: () => onOpenChange(!isOpen),
+  });
 
   return (
     <Tabs

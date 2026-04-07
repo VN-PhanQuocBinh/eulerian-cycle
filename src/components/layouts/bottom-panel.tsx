@@ -5,8 +5,10 @@ import { GraphReport } from "./bottom-panel/graph-report";
 import { useAlgorithmStore, useUIStore } from "@/stores";
 import { Button } from "@/components/ui/button";
 import { ScanEye, EyeClosed, X } from "lucide-react";
-// import { createPortal } from "react-dom";
+import { useRegisterHotkey } from "@/hooks/use-register-hotkey";
 import { useRef } from "react";
+import { HOTKEYS_CONFIG } from "@/configs/hotkeys-config";
+import { Tooltip } from "@/components/ui/tooltip";
 
 export type BottomPanelTab = "steps" | "pseudo-code" | "reports";
 
@@ -22,11 +24,18 @@ export function BottomPanel() {
 
   const enableSmartScroll = useUIStore((state) => state.enableSmartScroll);
   const bottomPanelTab = useUIStore((state) => state.bottomPanelTab);
+  const isBottomPanelOpen = useUIStore((state) => state.isBottomPanelOpen);
   const toggleSmartScroll = useUIStore((state) => state.toggleSmartScroll);
   const setBottomPanelTab = useUIStore((state) => state.setBottomPanelTab);
   const toggleBottomPanel = useUIStore((state) => state.toggleBottomPanel);
 
   const tabsRootRef = useRef<HTMLDivElement | null>(null);
+
+  useRegisterHotkey({
+    type: "click",
+    combo: HOTKEYS_CONFIG.CLICK.TOGGLE_BOTTOM_PANEL,
+    handler: () => toggleBottomPanel(!isBottomPanelOpen),
+  });
 
   return (
     <Tabs
@@ -63,14 +72,19 @@ export function BottomPanel() {
           {/* Separator */}
           <div className="border-l border-border h-6 mx-2" />
 
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => toggleBottomPanel(false)}
-            className=" p-1! size-8"
+          <Tooltip
+            content={`Close Panel (${HOTKEYS_CONFIG.CLICK.TOGGLE_BOTTOM_PANEL.toUpperCase()})`}
+            side="top"
           >
-            <X className="size-3" />
-          </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => toggleBottomPanel(false)}
+              className=" p-1! size-8"
+            >
+              <X className="size-3" />
+            </Button>
+          </Tooltip>
         </div>
       </div>
 
