@@ -16,20 +16,18 @@ import { GraphMode } from "@/types/ui-store";
 import { Tooltip } from "@/components/ui/tooltip";
 import { useRegisterHotkey } from "@/hooks/use-register-hotkey";
 import { useRef } from "react";
+import { HOTKEYS_CONFIG } from "@/configs/hotkeys-config";
 
-const modes: { value: GraphMode; label: string; icon: LucideIcon }[] = [
-  { value: "view", label: "Select / Move", icon: MousePointer2 },
-  { value: "add-edge", label: "Add Edge", icon: SplinePointer },
-  { value: "add-node", label: "Add Node", icon: PlusCircle },
+const modes: {
+  id: keyof typeof HOTKEYS_CONFIG.CLICK;
+  value: GraphMode;
+  label: string;
+  icon: LucideIcon;
+}[] = [
+  { id: "VIEW", value: "view", label: "Select / Move", icon: MousePointer2 },
+  { id: "ADD_EDGE", value: "add-edge", label: "Add Edge", icon: SplinePointer },
+  { id: "ADD_NODE", value: "add-node", label: "Add Node", icon: PlusCircle },
 ];
-
-function Separator() {
-  return <div className="w-px min-h-full bg-(--od-border)" />;
-}
-
-function ButtonGroup({ children }: { children: React.ReactNode }) {
-  return <div className="flex items-center py-1 gap-1">{children}</div>;
-}
 
 function FunctionalBar() {
   const interactionMode = useUIStore((s) => s.mode);
@@ -53,7 +51,7 @@ function FunctionalBar() {
 
   useRegisterHotkey({
     type: "hold",
-    combo: "space",
+    combo: HOTKEYS_CONFIG.HOLD.VIEW as any,
     keyDownHandler: () => {
       handleValueChange("view");
       prevModeRef.current = interactionMode;
@@ -66,6 +64,48 @@ function FunctionalBar() {
         setMode("view");
       }
     },
+  });
+
+  useRegisterHotkey({
+    type: "click",
+    combo: HOTKEYS_CONFIG.CLICK.VIEW as any,
+    handler: () => handleValueChange("view"),
+  });
+
+  useRegisterHotkey({
+    type: "click",
+    combo: HOTKEYS_CONFIG.CLICK.ADD_EDGE as any,
+    handler: () => handleValueChange("add-edge"),
+  });
+
+  useRegisterHotkey({
+    type: "click",
+    combo: HOTKEYS_CONFIG.CLICK.ADD_NODE as any,
+    handler: () => handleValueChange("add-node"),
+  });
+
+  useRegisterHotkey({
+    type: "click",
+    combo: HOTKEYS_CONFIG.CLICK.AUTO_LAYOUT as any,
+    handler: () => handleAutoLayout(),
+  });
+
+  useRegisterHotkey({
+    type: "click",
+    combo: HOTKEYS_CONFIG.CLICK.ZOOM_IN as any,
+    handler: () => handleZoomIn(),
+  });
+
+  useRegisterHotkey({
+    type: "click",
+    combo: HOTKEYS_CONFIG.CLICK.ZOOM_OUT as any,
+    handler: () => handleZoomOut(),
+  });
+
+  useRegisterHotkey({
+    type: "click",
+    combo: HOTKEYS_CONFIG.CLICK.CLEAR_GRAPH as any,
+    handler: () => handleClear(),
   });
 
   const handleAutoLayout = () => {
@@ -89,8 +129,12 @@ function FunctionalBar() {
           onValueChange={handleValueChange}
           value={interactionMode}
         >
-          {modes.map(({ value, label, icon: Icon }) => (
-            <Tooltip key={value} content={label} asChild={false}>
+          {modes.map(({ id, value, label, icon: Icon }) => (
+            <Tooltip
+              key={id}
+              content={`${label} (${HOTKEYS_CONFIG.CLICK[id]?.toUpperCase()})`}
+              asChild={false}
+            >
               <ToggleGroupItem
                 value={value}
                 className="text-(--od-fg-1) hover:bg-(--od-bg-3) data-[state=on]:bg-(--od-blue) data-[state=on]:text-(--primary-foreground) outline-none"
@@ -104,7 +148,7 @@ function FunctionalBar() {
 
         <FunctionButton
           onClick={handleAutoLayout}
-          tooltipContent="Auto layout"
+          tooltipContent={`Auto Layout (${HOTKEYS_CONFIG.CLICK.AUTO_LAYOUT?.toUpperCase()})`}
           icon={LayoutDashboard}
           side="bottom"
         />
@@ -115,13 +159,13 @@ function FunctionalBar() {
       <ButtonGroup>
         <FunctionButton
           onClick={handleZoomIn}
-          tooltipContent="Zoom In"
+          tooltipContent={`Zoom In (${HOTKEYS_CONFIG.CLICK.ZOOM_IN?.toUpperCase()})`}
           icon={ZoomIn}
           side="bottom"
         />
         <FunctionButton
           onClick={handleZoomOut}
-          tooltipContent="Zoom Out"
+          tooltipContent={`Zoom Out (${HOTKEYS_CONFIG.CLICK.ZOOM_OUT?.toUpperCase()})`}
           icon={ZoomOut}
           side="bottom"
         />
@@ -132,7 +176,7 @@ function FunctionalBar() {
       <ButtonGroup>
         <FunctionButton
           onClick={handleClear}
-          tooltipContent="Clear Graph"
+          tooltipContent={`Clear Canvas (${HOTKEYS_CONFIG.CLICK.CLEAR_GRAPH?.toUpperCase()})`}
           icon={BrushCleaning}
           side="bottom"
           className="hover:bg-(--od-red)/20 text-(--od-red)"
@@ -140,6 +184,14 @@ function FunctionalBar() {
       </ButtonGroup>
     </div>
   );
+}
+
+function Separator() {
+  return <div className="w-px min-h-full bg-(--od-border)" />;
+}
+
+function ButtonGroup({ children }: { children: React.ReactNode }) {
+  return <div className="flex items-center py-1 gap-1">{children}</div>;
 }
 
 export default FunctionalBar;

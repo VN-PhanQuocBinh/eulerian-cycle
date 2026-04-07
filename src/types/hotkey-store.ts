@@ -11,6 +11,8 @@ type Hotkey =
   | "arrowdown"
   | "arrowleft"
   | "arrowright"
+  | "plus"
+  | "minus"
   | "a"
   | "b"
   | "c"
@@ -41,11 +43,11 @@ type Hotkey =
 
 export type KeyCombo = Hotkey | `${Modifier}+${Hotkey}` | `${Modifier}+${Modifier}+${Hotkey}`;
 
-interface HotkeyBinding {
-  combo: KeyCombo;
+interface HotkeyBinding<T extends KeyCombo = Hotkey> {
+  combo: T;
 }
 
-export interface ClickToActionBinding extends HotkeyBinding {
+export interface ClickToActionBinding extends HotkeyBinding<KeyCombo> {
   type: "click";
   handler: () => void;
 }

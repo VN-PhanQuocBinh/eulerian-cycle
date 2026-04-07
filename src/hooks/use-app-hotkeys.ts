@@ -6,6 +6,8 @@ function mappingKeyToCombo(key: string): string {
   const lowerKey = key.toLowerCase();
   if (lowerKey === "control") return "ctrl";
   if (lowerKey === " ") return "space";
+  if (lowerKey === "+") return "plus";
+  if (lowerKey === "-") return "minus";
   return lowerKey;
 }
 
@@ -31,16 +33,12 @@ export function useAppHotkeys() {
 
       pressedKeysRef.current.add(key);
 
-      console.log("Pressed Combo:", Array.from(pressedKeysRef.current).join("+"));
-
       const lowerCaseCombo =
         pressedKeysRef.current.size > 1 ? Array.from(pressedKeysRef.current).join("+") : key;
       const binding = hotkeysBindings.get(lowerCaseCombo as KeyCombo);
-      console.log("Hotkeys Bindings:", hotkeysBindings);
-
-      console.log("Matching Binding:", binding);
 
       if (binding) {
+        event.preventDefault();
         window.dispatchEvent(new CustomEvent("hotkey-triggered", { detail: binding }));
 
         if (binding.type === "click") {
@@ -53,7 +51,16 @@ export function useAppHotkeys() {
 
     const handleKeyUp = (event: KeyboardEvent) => {
       const key = mappingKeyToCombo(event.key);
-      pressedKeysRef.current.delete(key);
+
+      if (pressedKeysRef.current.has(key)) {
+        const binding = hotkeysBindings.get(key as KeyCombo);
+
+        if (binding && binding.type === "hold") {
+          binding.keyUpHandler();
+        }
+
+        pressedKeysRef.current.delete(key);
+      }
     };
 
     const handleBlur = () => {
