@@ -14,6 +14,7 @@ export type StepEdgeElement = {
   id: string;
   source: StepNodeElement;
   target: StepNodeElement;
+  label?: string;
 };
 
 export type Step = {
@@ -62,7 +63,7 @@ export interface AlgorithmStore {
   // Algorithm state operations
   setCurrentAlgorithm: (algorithm: GraphAlgorithm) => void;
   setSteps: (steps: Step[]) => void;
-  setStartNodeId: (startNodeId: string) => void;
+  setStartNodeId: (startNodeId: string | null) => void;
 
   // Algorithm implementations
 

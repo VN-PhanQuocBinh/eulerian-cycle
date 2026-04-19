@@ -11,8 +11,8 @@ export const useUIStore = create<UIStore>()(
       bottomPanelTab: "steps",
       isBottomPanelOpen: true,
       isSidebarOpen: true,
-      showStack: true,
-      showQueue: true,
+      showStack: false,
+      showQueue: false,
 
       setMode: (mode: GraphMode) => set({ mode }),
       toggleSmartScroll: () => set((state) => ({ enableSmartScroll: !state.enableSmartScroll })),

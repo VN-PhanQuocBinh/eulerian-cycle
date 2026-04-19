@@ -5,6 +5,7 @@ import type { EdgeHandlesInstance, EdgeHandlesOptions } from "cytoscape-edgehand
 import { GraphEdge, GraphNode } from "@/types/graph-data-store";
 import { GraphAlgorithm } from "@/types/algorithm-store";
 import { ALGORITHM_LAYOUT_CONFIGS } from "@/configs/graph-layouts";
+import { applyNewClasses } from "@/utils/apply-new-classes";
 
 interface Position {
   x: number;
@@ -28,6 +29,8 @@ interface IGraphEditor {
 interface IGraphVisualizer {
   autoLayout(algorithm: GraphAlgorithm, animate?: boolean): void;
   highlightElement(elementId: string, className: string[], pulse?: boolean): void;
+  applyLabelsToEdges(labels: Map<string, string>): void;
+  clearLabelsFromEdges({ edgeIds, all }: { edgeIds?: string[]; all?: boolean }): void;
   toggleDirected(isDirected: boolean): void;
   applyStylesFromMap(styles: Map<string, Set<string>>): void;
   zoomGraph(type: "in" | "out"): void;
@@ -38,7 +41,13 @@ interface IGraphService extends IGraphEditor, IGraphVisualizer {
   init(container: HTMLDivElement): void;
   destroy(): void;
   bindEvents(callbacks: {
-    onNodeAdd: (position: Position) => void;
+    onNodeAdd: ({
+      renderedPosition,
+      position,
+    }: {
+      renderedPosition: Position;
+      position: Position;
+    }) => void;
     onNodeUpdate: (params: { id: string; position: Position }) => void;
     onEdgeAdd: (edge: GraphEdge) => void;
   }): void;
@@ -110,8 +119,14 @@ class GraphService implements IGraphService {
     this.cy.on("dblclick", (event) => {
       if (event.target === this.cy) {
         callbacks.onNodeAdd({
-          x: event.renderedPosition.x,
-          y: event.renderedPosition.y,
+          renderedPosition: {
+            x: event.renderedPosition.x,
+            y: event.renderedPosition.y,
+          },
+          position: {
+            x: event.position.x,
+            y: event.position.y,
+          },
         });
       }
     });
@@ -251,6 +266,7 @@ class GraphService implements IGraphService {
     this.cy.batch(() => {
       this.cy!.elements().classes("");
       this.cy!.elements().unselect();
+      this.cy!.edges().data("label", "");
       this.cy!.animate({
         fit: {
           eles: this.cy!.elements(),
@@ -338,11 +354,38 @@ class GraphService implements IGraphService {
       for (const [elementId, classes] of styles.entries()) {
         const element = this.cy!.getElementById(elementId);
         if (element.length > 0) {
-          element.classes(Array.from(classes).join(" "));
+          const applyedClasses = applyNewClasses("", Array.from(classes).join(" "));
+          element.classes(applyedClasses);
+          console.log(`Applied classes: `, element.classes());
+          console.log(`Applied classes for element ${elementId}: `, applyedClasses);
+          console.log("-------------------------------");
         }
       }
     });
   }
+
+  applyLabelsToEdges(labels: Map<string, string>) {
+    if (!this.cy) return;
+
+    for (const [edgeId, label] of labels.entries()) {
+      const edge = this.cy.getElementById(edgeId);
+      edge.data("label", label);
+    }
+  }
+
+  clearLabelsFromEdges: IGraphService["clearLabelsFromEdges"] = ({ edgeIds = [], all = false }) => {
+    if (!this.cy) return;
+
+    if (all) {
+      this.cy.edges().data("label", "");
+      return;
+    }
+
+    edgeIds.forEach((edgeId) => {
+      const edge = this.cy!.getElementById(edgeId);
+      edge.data("label", "");
+    });
+  };
 
   zoomGraph(type: "in" | "out") {
     if (!this.cy) return;

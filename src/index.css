@@ -303,7 +303,9 @@ button {
   padding: 8px 10px;
   font-size: 13px;
   color: var(--od-fg-1);
-  transition: background-color 120ms ease, color 120ms ease;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
 }
 
 .menu-item:hover {
@@ -314,4 +316,39 @@ button {
 .menu-item span {
   color: var(--od-fg-2);
   font-size: 12px;
+}
+
+@keyframes suggest-spin {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(16deg) scale(1.08);
+  }
+  100% {
+    transform: rotate(0deg) scale(1);
+  }
+}
+
+@keyframes suggest-flash {
+  0% {
+    box-shadow: 0 0 0 0 rgba(56, 189, 248, 0);
+    border-color: rgb(75 85 99);
+  }
+  30% {
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
+    border-color: rgb(56 189 248);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(56, 189, 248, 0);
+    border-color: rgb(75 85 99);
+  }
+}
+
+.animate-suggest-spin {
+  animation: suggest-spin 0.4s ease-out;
+}
+
+.animate-suggest-flash {
+  animation: suggest-flash 0.6s ease-out;
 }

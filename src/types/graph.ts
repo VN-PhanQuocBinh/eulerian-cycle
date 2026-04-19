@@ -1,11 +1,13 @@
+/**
+ * @deprecated This file is deprecated and should not be used. Please use the types defined in src/types/*.ts instead.
+ */
+
 import type cytoscape from "cytoscape";
 import type { ToastHandler } from "@/components/ui/toast";
 
 // Types
 export type GraphMode = "view" | "add-node" | "add-edge" | "delete";
-export type GraphAlgorithm =
-  | "eulerian-cycle"
-  | "connected-components"
+export type GraphAlgorithm = "eulerian-cycle" | "connected-components";
 
 export interface GraphNode {
   id: string;

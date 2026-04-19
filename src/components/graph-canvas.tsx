@@ -11,6 +11,8 @@ import { useFileOperations } from "@/hooks/use-file-operations";
 import BottomToolbar from "./bottom-toolbar";
 import FloatingStackQueuePanel from "./floating-stack-queue-panel";
 import { useNodeInput } from "./ui/node-input";
+import { useAlgorithmOperations } from "@/hooks/use-algorithm-operations";
+import FullscreenButton from "./fullscreen-button";
 
 import {
   ContextMenu,
@@ -41,6 +43,7 @@ const GraphCanvas = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [contextTarget, setContextTarget] = useState<ContextTarget>(null);
   const { openNodeInputAt } = useNodeInput();
+  const { handleStartNodeChange } = useAlgorithmOperations();
 
   const triggerRef = useRef<HTMLDivElement>(null);
 
@@ -98,9 +101,6 @@ const GraphCanvas = () => {
   }, []);
 
   useEffect(() => {
-    console.log(useGraphDataStore.getState().nodes);
-    console.log(useGraphDataStore.getState().edges);
-
     graphService.toggleDrawMode(interactionMode === "add-edge");
   }, [interactionMode]);
 
@@ -181,12 +181,13 @@ const GraphCanvas = () => {
 
   const handleSetStartNode = () => {
     if (!contextTarget || contextTarget.kind !== "node") return;
-    setStartNodeId(contextTarget.id);
+    // setStartNodeId(contextTarget.id);
+    handleStartNodeChange(contextTarget.id);
     setContextTarget(null);
   };
 
   return (
-    <div className="relative flex-1 h-full overflow-hidden bg-(--od-bg-1)">
+    <div className="relative flex-1 h-full overflow-hidden bg-(--od-bg-0)">
       <ContextMenu>
         <ContextMenuTrigger asChild>
           <div ref={triggerRef} className="h-full w-full">
@@ -239,6 +240,7 @@ const GraphCanvas = () => {
       <FunctionalBar />
       <BottomToolbar />
       <FloatingStackQueuePanel />
+      <FullscreenButton />
     </div>
   );
 };
