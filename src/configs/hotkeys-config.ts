@@ -33,6 +33,6 @@ export const HOTKEYS_CONFIG: Record<
 
   HOLD: {
     // Graph Interaction
-    VIEW: "space",
+    
   },
 };

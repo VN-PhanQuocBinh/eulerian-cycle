@@ -6,6 +6,7 @@ import { graphService } from "@/services/graph-service";
 import { useStepControl } from "@/hooks/use-step-control";
 import SpeedControl from "./speed-control";
 import { useToast } from "../ui/toast";
+import { useRegisterHotkey } from "@/hooks/use-register-hotkey";
 
 export const BASE_ANIMATION_SPEED = 2000; // in milliseconds
 
@@ -79,6 +80,24 @@ function FloatintPrimaryControl() {
       setIsAnimating(true);
     }
   };
+
+  useRegisterHotkey({
+    type: "click",
+    combo: "space",
+    handler: handleToggleRun,
+  });
+
+  useRegisterHotkey({
+    type: "click",
+    combo: "arrowleft",
+    handler: backward,
+  });
+
+  useRegisterHotkey({
+    type: "click",
+    combo: "arrowright",
+    handler: forward,
+  });
 
   const handleReset = () => {
     graphService.resetGraph();
