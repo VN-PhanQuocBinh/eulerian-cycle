@@ -35,7 +35,6 @@ function FunctionalBar() {
   const setMode = useUIStore((s) => s.setMode);
   const clearGraphData = useGraphDataStore((s) => s.clearGraphData);
   const setSteps = useAlgorithmStore((s) => s.setSteps);
-  const prevModeRef = useRef<GraphMode | null>(null);
 
   const handleClear = () => {
     graphService.clearCanvas();
@@ -48,23 +47,6 @@ function FunctionalBar() {
 
     setMode(value);
   };
-
-  useRegisterHotkey({
-    type: "hold",
-    combo: HOTKEYS_CONFIG.HOLD.VIEW as any,
-    keyDownHandler: () => {
-      handleValueChange("view");
-      prevModeRef.current = interactionMode;
-    },
-    keyUpHandler: () => {
-      if (prevModeRef.current) {
-        setMode(prevModeRef.current);
-        prevModeRef.current = null;
-      } else {
-        setMode("view");
-      }
-    },
-  });
 
   useRegisterHotkey({
     type: "click",

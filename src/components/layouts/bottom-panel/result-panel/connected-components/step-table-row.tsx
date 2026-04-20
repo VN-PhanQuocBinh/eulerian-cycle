@@ -134,7 +134,7 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
               <div className="flex-1 flex items-center gap-2 flex-wrap">
                 {queueNodes.map((node) => (
                   <span
-                    key={node.id}
+                    key={node.id + Math.random()}
                     className="size-5 w-max px-1.5 py-0.5 rounded text-xs border border-(--od-border) bg-(--od-bg-1) text-(--od-fg-1)"
                   >
                     {node?.label}
