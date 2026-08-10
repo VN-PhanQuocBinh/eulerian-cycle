@@ -1,5 +1,4 @@
 import { SelectItem, SelectContent, Select } from "@/components/ui/select";
-import {} from "@/types/graph";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/utils/cn";
 
