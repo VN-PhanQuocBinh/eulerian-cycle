@@ -1,403 +1,122 @@
-import cytoscape from "cytoscape";
-import { graphStyles } from "@/configs/graph";
-import { generateEdgeId } from "@/utils/generate-id";
-import type { EdgeHandlesInstance, EdgeHandlesOptions } from "cytoscape-edgehandles";
-import { GraphEdge, GraphNode } from "@/types/graph-data-store";
-import { GraphAlgorithm } from "@/types/algorithm-store";
-import { ALGORITHM_LAYOUT_CONFIGS } from "@/configs/graph-layouts";
-import { applyNewClasses } from "@/utils/apply-new-classes";
+﻿import type { GraphAlgorithm } from "@/types/algorithm-store";
+import type { GraphEdge, GraphNode } from "@/types/graph-data-store";
 
-interface Position {
-  x: number;
-  y: number;
-}
+import { GraphCanvasAdapter, type GraphCanvasCallbacks } from "@/services/graph-canvas-adapter";
+import { GraphSerializer } from "@/services/graph-serializer";
+import { GraphVisualizer } from "@/services/graph-visualizer";
 
-interface IGraphEditor {
+type Position = { x: number; y: number };
+
+interface IGraphService {
+  cy: import("cytoscape").Core | null;
+  init(container: HTMLDivElement): void;
+  destroy(): void;
+  bindEvents(callbacks: {
+    onNodeAdd: (params: { renderedPosition: Position; position: Position }) => void;
+    onNodeUpdate: (params: { id: string; position: Position }) => void;
+    onEdgeAdd: (edge: GraphEdge) => void;
+  }): void;
+  toggleDrawMode(enable: boolean): void;
   addNodeToCy(node: GraphNode): void;
   updateNodeInCy(node: Partial<GraphNode> & { id: string }): void;
   removeSelectedElements(): { nodeIds: string[]; edgeIds: string[] };
   clearCanvas(): void;
-  resetGraph(): void;
-  drawGraphFromData(graphData: {
-    nodes: GraphNode[];
-    edges: GraphEdge[];
-    isDirected: boolean;
-  }): void;
+  drawGraphFromData(graphData: { nodes: GraphNode[]; edges: GraphEdge[]; isDirected: boolean }): void;
   getGraphSnapshot(): { nodes: GraphNode[]; edges: GraphEdge[]; isDirected: boolean };
-}
-
-interface IGraphVisualizer {
+  getPNG(): string;
   autoLayout(algorithm: GraphAlgorithm, animate?: boolean): void;
   highlightElement(elementId: string, className: string[], pulse?: boolean): void;
   applyLabelsToEdges(labels: Map<string, string>): void;
-  clearLabelsFromEdges({ edgeIds, all }: { edgeIds?: string[]; all?: boolean }): void;
+  clearLabelsFromEdges(params: { edgeIds?: string[]; all?: boolean }): void;
   toggleDirected(isDirected: boolean): void;
   applyStylesFromMap(styles: Map<string, Set<string>>): void;
   zoomGraph(type: "in" | "out"): void;
-}
-
-interface IGraphService extends IGraphEditor, IGraphVisualizer {
-  // Initialization & Lifecycle
-  init(container: HTMLDivElement): void;
-  destroy(): void;
-  bindEvents(callbacks: {
-    onNodeAdd: ({
-      renderedPosition,
-      position,
-    }: {
-      renderedPosition: Position;
-      position: Position;
-    }) => void;
-    onNodeUpdate: (params: { id: string; position: Position }) => void;
-    onEdgeAdd: (edge: GraphEdge) => void;
-  }): void;
-
-  toggleDrawMode(enable: boolean): void;
-  getPNG(): string;
+  resetGraph(): void;
 }
 
 class GraphService implements IGraphService {
-  public cy: cytoscape.Core | null = null;
-  private eh: EdgeHandlesInstance | null = null;
+  private readonly canvas = new GraphCanvasAdapter();
+  private readonly visualizer = new GraphVisualizer(this.canvas);
+  private readonly serializer = new GraphSerializer(this.canvas);
+
+  get cy() {
+    return this.canvas.cy;
+  }
 
   init(container: HTMLDivElement) {
-    const graphInstance = cytoscape({
-      container,
-      style: graphStyles,
-      elements: [],
-      layout: { name: "preset" },
-      userZoomingEnabled: true,
-      userPanningEnabled: true,
-    });
-
-    let defaults: EdgeHandlesOptions = {
-      canConnect: function () {
-        // whether an edge can be created between source and target
-        // return !sourceNode.same(targetNode); // e.g. disallow loops
-        return true;
-      },
-      edgeParams: function (
-        sourceNode: cytoscape.NodeSingular,
-        targetNode: cytoscape.NodeSingular,
-      ): cytoscape.ElementDefinition {
-        // for edges between the specified source and target
-        // return element object to be passed to cy.add() for edge
-        const uniqueId = generateEdgeId(sourceNode.id(), targetNode.id());
-
-        return {
-          data: {
-            id: uniqueId,
-            source: sourceNode.id(),
-            target: targetNode.id(),
-          },
-        };
-      },
-
-      hoverDelay: 150, // time spent hovering over a target node before it is considered selected
-      snap: true, // when enabled, the edge can be drawn by just moving close to a target node (can be confusing on compound graphs)
-      snapThreshold: 50, // the target node must be less than or equal to this many pixels away from the cursor/finger
-      snapFrequency: 15, // the number of times per second (Hz) that snap checks done (lower is less expensive)
-      noEdgeEventsInDraw: true, // set events:no to edges during draws, prevents mouseouts on compounds
-      disableBrowserGestures: true, // during an edge drawing gesture, disable browser gestures such as two-finger trackpad swipe and pinch-to-zoom
-    };
-
-    const ehInstance = graphInstance.edgehandles(defaults);
-
-    this.cy = graphInstance;
-    this.eh = ehInstance;
-
-    return {
-      cy: this.cy,
-      eh: this.eh,
-    };
+    return this.canvas.init(container);
   }
-
-  bindEvents: IGraphService["bindEvents"] = (callbacks) => {
-    if (!this.cy) return;
-
-    // Ví dụ: Click đúp vào canvas trống để thêm node
-    this.cy.on("dblclick", (event) => {
-      if (event.target === this.cy) {
-        callbacks.onNodeAdd({
-          renderedPosition: {
-            x: event.renderedPosition.x,
-            y: event.renderedPosition.y,
-          },
-          position: {
-            x: event.position.x,
-            y: event.position.y,
-          },
-        });
-      }
-    });
-
-    this.cy.on("dblclick", "node", (event) => {
-      console.dir(event);
-      const node = event.target;
-      const nodeElement = this.cy!.getElementById(node.id());
-      const position = nodeElement.renderedPosition();
-
-      callbacks.onNodeUpdate({
-        id: node.id(),
-        position: { x: position.x, y: position.y },
-      });
-    });
-
-    // Listen event when an edge is created via edgehandles
-    this.cy.on(
-      "ehcomplete",
-      (
-        _event: cytoscape.EventObject,
-        sourceNode: cytoscape.NodeSingular,
-        targetNode: cytoscape.NodeSingular,
-        addedEdge: cytoscape.EdgeSingular,
-      ) => {
-        const newEdge: GraphEdge = {
-          id: addedEdge.id(),
-          source: sourceNode.id(),
-          target: targetNode.id(),
-        };
-
-        callbacks.onEdgeAdd(newEdge);
-      },
-    );
-  };
-
-  autoLayout: IGraphService["autoLayout"] = (algorithm, animate = true) => {
-    if (!this.cy || !algorithm) return;
-
-    const layoutConfig = ALGORITHM_LAYOUT_CONFIGS[algorithm];
-    if (layoutConfig) {
-      this.cy.layout({ ...layoutConfig, animate } as cytoscape.LayoutOptions).run();
-    }
-  };
 
   destroy() {
-    this.cy?.destroy();
-    this.cy = null;
+    this.canvas.destroy();
   }
 
-  toggleDrawMode: IGraphService["toggleDrawMode"] = (enable) => {
-    if (!this.eh) return;
-
-    if (enable) {
-      this.eh.enableDrawMode();
-    } else {
-      this.eh.disableDrawMode();
-    }
-  };
-
-  toggleDirected: IGraphService["toggleDirected"] = (isDirected) => {
-    if (!this.cy) return;
-
-    this.cy.edges().data("isDirected", isDirected);
-  };
-
-  getPNG: IGraphService["getPNG"] = () => {
-    if (!this.cy) return "";
-    return this.cy.png({ full: true, bg: "white" });
-  };
-
-  addNodeToCy: IGraphService["addNodeToCy"] = (node) => {
-    if (!this.cy) return;
-
-    this.cy.add({
-      group: "nodes",
-      data: { id: node.id, label: node.label },
-      position: { x: node.x, y: node.y },
-    });
-  };
-
-  updateNodeInCy: IGraphService["updateNodeInCy"] = (node) => {
-    if (!this.cy || !node.label) return;
-
-    const nodeInCy = this.cy.getElementById(node.id);
-    if (nodeInCy) {
-      nodeInCy.data({ ...nodeInCy.data(), label: node.label });
-    }
-  };
-
-  getGraphSnapshot: IGraphService["getGraphSnapshot"] = () => {
-    if (!this.cy) return { nodes: [], edges: [], isDirected: false };
-
-    const nodes: GraphNode[] = this.cy.nodes().map((node) => ({
-      id: node.id(),
-      label: node.data("label"),
-      x: node.renderedPosition().x,
-      y: node.renderedPosition().y,
-    }));
-    const edges: GraphEdge[] = this.cy.edges().map((edge) => ({
-      id: edge.id(),
-      source: edge.source().id(),
-      target: edge.target().id(),
-    }));
-
-    return {
-      nodes,
-      edges,
-      isDirected: this.cy.edges().some((edge) => edge.data("isDirected")),
-    };
-  };
-
-  removeSelectedElements: IGraphService["removeSelectedElements"] = () => {
-    if (!this.cy) return { nodeIds: [], edgeIds: [] };
-    const selectedElements = this.cy.$(":selected");
-
-    const nodeIds = selectedElements.nodes().map((node) => node.id());
-    const edgeIds = selectedElements.edges().map((edge) => edge.id());
-
-    selectedElements.remove();
-
-    return {
-      nodeIds,
-      edgeIds,
-    };
-  };
-
-  clearCanvas(): void {
-    if (!this.cy) return;
-    this.cy.elements().remove();
+  bindEvents(callbacks: GraphCanvasCallbacks) {
+    return this.canvas.bindEvents(callbacks);
   }
 
-  // services/cytoscape-service.ts
-  public resetGraph() {
-    if (!this.cy) return;
-
-    this.cy.batch(() => {
-      this.cy!.elements().classes("");
-      this.cy!.elements().unselect();
-      this.cy!.edges().data("label", "");
-      this.cy!.animate({
-        fit: {
-          eles: this.cy!.elements(),
-          padding: 100,
-        },
-        duration: 500,
-        easing: "ease-in-out-cubic",
-      });
-    });
+  toggleDrawMode(enable: boolean) {
+    return this.canvas.toggleDrawMode(enable);
   }
 
-  drawGraphFromData: IGraphService["drawGraphFromData"] = (graphData) => {
-    if (!this.cy) return;
+  addNodeToCy(node: GraphNode) {
+    return this.canvas.addNodeToCy(node);
+  }
 
-    const { nodes, edges } = graphData;
-    // Clear current graph
-    this.clearCanvas();
+  updateNodeInCy(node: Partial<GraphNode> & { id: string }) {
+    return this.canvas.updateNodeInCy(node);
+  }
 
-    // Load nodes
+  removeSelectedElements() {
+    return this.canvas.removeSelectedElements();
+  }
 
-    nodes.forEach((node: GraphNode) => {
-      this.cy?.add({
-        group: "nodes",
-        data: { id: node.id, label: node.label },
-        position: { x: node.x, y: node.y },
-      });
-    });
+  clearCanvas() {
+    return this.canvas.clearCanvas();
+  }
 
-    // Load edges
-    edges.forEach((edge: GraphEdge) => {
-      this.cy?.add({
-        group: "edges",
-        data: edge,
-      });
-    });
-  };
+  drawGraphFromData(graphData: { nodes: GraphNode[]; edges: GraphEdge[]; isDirected: boolean }) {
+    return this.canvas.drawGraphFromData(graphData);
+  }
 
-  highlightElement: IGraphService["highlightElement"] = (elementId, className, pulse = false) => {
-    if (!this.cy) return;
+  getGraphSnapshot() {
+    return this.serializer.getGraphSnapshot();
+  }
 
-    const element = this.cy.getElementById(elementId);
-    let addClasses: string[] = [];
-    let removeClasses: string[] = [];
+  getPNG() {
+    return this.serializer.getPNG();
+  }
 
-    if (element.length === 0) {
-      console.warn(`Element with ID ${elementId} not found for highlighting.`);
-      return;
-    }
+  autoLayout(algorithm: GraphAlgorithm, animate = true) {
+    return this.visualizer.autoLayout(algorithm, animate);
+  }
 
-    className.forEach((classString) => {
-      if (classString.startsWith("-")) {
-        removeClasses.push(classString.substring(1));
-      } else {
-        addClasses.push(classString);
-      }
-    });
-
-    const currentClasses = element.classes();
-    const applyedClasses = currentClasses
-      .filter((cls) => !removeClasses.includes(cls))
-      .concat(addClasses);
-
-    element.classes(applyedClasses.join(" "));
-
-    if (pulse) {
-      element.animate({
-        style: { width: 50, height: 50 },
-        duration: 200,
-        complete: () => {
-          element.animate({
-            style: { width: 40, height: 40 },
-            duration: 200,
-          });
-        },
-      });
-    }
-  };
-
-  applyStylesFromMap(styles: Map<string, Set<string>>) {
-    if (!this.cy) return;
-
-    this.cy.batch(() => {
-      this.cy!.elements().classes("");
-
-      for (const [elementId, classes] of styles.entries()) {
-        const element = this.cy!.getElementById(elementId);
-        if (element.length > 0) {
-          const applyedClasses = applyNewClasses("", Array.from(classes).join(" "));
-          element.classes(applyedClasses);
-          console.log(`Applied classes: `, element.classes());
-          console.log(`Applied classes for element ${elementId}: `, applyedClasses);
-          console.log("-------------------------------");
-        }
-      }
-    });
+  highlightElement(elementId: string, className: string[], pulse = false) {
+    return this.visualizer.highlightElement(elementId, className, pulse);
   }
 
   applyLabelsToEdges(labels: Map<string, string>) {
-    if (!this.cy) return;
-
-    for (const [edgeId, label] of labels.entries()) {
-      const edge = this.cy.getElementById(edgeId);
-      edge.data("label", label);
-    }
+    return this.visualizer.applyLabelsToEdges(labels);
   }
 
-  clearLabelsFromEdges: IGraphService["clearLabelsFromEdges"] = ({ edgeIds = [], all = false }) => {
-    if (!this.cy) return;
+  clearLabelsFromEdges(params: { edgeIds?: string[]; all?: boolean }) {
+    return this.visualizer.clearLabelsFromEdges(params);
+  }
 
-    if (all) {
-      this.cy.edges().data("label", "");
-      return;
-    }
+  toggleDirected(isDirected: boolean) {
+    return this.visualizer.toggleDirected(isDirected);
+  }
 
-    edgeIds.forEach((edgeId) => {
-      const edge = this.cy!.getElementById(edgeId);
-      edge.data("label", "");
-    });
-  };
+  applyStylesFromMap(styles: Map<string, Set<string>>) {
+    return this.visualizer.applyStylesFromMap(styles);
+  }
 
   zoomGraph(type: "in" | "out") {
-    if (!this.cy) return;
+    return this.visualizer.zoomGraph(type);
+  }
 
-    const factor = type === "in" ? 1.2 : 1 / 1.2;
-    this.cy.zoom({
-      level: this.cy.zoom() * factor,
-      renderedPosition: {
-        x: this.cy.width() / 2,
-        y: this.cy.height() / 2,
-      },
-    });
+  resetGraph() {
+    return this.visualizer.resetGraph();
   }
 }
 
