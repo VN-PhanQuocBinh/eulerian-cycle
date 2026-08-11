@@ -19,6 +19,7 @@ interface IGraphService {
   toggleDrawMode(enable: boolean): void;
   addNodeToCy(node: GraphNode): void;
   updateNodeInCy(node: Partial<GraphNode> & { id: string }): void;
+  removeElementById(elementId: string): void;
   removeSelectedElements(): { nodeIds: string[]; edgeIds: string[] };
   clearCanvas(): void;
   drawGraphFromData(graphData: { nodes: GraphNode[]; edges: GraphEdge[]; isDirected: boolean }): void;
@@ -65,6 +66,10 @@ class GraphService implements IGraphService {
 
   updateNodeInCy(node: Partial<GraphNode> & { id: string }) {
     return this.canvas.updateNodeInCy(node);
+  }
+
+  removeElementById(elementId: string) {
+    return this.canvas.removeElementById(elementId);
   }
 
   removeSelectedElements() {

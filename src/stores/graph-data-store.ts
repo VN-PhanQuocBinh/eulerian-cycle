@@ -41,13 +41,15 @@ export const useGraphDataStore = create<GraphDataStore>()(
       },
 
       addNode: (node) => {
-        if (!node.label.trim()) return;
+        if (!node.label.trim()) return new Error("Node label cannot be empty.");
 
-        set((state) => ({ nodes: [...state.nodes, node] }));
         set((state) => {
           const newSet = new Set(state.nodeSet);
           newSet.add(node.id);
-          return { nodeSet: newSet };
+          return { 
+            nodes: [...state.nodes, node],
+            nodeSet: newSet 
+          };
         });
       },
 

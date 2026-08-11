@@ -131,6 +131,15 @@ export class GraphCanvasAdapter {
     }
   }
 
+  removeElementById(elementId: string) {
+    if (!this.cy) return;
+
+    const element = this.cy.getElementById(elementId);
+    if (element) {
+      element.remove();
+    }
+  }
+
   removeSelectedElements() {
     if (!this.cy) return { nodeIds: [], edgeIds: [] };
 
