@@ -17,6 +17,7 @@ import { Tooltip } from "@/components/ui/tooltip";
 import { useRegisterHotkey } from "@/hooks/use-register-hotkey";
 import { useRef } from "react";
 import { HOTKEYS_CONFIG } from "@/configs/hotkeys-config";
+import { KeyCombo } from "@/types/hotkey-store";
 
 const modes: {
   id: keyof typeof HOTKEYS_CONFIG.CLICK;
@@ -50,43 +51,43 @@ function FunctionalBar() {
 
   useRegisterHotkey({
     type: "click",
-    combo: HOTKEYS_CONFIG.CLICK.VIEW as any,
+    combo: HOTKEYS_CONFIG.CLICK.VIEW,
     handler: () => handleValueChange("view"),
   });
 
   useRegisterHotkey({
     type: "click",
-    combo: HOTKEYS_CONFIG.CLICK.ADD_EDGE as any,
+    combo: HOTKEYS_CONFIG.CLICK.ADD_EDGE,
     handler: () => handleValueChange("add-edge"),
   });
 
   useRegisterHotkey({
     type: "click",
-    combo: HOTKEYS_CONFIG.CLICK.ADD_NODE as any,
+    combo: HOTKEYS_CONFIG.CLICK.ADD_NODE,
     handler: () => handleValueChange("add-node"),
   });
 
   useRegisterHotkey({
     type: "click",
-    combo: HOTKEYS_CONFIG.CLICK.AUTO_LAYOUT as any,
+    combo: HOTKEYS_CONFIG.CLICK.AUTO_LAYOUT,
     handler: () => handleAutoLayout(),
   });
 
   useRegisterHotkey({
     type: "click",
-    combo: HOTKEYS_CONFIG.CLICK.ZOOM_IN as any,
+    combo: HOTKEYS_CONFIG.CLICK.ZOOM_IN,
     handler: () => handleZoomIn(),
   });
 
   useRegisterHotkey({
     type: "click",
-    combo: HOTKEYS_CONFIG.CLICK.ZOOM_OUT as any,
+    combo: HOTKEYS_CONFIG.CLICK.ZOOM_OUT,
     handler: () => handleZoomOut(),
   });
 
   useRegisterHotkey({
     type: "click",
-    combo: HOTKEYS_CONFIG.CLICK.CLEAR_GRAPH as any,
+    combo: HOTKEYS_CONFIG.CLICK.CLEAR_GRAPH,
     handler: () => handleClear(),
   });
 

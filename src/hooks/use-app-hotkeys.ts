@@ -1,7 +1,9 @@
+import { HOTKEYS_CONFIG } from '@/configs/hotkeys-config';
 import { useHotkeyStore } from "@/stores/hotkey-store";
 import { KeyCombo } from "@/types/hotkey-store";
 import { useEffect, useRef } from "react";
-
+import { useRegisterHotkey } from "./use-register-hotkey";
+import commandManager from "@/stores/commands/command-manager";
 function mappingKeyToCombo(key: string): string {
   const lowerKey = key.toLowerCase();
   if (lowerKey === "control") return "ctrl";
@@ -14,6 +16,22 @@ function mappingKeyToCombo(key: string): string {
 export function useAppHotkeys() {
   const pressedKeysRef = useRef<Set<string>>(new Set());
   const hotkeysBindings = useHotkeyStore((s) => s.bindings);
+
+  useRegisterHotkey({
+    type: "click",
+    combo: HOTKEYS_CONFIG.CLICK.UNDO,
+    handler: () => {
+      commandManager.undo();
+    },
+  })
+
+  useRegisterHotkey({
+    type: "click",
+    combo: HOTKEYS_CONFIG.CLICK.REDO,
+    handler: () => {
+      commandManager.redo();
+    },
+  })
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {

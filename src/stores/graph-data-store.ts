@@ -41,28 +41,28 @@ export const useGraphDataStore = create<GraphDataStore>()(
       },
 
       addNode: (node) => {
-        if (!node.label.trim()) return new Error("Node label cannot be empty.");
+        if (!node.label.trim()) throw new Error("Node label cannot be empty.");
 
         set((state) => {
           const newSet = new Set(state.nodeSet);
           newSet.add(node.id);
-          return { 
+          return {
             nodes: [...state.nodes, node],
-            nodeSet: newSet 
+            nodeSet: newSet,
           };
         });
       },
 
       removeNode: (nodeId) => {
-        set((state) => ({
-          nodes: state.nodes.filter((n) => n.id !== nodeId),
-          // Also remove connected edges
-          edges: state.edges.filter((e) => e.source !== nodeId && e.target !== nodeId),
-        }));
         set((state) => {
           const newSet = new Set(state.nodeSet);
           newSet.delete(nodeId);
-          return { nodeSet: newSet };
+          return {
+            nodeSet: newSet,
+            nodes: state.nodes.filter((n) => n.id !== nodeId),
+            // Also remove connected edges
+            edges: state.edges.filter((e) => e.source !== nodeId && e.target !== nodeId),
+          };
         });
       },
 

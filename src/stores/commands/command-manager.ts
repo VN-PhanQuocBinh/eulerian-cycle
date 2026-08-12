@@ -8,6 +8,8 @@ class CommandManager {
     command.execute();
     this.undoStack.push(command);
     this.redoStack = [];
+
+    console.log(this.undoStack);
   }
 
   undo() {
