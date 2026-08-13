@@ -6,10 +6,10 @@ import { useEffect } from "react";
 import { useToast } from "@/components/ui/toast";
 import commandManager from "@/stores/commands/command-manager";
 import AddCommand from "@/stores/commands/add-command";
+import { useCommandManager } from "./use-command-manager";
 
 export const useGraphInteractions = () => {
   // Graph Data Store
-  const addNode = useGraphDataStore((s) => s.addNode);
   const updateNode = useGraphDataStore((s) => s.updateNode);
   const addEdge = useGraphDataStore((s) => s.addEdge);
   const isNodeExists = useGraphDataStore((s) => s.isNodeExists);
@@ -18,6 +18,8 @@ export const useGraphInteractions = () => {
   const updateEdges = useGraphDataStore((s) => s.updateEdges);
 
   const { showToast } = useToast();
+
+  const { execute: executeCommand } = useCommandManager();
 
   // Node Input
   const { openNodeInputAt } = useNodeInput();
@@ -47,12 +49,14 @@ export const useGraphInteractions = () => {
               return;
             }
 
-            commandManager.executeCommand(new AddCommand({
-              id: nodeId,
-              label,
-              x: position.x,
-              y: position.y,
-            }));
+            executeCommand(
+              new AddCommand({
+                id: nodeId,
+                label,
+                x: position.x,
+                y: position.y,
+              }),
+            );
           },
         });
       },

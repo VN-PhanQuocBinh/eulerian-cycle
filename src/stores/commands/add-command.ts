@@ -4,22 +4,16 @@ import { GraphNode } from "@/types/graph-data-store";
 import { useGraphDataStore } from "../graph-data-store";
 
 class AddCommand implements Command {
-  constructor(
-    private graphNode: GraphNode
-  ) {}
+  constructor(private graphNode: GraphNode) {}
 
   /**
    * @throws {Error} Error if the node label is empty or if there is an issue adding the node to the graph data store or the graph service.
    */
   execute() {
-    try {
-      const graphDataStore = useGraphDataStore.getState();
+    const graphDataStore = useGraphDataStore.getState();
 
-      graphDataStore.addNode(this.graphNode);
-      graphService.addNodeToCy(this.graphNode);
-    } catch (error) {
-      console.error("Error executing AddCommand:", error);
-    }
+    graphDataStore.addNode(this.graphNode);
+    graphService.addNodeToCy(this.graphNode);
   }
 
   /**
