@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { RotateCcw, RefreshCw, Copy, Check, WandSparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/utils/cn";
@@ -24,7 +24,7 @@ function InputTab({ className }: { className?: string }) {
   const isDirected = useGraphDataStore((state) => state.isDirected);
   const suggestedIndexRef = useRef<number | null>(null);
 
-  const getStoreText = () => graphToEdgeList(nodes, edges);
+  const getStoreText = useCallback(() => graphToEdgeList(nodes, edges), [nodes, edges]);
 
   const [text, setText] = useState(getStoreText);
   const [copyStatus, setCopyStatus] = useState<"idle" | "success" | "error">("idle");
@@ -66,6 +66,7 @@ function InputTab({ className }: { className?: string }) {
 
   const handleCopy = () => {
     try {
+      console.log(nodes, edges);
       copyToClipboard(getStoreText());
       setCopyStatus("success");
 

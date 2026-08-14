@@ -1,8 +1,8 @@
 import { Command } from "@/types/command";
 import { graphService } from "@/services/graph-service";
-import { useGraphDataStore } from "../graph-data-store";
 import { GraphNode, GraphEdge, GraphData } from "@/types/graph-data-store";
 import { GraphAlgorithm } from "@/types/algorithm-store";
+import { useGraphDataStore } from "../graph-data-store";
 
 export class SyncEdgeListCommand implements Command {
   private previousGraphData = graphService.getGraphSnapshot();
@@ -13,16 +13,13 @@ export class SyncEdgeListCommand implements Command {
     private algorithm: GraphAlgorithm,
   ) {}
 
-  execute() {
+  async execute() {
     if (!this.currentSnapshot) {
-      graphService.drawGraphFromData({
-        nodes: this.graphData.nodes,
-        edges: this.graphData.edges,
-        isDirected: this.graphData.isDirected,
-      });
+      graphService.drawGraphFromData(this.graphData);
       graphService.autoLayout(this.algorithm, false);
 
       this.currentSnapshot = graphService.getGraphSnapshot();
+      useGraphDataStore.getState().updateGraphData(this.currentSnapshot);
     } else {
       graphService.drawGraphFromData(this.currentSnapshot);
     }

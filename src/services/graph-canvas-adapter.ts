@@ -4,7 +4,7 @@ import type { EdgeHandlesInstance, EdgeHandlesOptions } from "cytoscape-edgehand
 import { graphStyles } from "@/configs/graph";
 import { generateEdgeId } from "@/utils/generate-id";
 import { applyNewClasses } from "@/utils/apply-new-classes";
-import type { GraphEdge, GraphNode } from "@/types/graph-data-store";
+import type { GraphData, GraphEdge, GraphNode } from "@/types/graph-data-store";
 
 type Position = { x: number; y: number };
 
@@ -96,7 +96,12 @@ export class GraphCanvasAdapter {
 
     this.cy.on(
       "ehcomplete",
-      (_event: cytoscape.EventObject, sourceNode: cytoscape.NodeSingular, targetNode: cytoscape.NodeSingular, addedEdge: cytoscape.EdgeSingular) => {
+      (
+        _event: cytoscape.EventObject,
+        sourceNode: cytoscape.NodeSingular,
+        targetNode: cytoscape.NodeSingular,
+        addedEdge: cytoscape.EdgeSingular,
+      ) => {
         callbacks.onEdgeAdd({
           id: addedEdge.id(),
           source: sourceNode.id(),
@@ -162,18 +167,20 @@ export class GraphCanvasAdapter {
     const { nodes, edges } = graphData;
     this.clearCanvas();
 
-    nodes.forEach((node) => {
-      this.cy?.add({
-        group: "nodes",
-        data: { id: node.id, label: node.label },
-        position: { x: node.x, y: node.y },
+    this.cy.batch(() => {
+      nodes.forEach((node) => {
+        this.cy?.add({
+          group: "nodes",
+          data: { id: node.id, label: node.label },
+          position: { x: node.x, y: node.y },
+        });
       });
-    });
 
-    edges.forEach((edge) => {
-      this.cy?.add({
-        group: "edges",
-        data: edge,
+      edges.forEach((edge) => {
+        this.cy?.add({
+          group: "edges",
+          data: edge,
+        });
       });
     });
   }
@@ -184,8 +191,8 @@ export class GraphCanvasAdapter {
     const nodes: GraphNode[] = this.cy.nodes().map((node) => ({
       id: node.id(),
       label: node.data("label"),
-      x: node.renderedPosition().x,
-      y: node.renderedPosition().y,
+      x: node.position().x,
+      y: node.position().y,
     }));
 
     const edges: GraphEdge[] = this.cy.edges().map((edge) => ({
@@ -271,7 +278,9 @@ export class GraphCanvasAdapter {
     });
 
     const currentClasses = element.classes();
-    const appliedClasses = currentClasses.filter((cls) => !removeClasses.includes(cls)).concat(addClasses);
+    const appliedClasses = currentClasses
+      .filter((cls) => !removeClasses.includes(cls))
+      .concat(addClasses);
 
     element.classes(appliedClasses.join(" "));
 
@@ -318,5 +327,35 @@ export class GraphCanvasAdapter {
         easing: "ease-in-out-cubic",
       });
     });
+  }
+
+  createHeadlessCyInstance(data: GraphData) {
+    if (!this.cy) {
+      throw new Error("Cytoscape instance is not initialized.");
+    }
+
+    const container = document.createElement("div");
+    container.style.width = `${this.cy.width()}px`;
+    container.style.height = `${this.cy.height()}px`;
+    document.body.appendChild(container);
+
+    const headlessCy = cytoscape({
+      headless: true,
+      styleEnabled: true,
+      container,
+      elements: [
+        ...data.nodes.map((node) => ({
+          data: { id: node.id, label: node.label },
+          position: { x: node.x, y: node.y },
+        })),
+        ...data.edges.map((edge) => ({
+          data: { id: edge.id, source: edge.source, target: edge.target, label: edge.label },
+        })),
+      ],
+    });
+
+    // document.body.removeChild(container);
+
+    return headlessCy;
   }
 }
