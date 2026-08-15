@@ -32,6 +32,7 @@ export function GraphReport() {
   const edges = useGraphDataStore((state) => state.edges);
   const isDirected = useGraphDataStore((state) => state.isDirected);
   const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
+  const currentStartNodeId = useAlgorithmStore((state) => state.startNodeId);
   const findConnectedComponents = useAlgorithmStore((state) => state.findConnectedComponents);
   const findEulerianCycle = useAlgorithmStore((state) => state.findEulerianCycle);
   const getCurrentGraphData = useGraphDataStore((state) => state.getCurrentGraphData);
@@ -84,7 +85,7 @@ export function GraphReport() {
         edges,
         isDirected,
       },
-      nodes[0].id,
+      currentStartNodeId || nodes[0].id,
     );
     return cycle;
   }, [currentAlgorithm, nodes, edges, isDirected]);
@@ -226,7 +227,7 @@ export function GraphReport() {
                 )
               }
             />
-            {circuit && <InfoRow label="Circuit length" value={`${circuit.length} edges`} />}
+            {circuit && <InfoRow label="Circuit length" value={`${circuit.length - 1} edges`} />}
             {circuit && (
               <InfoRow
                 label="Circuit"
