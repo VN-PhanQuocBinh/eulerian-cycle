@@ -55,13 +55,6 @@ function InputTab({ className }: { className?: string }) {
         currentAlgorithm!,
       ),
     );
-    // graphService.autoLayout(currentAlgorithm, false);
-    // graphService.drawGraphFromData({ nodes: parsedNodes, edges: parsedEdges, isDirected });
-    // updateGraphData({
-    //   nodes: parsedNodes,
-    //   edges: parsedEdges,
-    //   isDirected,
-    // });
   };
 
   const handleCopy = () => {

@@ -4,14 +4,13 @@ import { generateNodeId } from "@/utils/generate-id";
 import { useGraphDataStore, useUIStore } from "@/stores";
 import { useEffect } from "react";
 import { useToast } from "@/components/ui/toast";
-import commandManager from "@/stores/commands/command-manager";
-import AddCommand from "@/stores/commands/add-command";
+import AddNodeCommand from "@/stores/commands/add-node-command";
 import { useCommandManager } from "./use-command-manager";
+import AddEdgeCommand from "@/stores/commands/add-edge-command";
 
 export const useGraphInteractions = () => {
   // Graph Data Store
   const updateNode = useGraphDataStore((s) => s.updateNode);
-  const addEdge = useGraphDataStore((s) => s.addEdge);
   const isNodeExists = useGraphDataStore((s) => s.isNodeExists);
 
   const updateNodes = useGraphDataStore((s) => s.updateNodes);
@@ -50,7 +49,7 @@ export const useGraphInteractions = () => {
             }
 
             executeCommand(
-              new AddCommand({
+              new AddNodeCommand({
                 id: nodeId,
                 label,
                 x: position.x,
@@ -60,7 +59,9 @@ export const useGraphInteractions = () => {
           },
         });
       },
-      onEdgeAdd: addEdge,
+      onEdgeAdd: (edge) => {
+        executeCommand(new AddEdgeCommand(edge));
+      },
       onNodeUpdate: ({ id, position }) => {
         const interactionMode = useUIStore.getState().mode;
         if (!["view", "add-edge"].includes(interactionMode)) return;

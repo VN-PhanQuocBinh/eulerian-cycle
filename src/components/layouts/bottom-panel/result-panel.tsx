@@ -9,9 +9,6 @@ function ResultPanel() {
   const isDirected = useGraphDataStore((state) => state.isDirected);
   const steps = useAlgorithmStore((state) => state.steps);
 
-  const stepMessages = steps.map((step) => step.message);
-  console.log("ResultPanel step messages:", stepMessages);
-
   return (
     <div className="flex-1 h-full ">
       {steps.length > 0 ? (

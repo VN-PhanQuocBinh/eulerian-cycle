@@ -19,13 +19,15 @@ export class SyncEdgeListCommand implements Command {
       graphService.autoLayout(this.algorithm, false);
 
       this.currentSnapshot = graphService.getGraphSnapshot();
-      useGraphDataStore.getState().updateGraphData(this.currentSnapshot);
     } else {
       graphService.drawGraphFromData(this.currentSnapshot);
     }
+
+    useGraphDataStore.getState().updateGraphData(this.currentSnapshot);
   }
 
   undo() {
+    useGraphDataStore.getState().updateGraphData(this.previousGraphData);
     graphService.drawGraphFromData(this.previousGraphData);
   }
 }

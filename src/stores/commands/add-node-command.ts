@@ -3,7 +3,7 @@ import { graphService } from "@/services/graph-service";
 import { GraphNode } from "@/types/graph-data-store";
 import { useGraphDataStore } from "../graph-data-store";
 
-class AddCommand implements Command {
+class AddNodeCommand implements Command {
   constructor(private graphNode: GraphNode) {}
 
   /**
@@ -26,4 +26,4 @@ class AddCommand implements Command {
   }
 }
 
-export default AddCommand;
+export default AddNodeCommand;

@@ -102,6 +102,8 @@ export class GraphCanvasAdapter {
         targetNode: cytoscape.NodeSingular,
         addedEdge: cytoscape.EdgeSingular,
       ) => {
+        // Remove the edge drawn by eh and trigger the callback to handle edge addition
+        this.cy!.remove(addedEdge);
         callbacks.onEdgeAdd({
           id: addedEdge.id(),
           source: sourceNode.id(),
@@ -124,6 +126,15 @@ export class GraphCanvasAdapter {
       group: "nodes",
       data: { id: node.id, label: node.label },
       position: { x: node.x, y: node.y },
+    });
+  }
+
+  addEdgeToCy(edge: GraphEdge) {
+    if (!this.cy) return;
+
+    this.cy.add({
+      group: "edges",
+      data: edge,
     });
   }
 

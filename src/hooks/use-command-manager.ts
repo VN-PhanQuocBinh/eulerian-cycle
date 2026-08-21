@@ -9,6 +9,7 @@ export const useCommandManager = () => {
     try {
       commandManager.executeCommand(command);
     } catch (error) {
+      console.error("Error executing command:", error);
       showToast({
         message: "An error occurred while executing the command.",
         type: "error",
@@ -20,6 +21,7 @@ export const useCommandManager = () => {
     try {
       commandManager.undo();
     } catch (error) {
+      console.error("Error undoing command:", error);
       showToast({
         message: "An error occurred while undoing the command.",
         type: "error",
