@@ -141,7 +141,6 @@ const GraphCanvas = () => {
     if (!contextTarget || !graphService.cy) return;
 
     if (contextTarget.kind === "node") {
-      graphService.cy.getElementById(contextTarget.id).remove();
       removeNode(contextTarget.id);
 
       if (startNodeId === contextTarget.id) {
@@ -150,9 +149,10 @@ const GraphCanvas = () => {
     }
 
     if (contextTarget.kind === "edge") {
-      graphService.cy.getElementById(contextTarget.id).remove();
       removeEdge(contextTarget.id);
     }
+
+    graphService.removeElementById(contextTarget.id);
 
     setContextTarget(null);
   };

@@ -4,10 +4,12 @@ import { generateNodeId } from "@/utils/generate-id";
 import { useGraphDataStore, useUIStore } from "@/stores";
 import { useEffect } from "react";
 import { useToast } from "@/components/ui/toast";
+import commandManager from "@/stores/commands/command-manager";
+import AddCommand from "@/stores/commands/add-command";
+import { useCommandManager } from "./use-command-manager";
 
 export const useGraphInteractions = () => {
   // Graph Data Store
-  const addNode = useGraphDataStore((s) => s.addNode);
   const updateNode = useGraphDataStore((s) => s.updateNode);
   const addEdge = useGraphDataStore((s) => s.addEdge);
   const isNodeExists = useGraphDataStore((s) => s.isNodeExists);
@@ -16,6 +18,8 @@ export const useGraphInteractions = () => {
   const updateEdges = useGraphDataStore((s) => s.updateEdges);
 
   const { showToast } = useToast();
+
+  const { execute: executeCommand } = useCommandManager();
 
   // Node Input
   const { openNodeInputAt } = useNodeInput();
@@ -36,8 +40,6 @@ export const useGraphInteractions = () => {
 
             const nodeId = generateNodeId(label);
 
-            console.log("Checking if node exists with ID:", isNodeExists(nodeId));
-
             if (isNodeExists(nodeId)) {
               showToast({
                 message: `A node with label "${label}" already exists.`,
@@ -47,13 +49,14 @@ export const useGraphInteractions = () => {
               return;
             }
 
-            graphService.addNodeToCy({
-              id: nodeId,
-              label,
-              x: position.x,
-              y: position.y,
-            });
-            addNode({ id: nodeId, label, x: position.x, y: position.y });
+            executeCommand(
+              new AddCommand({
+                id: nodeId,
+                label,
+                x: position.x,
+                y: position.y,
+              }),
+            );
           },
         });
       },

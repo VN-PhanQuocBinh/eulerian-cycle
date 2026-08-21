@@ -5,6 +5,7 @@ import ControlTab from "./sidebar/control-tab";
 import { FileCode2, Play } from "lucide-react";
 import { Tooltip } from "@/components/ui/tooltip";
 import { useRegisterHotkey } from "@/hooks/use-register-hotkey";
+import { HOTKEYS_CONFIG } from "@/configs/hotkeys-config";
 
 interface NewSidebarProps {
   isOpen: boolean;
@@ -25,7 +26,7 @@ export function NewSidebar({ isOpen, onOpenChange }: NewSidebarProps) {
 
   useRegisterHotkey({
     type: "click",
-    combo: "ctrl+b",
+    combo: HOTKEYS_CONFIG.CLICK.TOGGLE_SIDEBAR,
     handler: () => onOpenChange(!isOpen),
   });
 

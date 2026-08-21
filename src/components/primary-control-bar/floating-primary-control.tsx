@@ -7,6 +7,7 @@ import { useStepControl } from "@/hooks/use-step-control";
 import SpeedControl from "./speed-control";
 import { useToast } from "../ui/toast";
 import { useRegisterHotkey } from "@/hooks/use-register-hotkey";
+import { HOTKEYS_CONFIG } from "@/configs/hotkeys-config";
 
 export const BASE_ANIMATION_SPEED = 2000; // in milliseconds
 
@@ -83,19 +84,19 @@ function FloatintPrimaryControl() {
 
   useRegisterHotkey({
     type: "click",
-    combo: "space",
+    combo: HOTKEYS_CONFIG.CLICK.TOGGLE_RUN,
     handler: handleToggleRun,
   });
 
   useRegisterHotkey({
     type: "click",
-    combo: "arrowleft",
+    combo: HOTKEYS_CONFIG.CLICK.BACKWARD,
     handler: backward,
   });
 
   useRegisterHotkey({
     type: "click",
-    combo: "arrowright",
+    combo: HOTKEYS_CONFIG.CLICK.FORWARD,
     handler: forward,
   });
 
