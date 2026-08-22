@@ -196,6 +196,11 @@ export class GraphCanvasAdapter {
     });
   }
 
+  getClassesByElementId(elementId: string) {
+    if (!this.cy) return [];
+    return this.cy.getElementById(elementId).classes();
+  }
+
   getGraphSnapshot() {
     if (!this.cy) return { nodes: [], edges: [], isDirected: false };
 

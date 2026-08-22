@@ -149,13 +149,14 @@ const GraphCanvas = () => {
       if (startNodeId === contextTarget.id) {
         setStartNodeId("");
       }
+
+      graphService.removeElementById(contextTarget.id);
     }
 
     if (contextTarget.kind === "edge") {
-      removeEdge(contextTarget.id);
+      // removeEdge(contextTarget.id);
+      executeCommand(new RemoveEdgeCommand(contextTarget.id));
     }
-
-    graphService.removeElementById(contextTarget.id);
 
     setContextTarget(null);
   };

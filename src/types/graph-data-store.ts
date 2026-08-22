@@ -25,13 +25,17 @@ export interface GraphDataStore {
   edges: GraphEdge[];
   isDirected: boolean;
   graphData: GraphData;
-  nodeSet: Set<String>; // For quick node existence checks
+  nodeSet: Set<string>; // For quick node existence checks
+  nodeById: Map<string, GraphNode>;
+  edgeById: Map<string, GraphEdge>;
 
   // Actions
   setIsDirected: (isDirected: boolean) => void;
   getCurrentNodesData: () => GraphNode[];
   getCurrentEdgesData: () => GraphEdge[];
   getCurrentGraphData: () => GraphData;
+  getEdgeDataById: (edgeId: string) => GraphEdge | undefined;
+  getNodeDataById: (nodeId: string) => GraphNode | undefined;
 
   // Bulk updates
   updateNodes: (nodes: GraphNode[]) => void;

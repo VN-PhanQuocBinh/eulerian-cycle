@@ -29,6 +29,7 @@ interface IGraphService {
     edges: GraphEdge[];
     isDirected: boolean;
   }): void;
+  getClassesByElementId(elementId: string): string[];
   getGraphSnapshot(): { nodes: GraphNode[]; edges: GraphEdge[]; isDirected: boolean };
   getPNG(): string;
   autoLayout(algorithm: GraphAlgorithm, animate?: boolean): void;
@@ -93,6 +94,10 @@ class GraphService implements IGraphService {
 
   drawGraphFromData(graphData: { nodes: GraphNode[]; edges: GraphEdge[]; isDirected: boolean }) {
     return this.canvas.drawGraphFromData(graphData);
+  }
+
+  getClassesByElementId(elementId: string) {
+    return this.canvas.getClassesByElementId(elementId);
   }
 
   getGraphSnapshot() {

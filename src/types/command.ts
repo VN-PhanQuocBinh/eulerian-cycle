@@ -6,6 +6,6 @@ export interface Command {
 
 export interface GraphEdgeSnapshot {
   data: GraphEdge
-  style: Record<string, any>
-  classes: string[]
+  style?: Record<string, any>
+  classes?: string[]
 }
