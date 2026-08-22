@@ -7,6 +7,7 @@ import { useToast } from "@/components/ui/toast";
 import AddNodeCommand from "@/stores/commands/add-node-command";
 import { useCommandManager } from "./use-command-manager";
 import AddEdgeCommand from "@/stores/commands/add-edge-command";
+import BatchRemoveCommand from "@/stores/commands/batch-remove-command";
 
 export const useGraphInteractions = () => {
   // Graph Data Store
@@ -85,19 +86,21 @@ export const useGraphInteractions = () => {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Delete" || event.key === "Backspace") {
-        const { nodeIds, edgeIds } = graphService.removeSelectedElements();
+        executeCommand(new BatchRemoveCommand());
 
-        const currentNodes = useGraphDataStore.getState().nodes;
-        const currentEdges = useGraphDataStore.getState().edges;
+        // const { nodeIds, edgeIds } = graphService.removeSelectedElements();
 
-        const updatedNodes = currentNodes.filter((n) => !nodeIds.includes(n.id));
-        const updatedEdges = currentEdges.filter(
-          (e) =>
-            !edgeIds.includes(e.id) && !nodeIds.includes(e.source) && !nodeIds.includes(e.target),
-        );
+        // const currentNodes = useGraphDataStore.getState().nodes;
+        // const currentEdges = useGraphDataStore.getState().edges;
 
-        updateNodes(updatedNodes);
-        updateEdges(updatedEdges);
+        // const updatedNodes = currentNodes.filter((n) => !nodeIds.includes(n.id));
+        // const updatedEdges = currentEdges.filter(
+        //   (e) =>
+        //     !edgeIds.includes(e.id) && !nodeIds.includes(e.source) && !nodeIds.includes(e.target),
+        // );
+
+        // updateNodes(updatedNodes);
+        // updateEdges(updatedEdges);
       }
     };
 

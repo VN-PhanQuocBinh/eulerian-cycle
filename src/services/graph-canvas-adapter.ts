@@ -5,6 +5,7 @@ import { graphStyles } from "@/configs/graph";
 import { generateEdgeId } from "@/utils/generate-id";
 import { applyNewClasses } from "@/utils/apply-new-classes";
 import type { GraphData, GraphEdge, GraphNode } from "@/types/graph-data-store";
+import { GraphEdgeSnapshot, GraphNodeSnapshot } from "@/types/command";
 
 type Position = { x: number; y: number };
 
@@ -119,22 +120,43 @@ export class GraphCanvasAdapter {
     else this.eh.disableDrawMode();
   }
 
-  addNodeToCy(node: GraphNode) {
+  addNodesToCy(nodes: GraphNodeSnapshot[]) {
     if (!this.cy) return;
 
-    this.cy.add({
-      group: "nodes",
-      data: { id: node.id, label: node.label },
-      position: { x: node.x, y: node.y },
+    this.cy.batch(() => {
+      nodes.forEach((node) => {
+        const { data, style, classes } = node;
+
+        this.cy?.add({
+          group: "nodes",
+          data: { id: data.id, label: data.label },
+          position: { x: data.x, y: data.y },
+          style: style || {},
+          classes: classes?.join(" ") || "",
+        });
+      });
     });
   }
 
-  addEdgeToCy(edge: GraphEdge) {
+  addEdgesToCy(edges: GraphEdgeSnapshot[]) {
     if (!this.cy) return;
 
-    this.cy.add({
-      group: "edges",
-      data: edge,
+    this.cy.batch(() => {
+      edges.forEach((edge) => {
+        const { data, style, classes } = edge;
+
+        this.cy?.add({
+          group: "edges",
+          data: {
+            id: data.id,
+            source: data.source,
+            target: data.target,
+            label: data.label,
+          },
+          style: style || {},
+          classes: classes?.join(" ") || "",
+        });
+      });
     });
   }
 
@@ -154,6 +176,45 @@ export class GraphCanvasAdapter {
     if (element) {
       element.remove();
     }
+  }
+
+  removeElementsByIds(elementIds: string[]) {
+    if (!this.cy) return;
+
+    this.cy.batch(() => {
+      elementIds.forEach((id) => {
+        const element = this.cy!.getElementById(id);
+        if (element) {
+          element.remove();
+        }
+      });
+    });
+  }
+
+  getSelectedElements(): { nodes: GraphNodeSnapshot[]; edges: GraphEdgeSnapshot[] } {
+    if (!this.cy) return { nodes: [], edges: [] };
+
+    const selectedElements = this.cy.$(":selected");
+
+    // Get snapshots of selected nodes
+    const nodes = selectedElements.nodes().map((node) => {
+      const snapshot = this.getNodeSnapshotById(node.id());
+      if (!snapshot) {
+        throw new Error(`Node with ID ${node.id()} not found for snapshot.`);
+      }
+      return snapshot;
+    });
+
+    // Get snapshots of selected edges
+    const edges = selectedElements.edges().map((edge) => {
+      const snapshot = this.getEdgeSnapshotById(edge.id());
+      if (!snapshot) {
+        throw new Error(`Edge with ID ${edge.id()} not found for snapshot.`);
+      }
+      return snapshot;
+    });
+
+    return { nodes, edges };
   }
 
   removeSelectedElements() {
@@ -199,6 +260,42 @@ export class GraphCanvasAdapter {
   getClassesByElementId(elementId: string) {
     if (!this.cy) return [];
     return this.cy.getElementById(elementId).classes();
+  }
+
+  getNodeSnapshotById(nodeId: string): GraphNodeSnapshot | null {
+    if (!this.cy) return null;
+
+    const node = this.cy.getElementById(nodeId);
+    if (node.empty()) return null;
+
+    return {
+      data: {
+        id: node.id(),
+        label: node.data("label"),
+        x: node.position().x,
+        y: node.position().y,
+      },
+      style: {},
+      classes: node.classes(),
+    };
+  }
+
+  getEdgeSnapshotById(edgeId: string): GraphEdgeSnapshot | null {
+    if (!this.cy) return null;
+
+    const edge = this.cy.getElementById(edgeId);
+    if (edge.empty()) return null;
+
+    return {
+      data: {
+        id: edge.id(),
+        source: edge.source().id(),
+        target: edge.target().id(),
+        label: edge.data("label"),
+      },
+      style: {},
+      classes: edge.classes(),
+    };
   }
 
   getGraphSnapshot() {

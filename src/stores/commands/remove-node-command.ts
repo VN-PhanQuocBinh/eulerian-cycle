@@ -1,4 +1,4 @@
-import { useGraphDataStore } from '@/stores';
+import { useGraphDataStore } from "@/stores";
 import { Command, GraphEdgeSnapshot, GraphNodeSnapshot } from "@/types/command";
 import { graphService } from "@/services/graph-service";
 
@@ -7,28 +7,36 @@ class RemoveNodeCommand implements Command {
   private connectedEdgesSnapshots: GraphEdgeSnapshot[] = [];
 
   constructor(private nodeId: string) {
-    const nodeData = useGraphDataStore.getState().getNodeDataById(this.nodeId);
-    const nodeSnapshot: GraphNodeSnapshot = {
-      data: nodeData!,
-      style: {},
-      classes: graphService.getClassesByElementId(this.nodeId),
-    };
+    // Get snapshot of the node to be removed
+    const nodeSnapshot = graphService.getNodeSnapshotById(this.nodeId);
+    if (!nodeSnapshot) {
+      throw new Error(
+        `Cannot create RemoveNodeCommand: node with ID ${this.nodeId} does not exist.`,
+      );
+    }
     this.nodeSnapshot = nodeSnapshot;
 
     // Get snapshots of connected edges
-    const connectedEdges = useGraphDataStore.getState().getEdgesByNodeId(this.nodeId);
-    this.connectedEdgesSnapshots = connectedEdges.map((edge) => {
-      const edgeSnapshot: GraphEdgeSnapshot = {
-        data: edge,
-        style: {},
-        classes: graphService.getClassesByElementId(edge.id),
-      };
-      return edgeSnapshot;
+    const connectedEdges: GraphEdgeSnapshot[] = [];
+    const nodeEdges = useGraphDataStore.getState().getEdgesByNodeId(this.nodeId);
+    nodeEdges.forEach((edge) => {
+      const edgeSnapshot = graphService.getEdgeSnapshotById(edge.id);
+
+      if (!edgeSnapshot) {
+        throw new Error(
+          `Cannot create RemoveNodeCommand: connected edge with ID ${edge.id} does not exist.`,
+        );
+      }
+
+      connectedEdges.push(edgeSnapshot);
     });
+    
+    this.connectedEdgesSnapshots = connectedEdges;
   }
 
   execute() {
-    if (!this.nodeSnapshot) throw new Error("Cannot execute RemoveNodeCommand: node snapshot is missing.");
+    if (!this.nodeSnapshot)
+      throw new Error("Cannot execute RemoveNodeCommand: node snapshot is missing.");
 
     // Remove connected edges first
     this.connectedEdgesSnapshots.forEach((edgeSnapshot) => {
@@ -42,19 +50,19 @@ class RemoveNodeCommand implements Command {
   }
 
   undo() {
-    if (!this.nodeSnapshot) throw new Error("Cannot undo RemoveNodeCommand: node snapshot is missing.");
+    if (!this.nodeSnapshot)
+      throw new Error("Cannot undo RemoveNodeCommand: node snapshot is missing.");
 
     // Restore the node
     const { data: nodeData } = this.nodeSnapshot;
     useGraphDataStore.getState().addNode(nodeData);
-    graphService.addNodeToCy(nodeData);
+    graphService.addNodeToCy(this.nodeSnapshot);
 
     // Restore connected edges
     this.connectedEdgesSnapshots.forEach((edgeSnapshot) => {
-      const { data: edgeData } = edgeSnapshot;
-      useGraphDataStore.getState().addEdge(edgeData);
-      graphService.addEdgeToCy(edgeData);
+      useGraphDataStore.getState().addEdge(edgeSnapshot.data);
     });
+    graphService.addEdgesToCy(this.connectedEdgesSnapshots);
   }
 }
 
