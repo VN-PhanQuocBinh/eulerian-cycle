@@ -55,7 +55,7 @@ function AppContent() {
             maxSize={450}
             panelRef={sidebarPanelRef}
             collapsible
-            collapsedSize={56}
+            collapsedSize={48}
             onResize={handleResize}
           >
             <NewSidebar isOpen={isSidebarOpen} onOpenChange={toggleSidebar} />

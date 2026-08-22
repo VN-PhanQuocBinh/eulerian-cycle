@@ -44,10 +44,10 @@ export function BottomPanel() {
       className="h-full tabs-bar px-2 relative bg-(--od-bg-1) border-t border-border"
       onValueChange={(tab) => setBottomPanelTab(tab as BottomPanelTab)}
     >
-      <div className="flex items-center mb-2 py-2">
+      <div className="flex items-center mb-2 py-1">
         <TabsList variant="line" className="">
           {tabs.map((tab) => (
-            <TabsTrigger key={tab.value} value={tab.value}>
+            <TabsTrigger key={tab.value} value={tab.value} className="text-sm!">
               {tab.label}
             </TabsTrigger>
           ))}
@@ -63,14 +63,11 @@ export function BottomPanel() {
                 )}
                 {enableSmartScroll ? "Disable" : "Enable"} Smart Scroll
               </Button>
-              <span className="text-gray-500">
-                Step {steps.length > 0 ? currentStepIndex + 1 : 0} / {steps.length}
-              </span>
             </>
           )}
 
           {/* Separator */}
-          <div className="border-l border-border h-6 mx-2" />
+          <div className="border-l border-border h-6 mx-1" />
 
           <Tooltip
             content={`Close Panel (${HOTKEYS_CONFIG.CLICK.TOGGLE_BOTTOM_PANEL.toUpperCase()})`}

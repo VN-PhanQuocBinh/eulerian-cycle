@@ -36,6 +36,7 @@ export interface GraphDataStore {
   getCurrentGraphData: () => GraphData;
   getEdgeDataById: (edgeId: string) => GraphEdge | undefined;
   getNodeDataById: (nodeId: string) => GraphNode | undefined;
+  getEdgesByNodeId: (nodeId: string) => GraphEdge[];
 
   // Bulk updates
   updateNodes: (nodes: GraphNode[]) => void;

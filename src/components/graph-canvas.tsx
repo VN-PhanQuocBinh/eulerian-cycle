@@ -3,7 +3,7 @@ import cytoscape from "cytoscape";
 import edgehandles from "cytoscape-edgehandles";
 import FunctionalBar from "./functional-bar";
 import dagre from "cytoscape-dagre";
-import { useGraphDataStore, useAlgorithmStore } from "@/stores";
+import { useGraphDataStore } from "@/stores";
 import { graphService } from "@/services/graph-service";
 import { useGraphInteractions } from "@/hooks/use-graph-interactions";
 import { useUIStore } from "@/stores";
@@ -15,6 +15,7 @@ import { useAlgorithmOperations } from "@/hooks/use-algorithm-operations";
 import FullscreenButton from "./fullscreen-button";
 import { useCommandManager } from "@/hooks/use-command-manager";
 import RemoveEdgeCommand from "@/stores/commands/remove-edge-command";
+import RemoveNodeCommand from "@/stores/commands/remove-node-command";
 
 import {
   ContextMenu,
@@ -37,10 +38,6 @@ const GraphCanvas = () => {
 
   const interactionMode = useUIStore((s) => s.mode);
   const isDirected = useGraphDataStore((state) => state.isDirected);
-  const startNodeId = useAlgorithmStore((state) => state.startNodeId);
-  const setStartNodeId = useAlgorithmStore((state) => state.setStartNodeId);
-  const removeNode = useGraphDataStore((state) => state.removeNode);
-  const removeEdge = useGraphDataStore((state) => state.removeEdge);
   const updateNode = useGraphDataStore((state) => state.updateNode);
   const edges = useGraphDataStore((state) => state.edges);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -144,17 +141,10 @@ const GraphCanvas = () => {
     if (!contextTarget || !graphService.cy) return;
 
     if (contextTarget.kind === "node") {
-      removeNode(contextTarget.id);
-
-      if (startNodeId === contextTarget.id) {
-        setStartNodeId("");
-      }
-
-      graphService.removeElementById(contextTarget.id);
+      executeCommand(new RemoveNodeCommand(contextTarget.id));
     }
 
     if (contextTarget.kind === "edge") {
-      // removeEdge(contextTarget.id);
       executeCommand(new RemoveEdgeCommand(contextTarget.id));
     }
 
@@ -185,7 +175,6 @@ const GraphCanvas = () => {
 
   const handleSetStartNode = () => {
     if (!contextTarget || contextTarget.kind !== "node") return;
-    // setStartNodeId(contextTarget.id);
     handleStartNodeChange(contextTarget.id);
     setContextTarget(null);
   };

@@ -43,6 +43,11 @@ export const useGraphDataStore = create<GraphDataStore>()(
         return nodeById.get(nodeId);
       },
 
+      getEdgesByNodeId: (nodeId) => {
+        const { edges } = get();
+        return edges.filter((edge) => edge.source === nodeId || edge.target === nodeId);
+      },
+
       updateNodes: (nodes) => {
         set({
           nodes,

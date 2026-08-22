@@ -13,9 +13,6 @@ export const useAlgorithmSync = () => {
 
   useEffect(() => {
     const graphData = { nodes, edges, isDirected };
-    // if ((!startNodeId && nodes.length > 0) || (startNodeId && !isNodeExists(startNodeId))) {
-    //   setStartNodeId(nodes[0].id : null);
-    // }
 
     if (nodes.length > 0) {
       if (!startNodeId || !isNodeExists(startNodeId)) {
