@@ -15,3 +15,16 @@ export interface GraphNodeSnapshot {
   style?: Record<string, any>
   classes?: string[];
 }
+
+export interface Position {
+  x: number;
+  y: number;
+}
+
+export interface NodePositionChange {
+  id: string;
+  position: {
+    old: Position;
+    new: Position;
+  };
+}

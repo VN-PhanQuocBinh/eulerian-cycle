@@ -16,7 +16,6 @@ import FullscreenButton from "./fullscreen-button";
 import { useCommandManager } from "@/hooks/use-command-manager";
 import RemoveEdgeCommand from "@/stores/commands/remove-edge-command";
 import RemoveNodeCommand from "@/stores/commands/remove-node-command";
-import BatchRemoveCommand from "@/stores/commands/batch-remove-command";
 
 import {
   ContextMenu,

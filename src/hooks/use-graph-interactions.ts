@@ -8,6 +8,7 @@ import AddNodeCommand from "@/stores/commands/add-node-command";
 import { useCommandManager } from "./use-command-manager";
 import AddEdgeCommand from "@/stores/commands/add-edge-command";
 import BatchRemoveCommand from "@/stores/commands/batch-remove-command";
+import MoveNodesCommand from "@/stores/commands/move-nodes-command";
 
 export const useGraphInteractions = () => {
   // Graph Data Store
@@ -63,11 +64,9 @@ export const useGraphInteractions = () => {
       onEdgeAdd: (edge) => {
         executeCommand(new AddEdgeCommand(edge));
       },
-      onNodeUpdate: ({ id, position }) => {
+      onNodeUpdate: ({ id, x, y }) => {
         const interactionMode = useUIStore.getState().mode;
-        if (!["view", "add-edge"].includes(interactionMode)) return;
-
-        const { x, y } = position;
+        if (!["view", "add-edge"].includes(interactionMode) || !x || !y) return;
 
         openNodeInputAt({
           x,
@@ -80,6 +79,9 @@ export const useGraphInteractions = () => {
           },
         });
       },
+      onNodePositionChange: (changes) => {
+        executeCommand(new MoveNodesCommand(changes));
+      },
     });
   };
 
@@ -87,20 +89,6 @@ export const useGraphInteractions = () => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Delete" || event.key === "Backspace") {
         executeCommand(new BatchRemoveCommand());
-
-        // const { nodeIds, edgeIds } = graphService.removeSelectedElements();
-
-        // const currentNodes = useGraphDataStore.getState().nodes;
-        // const currentEdges = useGraphDataStore.getState().edges;
-
-        // const updatedNodes = currentNodes.filter((n) => !nodeIds.includes(n.id));
-        // const updatedEdges = currentEdges.filter(
-        //   (e) =>
-        //     !edgeIds.includes(e.id) && !nodeIds.includes(e.source) && !nodeIds.includes(e.target),
-        // );
-
-        // updateNodes(updatedNodes);
-        // updateEdges(updatedEdges);
       }
     };
 

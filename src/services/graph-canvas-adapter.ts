@@ -5,14 +5,19 @@ import { graphStyles } from "@/configs/graph";
 import { generateEdgeId } from "@/utils/generate-id";
 import { applyNewClasses } from "@/utils/apply-new-classes";
 import type { GraphData, GraphEdge, GraphNode } from "@/types/graph-data-store";
-import { GraphEdgeSnapshot, GraphNodeSnapshot } from "@/types/command";
-
-type Position = { x: number; y: number };
+import {
+  GraphEdgeSnapshot,
+  GraphNodeSnapshot,
+  Position,
+  NodePositionChange,
+} from "@/types/command";
+import { UpdateNodePayload } from "@/types/service";
 
 export interface GraphCanvasCallbacks {
   onNodeAdd: (params: { renderedPosition: Position; position: Position }) => void;
-  onNodeUpdate: (params: { id: string; position: Position }) => void;
+  onNodeUpdate: (params: UpdateNodePayload) => void;
   onEdgeAdd: (edge: GraphEdge) => void;
+  onNodePositionChange: (params: NodePositionChange[]) => void;
 }
 
 export class GraphCanvasAdapter {
@@ -91,7 +96,8 @@ export class GraphCanvasAdapter {
 
       callbacks.onNodeUpdate({
         id: node.id(),
-        position: { x: position.x, y: position.y },
+        x: position.x,
+        y: position.y,
       });
     });
 
@@ -112,6 +118,73 @@ export class GraphCanvasAdapter {
         });
       },
     );
+
+    {
+      const initialPositions = new Map<string, Position>();
+      const pendingChangedNodes = new Map<string, Position>();
+      let timeoutId: NodeJS.Timeout | null = null;
+
+      // Store the initial positions of all selected nodes when a node is grabbed
+      this.cy.on("grab", "node", (_e) => {
+        if (!this.cy) return;
+
+        // Store the initial positions of all selected nodes when a node is grabbed
+        initialPositions.clear();
+
+        // Get all selected nodes and store their initial positions
+        let nodes = this.cy.$(":selected");
+
+        // If no nodes are selected, store the position of the grabbed node
+        if (nodes.length === 0) {
+          const grabbedNode = this.cy.getElementById(_e.target.id());
+          nodes = nodes.add(grabbedNode);
+          console.log(nodes);
+        }
+
+        nodes.forEach((node) => {
+          initialPositions.set(node.id(), { x: node.position().x, y: node.position().y });
+        });
+      });
+
+      this.cy.on("dragfree", "node", (event) => {
+        if (!this.cy) return;
+
+        const movedNode = event.target;
+        const oldPosition = initialPositions.get(movedNode.id());
+
+        if (!oldPosition) return;
+
+        const newPosition = { x: movedNode.position().x, y: movedNode.position().y };
+
+        // If the position has changed, trigger the callback
+        if (oldPosition.x !== newPosition.x || oldPosition.y !== newPosition.y) {
+          pendingChangedNodes.set(movedNode.id(), newPosition);
+        }
+
+        if (timeoutId !== null) {
+          clearTimeout(timeoutId);
+        }
+
+        timeoutId = setTimeout(() => {
+          if (pendingChangedNodes.size > 0) {
+            const changesData = Array.from(pendingChangedNodes.entries()).map(
+              ([nodeId, position]) => ({
+                id: nodeId,
+                position: {
+                  old: initialPositions.get(nodeId) || { x: 0, y: 0 },
+                  new: position,
+                },
+              }),
+            );
+
+            callbacks.onNodePositionChange(changesData);
+          }
+
+          initialPositions.clear();
+          pendingChangedNodes.clear();
+        }, 0);
+      });
+    }
   }
 
   toggleDrawMode(enable: boolean) {
@@ -160,13 +233,29 @@ export class GraphCanvasAdapter {
     });
   }
 
-  updateNodeInCy(node: Partial<GraphNode> & { id: string }) {
-    if (!this.cy || !node.label) return;
+  updateNodesInCy(nodes: (Partial<GraphNode> & { id: string })[]) {
+    if (!this.cy) return;
 
-    const nodeInCy = this.cy.getElementById(node.id);
-    if (nodeInCy) {
-      nodeInCy.data({ ...nodeInCy.data(), label: node.label });
-    }
+    this.cy.batch(() => {
+      nodes.forEach((node) => {
+        const nodeInCy = this.cy!.getElementById(node.id);
+
+        if (!nodeInCy) {
+          throw new Error(`Node with ID ${node.id} not found in Cytoscape instance.`);
+        }
+
+        if (node.label !== undefined) {
+          nodeInCy.data({ ...nodeInCy.data(), label: node.label });
+        }
+
+        if (node.x && node.y) {
+          nodeInCy.position({
+            x: node.x,
+            y: node.y,
+          });
+        }
+      });
+    });
   }
 
   removeElementById(elementId: string) {

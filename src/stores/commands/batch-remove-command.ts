@@ -71,9 +71,7 @@ class BatchRemoveCommand implements Command {
 
     // Restore nodes first, then edges to the store
     graphService.addNodesToCy(this.elementsSnapshot.nodes);
-    this.elementsSnapshot.edges.forEach((edgeSnapshot) => {
-      graphService.addEdgeToCy(edgeSnapshot);
-    });
+    graphService.addEdgesToCy(this.elementsSnapshot.edges);
   }
 }
 
