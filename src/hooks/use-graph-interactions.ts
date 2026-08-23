@@ -4,11 +4,14 @@ import { generateNodeId } from "@/utils/generate-id";
 import { useGraphDataStore, useUIStore } from "@/stores";
 import { useEffect } from "react";
 import { useToast } from "@/components/ui/toast";
-import AddNodeCommand from "@/stores/commands/add-node-command";
 import { useCommandManager } from "./use-command-manager";
-import AddEdgeCommand from "@/stores/commands/add-edge-command";
-import BatchRemoveCommand from "@/stores/commands/batch-remove-command";
-import MoveNodesCommand from "@/stores/commands/move-nodes-command";
+import {
+  AddNodeCommand,
+  AddEdgeCommand,
+  BatchRemoveCommand,
+  MoveNodesCommand,
+  UpdateLabelCommand,
+} from "@/stores/commands";
 
 export const useGraphInteractions = () => {
   // Graph Data Store
@@ -74,8 +77,14 @@ export const useGraphInteractions = () => {
           onComplete: (label: string) => {
             if (!label.trim()) return;
 
-            graphService.updateNodeInCy({ id, label });
-            updateNode(id, { label });
+            executeCommand(
+              new UpdateLabelCommand(
+                id,
+                label,
+              ),
+            );
+            // graphService.updateNodeInCy({ id, label });
+            // updateNode(id, { label });
           },
         });
       },

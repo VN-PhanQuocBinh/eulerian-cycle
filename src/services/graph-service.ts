@@ -6,7 +6,7 @@ import { GraphSerializer } from "@/services/graph-serializer";
 import { GraphVisualizer } from "@/services/graph-visualizer";
 import { ALGORITHM_LAYOUT_CONFIGS } from "@/configs/graph-layouts";
 import { GraphEdgeSnapshot, GraphNodeSnapshot } from "@/types/command";
-import { UpdateNodePayload } from "@/types/service";
+import { UpdateNodePayload, UpdateEdgePayload } from "@/types/service";
 
 type Position = { x: number; y: number };
 
@@ -26,6 +26,8 @@ interface IGraphService {
   addEdgeToCy(edge: GraphEdgeSnapshot): void;
   updateNodeInCy(node: UpdateNodePayload): void;
   updateNodesInCy(nodes: UpdateNodePayload[]): void;
+  updateEdgeInCy(edge: UpdateEdgePayload): void;
+  updateEdgesInCy(edges: UpdateEdgePayload[]): void;
   removeElementById(elementId: string): void;
   removeElementsByIds(elementIds: string[]): void;
   getSelectedElements(): { nodes: GraphNodeSnapshot[]; edges: GraphEdgeSnapshot[] };
@@ -99,6 +101,14 @@ class GraphService implements IGraphService {
 
   updateNodesInCy(nodes: UpdateNodePayload[]) {
     return this.canvas.updateNodesInCy(nodes);
+  }
+
+  updateEdgeInCy(edge: UpdateEdgePayload) {
+    return this.canvas.updateEdgesInCy([edge]);
+  }
+
+  updateEdgesInCy(edges: UpdateEdgePayload[]) {
+    return this.canvas.updateEdgesInCy(edges);
   }
 
   removeElementById(elementId: string) {

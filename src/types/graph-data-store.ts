@@ -46,7 +46,8 @@ export interface GraphDataStore {
   // Node operations
   addNode: (node: GraphNode) => void;
   removeNode: (nodeId: string) => void;
-  updateNode: (nodeId: string, updates: Partial<Pick<GraphNode, "label">>) => void;
+  updateNode: (nodeId: string, updates: Partial<GraphNode>) => void;
+  updateEdge: (edgeId: string, updates: Partial<GraphEdge>) => void;
   isNodeExists: (nodeId: string) => boolean;
 
   // Edge operations

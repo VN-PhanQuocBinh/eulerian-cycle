@@ -13,7 +13,7 @@ class AddNodeCommand implements Command {
     const graphDataStore = useGraphDataStore.getState();
 
     graphDataStore.addNode(this.graphNode);
-    graphService.addNodeToCy(this.graphNode);
+    graphService.addNodeToCy({ data: this.graphNode });
   }
 
   /**

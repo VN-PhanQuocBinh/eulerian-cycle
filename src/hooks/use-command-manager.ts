@@ -1,4 +1,4 @@
-import commandManager from "@/stores/commands/command-manager";
+import commandManager from "@/stores/command-manager";
 import { useToast } from "@/components/ui/toast";
 import { Command } from "@/types/command";
 

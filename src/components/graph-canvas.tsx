@@ -14,8 +14,7 @@ import { useNodeInput } from "./ui/node-input";
 import { useAlgorithmOperations } from "@/hooks/use-algorithm-operations";
 import FullscreenButton from "./fullscreen-button";
 import { useCommandManager } from "@/hooks/use-command-manager";
-import RemoveEdgeCommand from "@/stores/commands/remove-edge-command";
-import RemoveNodeCommand from "@/stores/commands/remove-node-command";
+import { RemoveEdgeCommand, RemoveNodeCommand } from "@/stores/commands";
 
 import {
   ContextMenu,

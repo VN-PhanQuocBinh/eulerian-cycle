@@ -11,7 +11,7 @@ import {
   Position,
   NodePositionChange,
 } from "@/types/command";
-import { UpdateNodePayload } from "@/types/service";
+import { UpdateEdgePayload, UpdateNodePayload } from "@/types/service";
 
 export interface GraphCanvasCallbacks {
   onNodeAdd: (params: { renderedPosition: Position; position: Position }) => void;
@@ -233,7 +233,7 @@ export class GraphCanvasAdapter {
     });
   }
 
-  updateNodesInCy(nodes: (Partial<GraphNode> & { id: string })[]) {
+  updateNodesInCy(nodes: UpdateNodePayload[]) {
     if (!this.cy) return;
 
     this.cy.batch(() => {
@@ -254,6 +254,22 @@ export class GraphCanvasAdapter {
             y: node.y,
           });
         }
+      });
+    });
+  }
+
+  updateEdgesInCy(edges: UpdateEdgePayload[]) {
+    if (!this.cy) return;
+
+    this.cy.batch(() => {
+      edges.forEach((edge) => {
+        const edgeInCy = this.cy!.getElementById(edge.id);
+
+        if (!edgeInCy) {
+          throw new Error(`Edge with ID ${edge.id} not found in Cytoscape instance.`);
+        }
+
+        edgeInCy.data({ ...edgeInCy.data(), ...edge });
       });
     });
   }

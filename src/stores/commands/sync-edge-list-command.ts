@@ -4,7 +4,7 @@ import { GraphNode, GraphEdge, GraphData } from "@/types/graph-data-store";
 import { GraphAlgorithm } from "@/types/algorithm-store";
 import { useGraphDataStore } from "../graph-data-store";
 
-export class SyncEdgeListCommand implements Command {
+class SyncEdgeListCommand implements Command {
   private previousGraphData = graphService.getGraphSnapshot();
   private currentSnapshot: GraphData | null = null;
 
@@ -31,3 +31,5 @@ export class SyncEdgeListCommand implements Command {
     graphService.drawGraphFromData(this.previousGraphData);
   }
 }
+
+export default SyncEdgeListCommand;

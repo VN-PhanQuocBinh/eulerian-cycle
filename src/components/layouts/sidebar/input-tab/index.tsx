@@ -7,9 +7,8 @@ import { copyToClipboard } from "@/utils/copy-to-clipboard";
 import { useToast } from "@/components/ui/toast";
 import { GRAPH_EXAMPLES, GraphExampleLine } from "@/constant/graph-examples";
 import { useGraphDataStore, useAlgorithmStore } from "@/stores";
-import { graphService } from "@/services/graph-service";
 import { useCommandManager } from "@/hooks/use-command-manager";
-import { SyncEdgeListCommand } from "@/stores/commands/sync-edge-list-command";
+import { SyncEdgeListCommand } from "@/stores/commands";
 
 function parseGraphExample(lines: GraphExampleLine[]): string {
   return lines.map((line) => line.join(" ")).join("\n");

@@ -122,6 +122,19 @@ export const useGraphDataStore = create<GraphDataStore>()(
         });
       },
 
+      updateEdge: (edgeId, updates) => {
+        set((state) => {
+          const edges = state.edges.map((e) => (e.id === edgeId ? { ...e, ...updates } : e));
+          const updatedEdge = edges.find((edge) => edge.id === edgeId);
+          const edgeById = new Map(state.edgeById);
+          if (updatedEdge) {
+            edgeById.set(edgeId, updatedEdge);
+          }
+
+          return { edges, edgeById };
+        });
+      },
+
       isNodeExists: (nodeId) => {
         const { nodeSet } = get();
         return nodeSet.has(nodeId);
