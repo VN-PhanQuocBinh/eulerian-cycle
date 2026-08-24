@@ -1,5 +1,5 @@
 import FunctionButton from "../ui/function-button";
-import { useAlgorithmStore, useUIStore, useGraphDataStore } from "@/stores";
+import { useAlgorithmStore, useUIStore } from "@/stores";
 import { GraphAlgorithm } from "@/types/algorithm-store";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -7,7 +7,6 @@ import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { ListChevronsDownUp, ListChevronsUpDown, Ellipsis, ChevronDown } from "lucide-react";
 import { Select, SelectContent, SelectItem } from "@/components/ui/select";
-import { graphService } from "@/services/graph-service";
 import { useAlgorithmOperations } from "@/hooks/use-algorithm-operations";
 
 const algorithmOptions: Array<{ label: string; value: GraphAlgorithm }> = [

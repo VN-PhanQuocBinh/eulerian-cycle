@@ -1,31 +1,37 @@
 import { Command } from "@/types/command";
-import { graphService } from "@/services/graph-service";
 import { GraphNode, GraphEdge, GraphData } from "@/types/graph-data-store";
 import { GraphAlgorithm } from "@/types/algorithm-store";
-import { useGraphDataStore } from "../graph-data-store";
+import { CommandContext } from "@/services/command-context";
 
-export class SyncEdgeListCommand implements Command {
-  private previousGraphData = graphService.getGraphSnapshot();
+class SyncEdgeListCommand implements Command {
+  private previousGraphData: GraphData;
   private currentSnapshot: GraphData | null = null;
 
   constructor(
     private graphData: { nodes: GraphNode[]; edges: GraphEdge[]; isDirected: boolean },
     private algorithm: GraphAlgorithm,
-  ) {}
+    private context: CommandContext
+  ) {
+    this.previousGraphData = this.context.graphService.getGraphSnapshot();
+  }
 
-  async execute() {
+  execute() {
     if (!this.currentSnapshot) {
-      graphService.drawGraphFromData(this.graphData);
-      graphService.autoLayout(this.algorithm, false);
+      this.context.graphService.drawGraphFromData(this.graphData);
+      this.context.graphService.autoLayout(this.algorithm, false);
 
-      this.currentSnapshot = graphService.getGraphSnapshot();
-      useGraphDataStore.getState().updateGraphData(this.currentSnapshot);
+      this.currentSnapshot = this.context.graphService.getGraphSnapshot();
     } else {
-      graphService.drawGraphFromData(this.currentSnapshot);
+      this.context.graphService.drawGraphFromData(this.currentSnapshot);
     }
+
+    this.context.graphDataStore.updateGraphData(this.currentSnapshot);
   }
 
   undo() {
-    graphService.drawGraphFromData(this.previousGraphData);
+    this.context.graphDataStore.updateGraphData(this.previousGraphData);
+    this.context.graphService.drawGraphFromData(this.previousGraphData);
   }
 }
+
+export default SyncEdgeListCommand;

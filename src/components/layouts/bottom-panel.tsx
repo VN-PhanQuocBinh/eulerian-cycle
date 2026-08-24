@@ -2,7 +2,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import ResultPanel from "./bottom-panel/result-panel";
 import { PseudoCodeViewer } from "./bottom-panel/pseudo-code-viewer";
 import { GraphReport } from "./bottom-panel/graph-report";
-import { useAlgorithmStore, useUIStore } from "@/stores";
+import { useUIStore } from "@/stores";
 import { Button } from "@/components/ui/button";
 import { ScanEye, EyeClosed, X } from "lucide-react";
 import { useRegisterHotkey } from "@/hooks/use-register-hotkey";
@@ -19,9 +19,6 @@ const tabs: Array<{ label: string; value: BottomPanelTab }> = [
 ];
 
 export function BottomPanel() {
-  const steps = useAlgorithmStore((state) => state.steps);
-  const currentStepIndex = useAlgorithmStore((state) => state.currentStepIndex);
-
   const enableSmartScroll = useUIStore((state) => state.enableSmartScroll);
   const bottomPanelTab = useUIStore((state) => state.bottomPanelTab);
   const isBottomPanelOpen = useUIStore((state) => state.isBottomPanelOpen);
@@ -44,10 +41,10 @@ export function BottomPanel() {
       className="h-full tabs-bar px-2 relative bg-(--od-bg-1) border-t border-border"
       onValueChange={(tab) => setBottomPanelTab(tab as BottomPanelTab)}
     >
-      <div className="flex items-center mb-2 py-2">
+      <div className="flex items-center mb-2 py-1">
         <TabsList variant="line" className="">
           {tabs.map((tab) => (
-            <TabsTrigger key={tab.value} value={tab.value}>
+            <TabsTrigger key={tab.value} value={tab.value} className="text-sm!">
               {tab.label}
             </TabsTrigger>
           ))}
@@ -63,14 +60,11 @@ export function BottomPanel() {
                 )}
                 {enableSmartScroll ? "Disable" : "Enable"} Smart Scroll
               </Button>
-              <span className="text-gray-500">
-                Step {steps.length > 0 ? currentStepIndex + 1 : 0} / {steps.length}
-              </span>
             </>
           )}
 
           {/* Separator */}
-          <div className="border-l border-border h-6 mx-2" />
+          <div className="border-l border-border h-6 mx-1" />
 
           <Tooltip
             content={`Close Panel (${HOTKEYS_CONFIG.CLICK.TOGGLE_BOTTOM_PANEL.toUpperCase()})`}

@@ -3,7 +3,6 @@ import { useHotkeyStore } from "@/stores/hotkey-store";
 import { KeyCombo } from "@/types/hotkey-store";
 import { useEffect, useRef } from "react";
 import { useRegisterHotkey } from "./use-register-hotkey";
-import commandManager from "@/stores/commands/command-manager";
 import { useCommandManager } from './use-command-manager';
 
 function mappingKeyToCombo(key: string): string {

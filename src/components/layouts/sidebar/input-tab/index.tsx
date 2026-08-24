@@ -7,9 +7,7 @@ import { copyToClipboard } from "@/utils/copy-to-clipboard";
 import { useToast } from "@/components/ui/toast";
 import { GRAPH_EXAMPLES, GraphExampleLine } from "@/constant/graph-examples";
 import { useGraphDataStore, useAlgorithmStore } from "@/stores";
-import { graphService } from "@/services/graph-service";
 import { useCommandManager } from "@/hooks/use-command-manager";
-import { SyncEdgeListCommand } from "@/stores/commands/sync-edge-list-command";
 
 function parseGraphExample(lines: GraphExampleLine[]): string {
   return lines.map((line) => line.join(" ")).join("\n");
@@ -19,7 +17,6 @@ function InputTab({ className }: { className?: string }) {
   const { showToast } = useToast();
   const nodes = useGraphDataStore((state) => state.nodes);
   const edges = useGraphDataStore((state) => state.edges);
-  const updateGraphData = useGraphDataStore((state) => state.updateGraphData);
   const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
   const isDirected = useGraphDataStore((state) => state.isDirected);
   const suggestedIndexRef = useRef<number | null>(null);
@@ -30,7 +27,7 @@ function InputTab({ className }: { className?: string }) {
   const [copyStatus, setCopyStatus] = useState<"idle" | "success" | "error">("idle");
   const [suggested, setSuggested] = useState(false);
 
-  const { execute } = useCommandManager();
+  const { commands } = useCommandManager();
 
   useEffect(() => {
     if (!suggested) return;
@@ -49,19 +46,10 @@ function InputTab({ className }: { className?: string }) {
 
   const handleSync = () => {
     const { nodes: parsedNodes, edges: parsedEdges } = parseEdgeList(text);
-    execute(
-      new SyncEdgeListCommand(
-        { nodes: parsedNodes, edges: parsedEdges, isDirected },
-        currentAlgorithm!,
-      ),
+    commands.executeSyncEdgeListCommand(
+      { nodes: parsedNodes, edges: parsedEdges, isDirected },
+      currentAlgorithm!,
     );
-    // graphService.autoLayout(currentAlgorithm, false);
-    // graphService.drawGraphFromData({ nodes: parsedNodes, edges: parsedEdges, isDirected });
-    // updateGraphData({
-    //   nodes: parsedNodes,
-    //   edges: parsedEdges,
-    //   isDirected,
-    // });
   };
 
   const handleCopy = () => {

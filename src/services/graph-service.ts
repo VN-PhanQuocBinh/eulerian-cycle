@@ -5,6 +5,8 @@ import { GraphCanvasAdapter, type GraphCanvasCallbacks } from "@/services/graph-
 import { GraphSerializer } from "@/services/graph-serializer";
 import { GraphVisualizer } from "@/services/graph-visualizer";
 import { ALGORITHM_LAYOUT_CONFIGS } from "@/configs/graph-layouts";
+import { GraphEdgeSnapshot, GraphNodeSnapshot } from "@/types/command";
+import { UpdateNodePayload, UpdateEdgePayload } from "@/types/service";
 
 type Position = { x: number; y: number };
 
@@ -18,9 +20,17 @@ interface IGraphService {
     onEdgeAdd: (edge: GraphEdge) => void;
   }): void;
   toggleDrawMode(enable: boolean): void;
-  addNodeToCy(node: GraphNode): void;
-  updateNodeInCy(node: Partial<GraphNode> & { id: string }): void;
+  addNodeToCy(node: GraphNodeSnapshot): void;
+  addNodesToCy(nodes: GraphNodeSnapshot[]): void;
+  addEdgeToCy(edge: GraphEdgeSnapshot): void;
+  addEdgeToCy(edge: GraphEdgeSnapshot): void;
+  updateNodeInCy(node: UpdateNodePayload): void;
+  updateNodesInCy(nodes: UpdateNodePayload[]): void;
+  updateEdgeInCy(edge: UpdateEdgePayload): void;
+  updateEdgesInCy(edges: UpdateEdgePayload[]): void;
   removeElementById(elementId: string): void;
+  removeElementsByIds(elementIds: string[]): void;
+  getSelectedElements(): { nodes: GraphNodeSnapshot[]; edges: GraphEdgeSnapshot[] };
   removeSelectedElements(): { nodeIds: string[]; edgeIds: string[] };
   clearCanvas(): void;
   drawGraphFromData(graphData: {
@@ -28,6 +38,9 @@ interface IGraphService {
     edges: GraphEdge[];
     isDirected: boolean;
   }): void;
+  getClassesByElementId(elementId: string): string[];
+  getNodeSnapshotById(nodeId: string): GraphNodeSnapshot | null;
+  getEdgeSnapshotById(edgeId: string): GraphEdgeSnapshot | null;
   getGraphSnapshot(): { nodes: GraphNode[]; edges: GraphEdge[]; isDirected: boolean };
   getPNG(): string;
   autoLayout(algorithm: GraphAlgorithm, animate?: boolean): void;
@@ -66,16 +79,48 @@ class GraphService implements IGraphService {
     return this.canvas.toggleDrawMode(enable);
   }
 
-  addNodeToCy(node: GraphNode) {
-    return this.canvas.addNodeToCy(node);
+  addNodeToCy(node: GraphNodeSnapshot) {
+    return this.canvas.addNodesToCy([node]);
   }
 
-  updateNodeInCy(node: Partial<GraphNode> & { id: string }) {
-    return this.canvas.updateNodeInCy(node);
+  addNodesToCy(nodes: GraphNodeSnapshot[]) {
+    return this.canvas.addNodesToCy(nodes);
+  }
+
+  addEdgeToCy(edge: GraphEdgeSnapshot) {
+    return this.canvas.addEdgesToCy([edge]);
+  }
+
+  addEdgesToCy(edges: GraphEdgeSnapshot[]) {
+    return this.canvas.addEdgesToCy(edges);
+  }
+
+  updateNodeInCy(node: UpdateNodePayload) {
+    return this.canvas.updateNodesInCy([node]);
+  }
+
+  updateNodesInCy(nodes: UpdateNodePayload[]) {
+    return this.canvas.updateNodesInCy(nodes);
+  }
+
+  updateEdgeInCy(edge: UpdateEdgePayload) {
+    return this.canvas.updateEdgesInCy([edge]);
+  }
+
+  updateEdgesInCy(edges: UpdateEdgePayload[]) {
+    return this.canvas.updateEdgesInCy(edges);
   }
 
   removeElementById(elementId: string) {
     return this.canvas.removeElementById(elementId);
+  }
+
+  removeElementsByIds(elementIds: string[]) {
+    return this.canvas.removeElementsByIds(elementIds);
+  }
+
+  getSelectedElements() {
+    return this.canvas.getSelectedElements();
   }
 
   removeSelectedElements() {
@@ -88,6 +133,18 @@ class GraphService implements IGraphService {
 
   drawGraphFromData(graphData: { nodes: GraphNode[]; edges: GraphEdge[]; isDirected: boolean }) {
     return this.canvas.drawGraphFromData(graphData);
+  }
+
+  getClassesByElementId(elementId: string) {
+    return this.canvas.getClassesByElementId(elementId);
+  }
+
+  getNodeSnapshotById(nodeId: string) {
+    return this.serializer.getNodeSnapshotById(nodeId);
+  }
+
+  getEdgeSnapshotById(edgeId: string) {
+    return this.serializer.getEdgeSnapshotById(edgeId);
   }
 
   getGraphSnapshot() {

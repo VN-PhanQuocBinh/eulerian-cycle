@@ -7,7 +7,6 @@ import {
 import { GraphAlgorithm } from "@/types/algorithm-store";
 import { cn } from "@/utils/cn";
 import { useAlgorithmStore, useGraphDataStore } from "@/stores";
-import { graphService } from "@/services/graph-service";
 import { useAlgorithmOperations } from "@/hooks/use-algorithm-operations";
 
 export const BASE_ANIMATION_SPEED = 2000; // in milliseconds

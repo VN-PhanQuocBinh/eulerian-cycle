@@ -9,15 +9,14 @@ import {
   ZoomOut,
 } from "lucide-react";
 import FunctionButton from "@/components/ui/function-button";
-import { useGraphDataStore, useUIStore, useAlgorithmStore } from "@/stores";
+import { useUIStore, useAlgorithmStore } from "@/stores";
 import { graphService } from "@/services/graph-service";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { GraphMode } from "@/types/ui-store";
 import { Tooltip } from "@/components/ui/tooltip";
 import { useRegisterHotkey } from "@/hooks/use-register-hotkey";
-import { useRef } from "react";
 import { HOTKEYS_CONFIG } from "@/configs/hotkeys-config";
-import { KeyCombo } from "@/types/hotkey-store";
+import { useCommandManager } from "@/hooks/use-command-manager";
 
 const modes: {
   id: keyof typeof HOTKEYS_CONFIG.CLICK;
@@ -31,16 +30,14 @@ const modes: {
 ];
 
 function FunctionalBar() {
+  const { commands } = useCommandManager();
+
   const interactionMode = useUIStore((s) => s.mode);
   const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
   const setMode = useUIStore((s) => s.setMode);
-  const clearGraphData = useGraphDataStore((s) => s.clearGraphData);
-  const setSteps = useAlgorithmStore((s) => s.setSteps);
 
   const handleClear = () => {
-    graphService.clearCanvas();
-    clearGraphData();
-    setSteps([]);
+    commands.executeClearGraphCommand();
   };
 
   const handleValueChange = (value: GraphMode) => {
@@ -92,7 +89,7 @@ function FunctionalBar() {
   });
 
   const handleAutoLayout = () => {
-    graphService.autoLayout(currentAlgorithm);
+    commands.executeAutoLayoutCommand(currentAlgorithm);
   };
 
   const handleZoomIn = () => {

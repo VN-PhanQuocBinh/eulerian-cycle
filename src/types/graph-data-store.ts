@@ -25,13 +25,18 @@ export interface GraphDataStore {
   edges: GraphEdge[];
   isDirected: boolean;
   graphData: GraphData;
-  nodeSet: Set<String>; // For quick node existence checks
+  nodeSet: Set<string>; // For quick node existence checks
+  nodeById: Map<string, GraphNode>;
+  edgeById: Map<string, GraphEdge>;
 
   // Actions
   setIsDirected: (isDirected: boolean) => void;
   getCurrentNodesData: () => GraphNode[];
   getCurrentEdgesData: () => GraphEdge[];
   getCurrentGraphData: () => GraphData;
+  getEdgeDataById: (edgeId: string) => GraphEdge | undefined;
+  getNodeDataById: (nodeId: string) => GraphNode | undefined;
+  getEdgesByNodeId: (nodeId: string) => GraphEdge[];
 
   // Bulk updates
   updateNodes: (nodes: GraphNode[]) => void;
@@ -41,7 +46,8 @@ export interface GraphDataStore {
   // Node operations
   addNode: (node: GraphNode) => void;
   removeNode: (nodeId: string) => void;
-  updateNode: (nodeId: string, updates: Partial<Pick<GraphNode, "label">>) => void;
+  updateNode: (nodeId: string, updates: Partial<GraphNode>) => void;
+  updateEdge: (edgeId: string, updates: Partial<GraphEdge>) => void;
   isNodeExists: (nodeId: string) => boolean;
 
   // Edge operations

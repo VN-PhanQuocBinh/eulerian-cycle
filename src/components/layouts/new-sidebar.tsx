@@ -43,26 +43,26 @@ export function NewSidebar({ isOpen, onOpenChange }: NewSidebarProps) {
       <TabsList variant="line" className="flex flex-col justify-start p-0 py-2 bg-(--od-bg-1) ">
         <TabsTrigger
           value="input-tab"
-          className="w-14! h-12! flex-none justify-center! group-data-[orientation=vertical]/tabs:after:left-0"
+          className="w-12! h-12! flex-none justify-center! group-data-[orientation=vertical]/tabs:after:left-0"
           onPointerDown={() => handlePointerDown("input-tab")}
           onClick={handleClick}
         >
           <Tooltip content="Input graph data" side="right">
             {/* Wrap the icon in a span for displaying tooltip because [&_svg]:pointer-events-none*/}
             <span className="">
-              <FileCode2 className="size-7" />
+              <FileCode2 className="size-6" />
             </span>
           </Tooltip>
         </TabsTrigger>
         <TabsTrigger
           value="control-tab"
-          className="w-14! h-12! flex-none justify-center! group-data-[orientation=vertical]/tabs:after:left-0"
+          className="w-12! h-12! flex-none justify-center! group-data-[orientation=vertical]/tabs:after:left-0"
           onPointerDown={() => handlePointerDown("control-tab")}
           onClick={handleClick}
         >
           <Tooltip content="Control algorithm" side="right">
             <span className="">
-              <Play className="size-7" />
+              <Play className="size-6" />
             </span>
           </Tooltip>
         </TabsTrigger>

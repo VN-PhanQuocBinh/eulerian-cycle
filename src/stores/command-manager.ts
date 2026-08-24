@@ -8,8 +8,6 @@ class CommandManager {
     command.execute();
     this.undoStack.push(command);
     this.redoStack = [];
-
-    console.log(this.undoStack);
   }
 
   undo() {
@@ -18,7 +16,7 @@ class CommandManager {
       command.undo();
       this.redoStack.push(command);
     }
-  } 
+  }
 
   redo() {
     if (this.redoStack.length > 0) {
@@ -28,6 +26,13 @@ class CommandManager {
     }
   }
 
+  canUndo(): boolean {
+    return this.undoStack.length > 0;
+  }
+
+  canRedo(): boolean {
+    return this.redoStack.length > 0;
+  }
 }
 
 export default new CommandManager();
