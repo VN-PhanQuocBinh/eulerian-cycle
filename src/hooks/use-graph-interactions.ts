@@ -12,7 +12,7 @@ export const useGraphInteractions = () => {
 
   const { showToast } = useToast();
 
-  const { execute: executeCommand, commands } = useCommandManager();
+  const { commands } = useCommandManager();
 
   // Node Input
   const { openNodeInputAt } = useNodeInput();

@@ -32,7 +32,7 @@ type ContextTarget = { kind: "node"; id: string } | { kind: "edge"; id: string }
 const GraphCanvas = () => {
   const { initCoreListeners } = useGraphInteractions();
   const { loadGraph, saveGraph, saveImage } = useFileOperations();
-  const { execute: executeCommand, commands } = useCommandManager();
+  const { commands } = useCommandManager();
 
   const interactionMode = useUIStore((s) => s.mode);
   const isDirected = useGraphDataStore((state) => state.isDirected);

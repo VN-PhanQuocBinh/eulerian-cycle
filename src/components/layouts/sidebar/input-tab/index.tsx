@@ -17,7 +17,6 @@ function InputTab({ className }: { className?: string }) {
   const { showToast } = useToast();
   const nodes = useGraphDataStore((state) => state.nodes);
   const edges = useGraphDataStore((state) => state.edges);
-  const updateGraphData = useGraphDataStore((state) => state.updateGraphData);
   const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
   const isDirected = useGraphDataStore((state) => state.isDirected);
   const suggestedIndexRef = useRef<number | null>(null);
@@ -28,7 +27,7 @@ function InputTab({ className }: { className?: string }) {
   const [copyStatus, setCopyStatus] = useState<"idle" | "success" | "error">("idle");
   const [suggested, setSuggested] = useState(false);
 
-  const { execute, commands } = useCommandManager();
+  const { commands } = useCommandManager();
 
   useEffect(() => {
     if (!suggested) return;

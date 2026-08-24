@@ -2,7 +2,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import ResultPanel from "./bottom-panel/result-panel";
 import { PseudoCodeViewer } from "./bottom-panel/pseudo-code-viewer";
 import { GraphReport } from "./bottom-panel/graph-report";
-import { useAlgorithmStore, useUIStore } from "@/stores";
+import { useUIStore } from "@/stores";
 import { Button } from "@/components/ui/button";
 import { ScanEye, EyeClosed, X } from "lucide-react";
 import { useRegisterHotkey } from "@/hooks/use-register-hotkey";
@@ -19,9 +19,6 @@ const tabs: Array<{ label: string; value: BottomPanelTab }> = [
 ];
 
 export function BottomPanel() {
-  const steps = useAlgorithmStore((state) => state.steps);
-  const currentStepIndex = useAlgorithmStore((state) => state.currentStepIndex);
-
   const enableSmartScroll = useUIStore((state) => state.enableSmartScroll);
   const bottomPanelTab = useUIStore((state) => state.bottomPanelTab);
   const isBottomPanelOpen = useUIStore((state) => state.isBottomPanelOpen);

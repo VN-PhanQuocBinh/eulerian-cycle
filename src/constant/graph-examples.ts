@@ -1,4 +1,4 @@
-import type { GraphAlgorithm } from "@/types/graph";
+import type { GraphAlgorithm } from "@/types/algorithm-store";
 export type GraphExampleLine = [string] | [string, string];
 
 export const GRAPH_EXAMPLES: Record<
