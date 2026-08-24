@@ -10,11 +10,11 @@ export const createGraphUtils = (data: GraphData) => {
     ? getAdjacencyList({ nodes, edges, isDirected: false })
     : new Map();
 
-  // 1. Hỗ trợ Đa đồ thị: Key trỏ tới mảng các Edges
+  // Support for multiple edges between the same pair of nodes
   const edgeLookup = new Map<string, GraphEdge[]>();
 
   edges.forEach((e) => {
-    // Xử lý lookup cạnh
+    // Handle edge lookup for both directed and undirected graphs
     const key = `${e.source}-${e.target}`;
     if (!edgeLookup.has(key)) {
       edgeLookup.set(key, []);

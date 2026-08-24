@@ -23,6 +23,8 @@ export class EulerianCycle {
   readonly isDirected: boolean = true;
   readonly adjacencyList: Map<string, string[]> = new Map();
 
+  readonly NO_LABEL_EDGE: string = "no_label_edge";
+
   steps: Step[] = [];
 
   constructor(data: GraphData) {
@@ -160,6 +162,7 @@ export class EulerianCycle {
     const stack: string[] = [this.nodes[startIndex].id];
     const visitedEdgeStack: string[] = [];
     const visitedEdges = new Set<string>();
+    const circuitEdgeByStepIndex: number[] = [];
 
     this.steps.push({
       elements: [],
@@ -256,10 +259,12 @@ export class EulerianCycle {
               id: currentEdge.target,
               label: this.utils.getNode(currentEdge.target)?.label || currentEdge.target,
             },
-            label: stack.length.toString(),
+            label: this.NO_LABEL_EDGE,
             classes: ["in-cycle"],
           },
         ].filter(Boolean) as Step["elements"];
+
+        circuitEdgeByStepIndex.push(this.steps.length);
 
         this.steps.push({
           elements: stepElements,
@@ -272,9 +277,18 @@ export class EulerianCycle {
           stack: [...stack],
           circuit: [...circuit],
         });
-
-        
       }
+    }
+
+    // label edges in circuit
+    for (let i = 0; i < circuitEdgeByStepIndex.length; i++) {
+      const stepIndex = circuitEdgeByStepIndex[i];
+      const step = this.steps[stepIndex];
+      step.elements.forEach((element) => {
+        if (element.type === "edge" && element.label === this.NO_LABEL_EDGE) {
+          element.label = String(i + 1); // Label edges in the order they are added to the circuit
+        }
+      });
     }
 
     circuit.reverse();

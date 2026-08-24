@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { RotateCcw, RefreshCw, Copy, Check, WandSparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/utils/cn";
@@ -7,7 +7,7 @@ import { copyToClipboard } from "@/utils/copy-to-clipboard";
 import { useToast } from "@/components/ui/toast";
 import { GRAPH_EXAMPLES, GraphExampleLine } from "@/constant/graph-examples";
 import { useGraphDataStore, useAlgorithmStore } from "@/stores";
-import { graphService } from "@/services/graph-service";
+import { useCommandManager } from "@/hooks/use-command-manager";
 
 function parseGraphExample(lines: GraphExampleLine[]): string {
   return lines.map((line) => line.join(" ")).join("\n");
@@ -17,17 +17,17 @@ function InputTab({ className }: { className?: string }) {
   const { showToast } = useToast();
   const nodes = useGraphDataStore((state) => state.nodes);
   const edges = useGraphDataStore((state) => state.edges);
-  const updateGraphData = useGraphDataStore((state) => state.updateGraphData);
   const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
   const isDirected = useGraphDataStore((state) => state.isDirected);
   const suggestedIndexRef = useRef<number | null>(null);
 
-  const getStoreText = () => graphToEdgeList(nodes, edges);
+  const getStoreText = useCallback(() => graphToEdgeList(nodes, edges), [nodes, edges]);
 
   const [text, setText] = useState(getStoreText);
   const [copyStatus, setCopyStatus] = useState<"idle" | "success" | "error">("idle");
-
   const [suggested, setSuggested] = useState(false);
+
+  const { commands } = useCommandManager();
 
   useEffect(() => {
     if (!suggested) return;
@@ -35,7 +35,7 @@ function InputTab({ className }: { className?: string }) {
     return () => clearTimeout(t);
   }, [suggested]);
 
-  // Sync textarea khi store thay đổi từ bên ngoài (canvas)
+  // Sync the text area with the store data when nodes or edges change
   useEffect(() => {
     setText(getStoreText());
   }, [nodes, edges]);
@@ -46,17 +46,15 @@ function InputTab({ className }: { className?: string }) {
 
   const handleSync = () => {
     const { nodes: parsedNodes, edges: parsedEdges } = parseEdgeList(text);
-    graphService.drawGraphFromData({ nodes: parsedNodes, edges: parsedEdges, isDirected });
-    graphService.autoLayout(currentAlgorithm, false);
-    updateGraphData({
-      nodes: parsedNodes,
-      edges: parsedEdges,
-      isDirected,
-    });
+    commands.executeSyncEdgeListCommand(
+      { nodes: parsedNodes, edges: parsedEdges, isDirected },
+      currentAlgorithm!,
+    );
   };
 
   const handleCopy = () => {
     try {
+      console.log(nodes, edges);
       copyToClipboard(getStoreText());
       setCopyStatus("success");
 
@@ -127,7 +125,13 @@ function InputTab({ className }: { className?: string }) {
         )}
       </div>
 
-      <Button variant="secondary" size="sm" className="min-w-[120px]" onClick={handleSuggest} disabled={suggested}>
+      <Button
+        variant="secondary"
+        size="sm"
+        className="min-w-[120px]"
+        onClick={handleSuggest}
+        disabled={suggested}
+      >
         <WandSparkles className={cn("transition-transform", suggested && "animate-suggest-spin")} />
         Suggest Graph
       </Button>

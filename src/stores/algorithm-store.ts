@@ -108,7 +108,7 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
               // console.log("SCC Steps:", steps);
               setSteps(steps || []);
             } else {
-              const { steps, message } = findConnectedComponents(data, startNodeIdToUse);
+              const { steps } = findConnectedComponents(data, startNodeIdToUse);
               setSteps(steps || []);
             }
 

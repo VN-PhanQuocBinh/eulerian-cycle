@@ -4,18 +4,15 @@ import { generateNodeId } from "@/utils/generate-id";
 import { useGraphDataStore, useUIStore } from "@/stores";
 import { useEffect } from "react";
 import { useToast } from "@/components/ui/toast";
+import { useCommandManager } from "./use-command-manager";
 
 export const useGraphInteractions = () => {
   // Graph Data Store
-  const addNode = useGraphDataStore((s) => s.addNode);
-  const updateNode = useGraphDataStore((s) => s.updateNode);
-  const addEdge = useGraphDataStore((s) => s.addEdge);
   const isNodeExists = useGraphDataStore((s) => s.isNodeExists);
 
-  const updateNodes = useGraphDataStore((s) => s.updateNodes);
-  const updateEdges = useGraphDataStore((s) => s.updateEdges);
-
   const { showToast } = useToast();
+
+  const { commands } = useCommandManager();
 
   // Node Input
   const { openNodeInputAt } = useNodeInput();
@@ -36,8 +33,6 @@ export const useGraphInteractions = () => {
 
             const nodeId = generateNodeId(label);
 
-            console.log("Checking if node exists with ID:", isNodeExists(nodeId));
-
             if (isNodeExists(nodeId)) {
               showToast({
                 message: `A node with label "${label}" already exists.`,
@@ -47,22 +42,21 @@ export const useGraphInteractions = () => {
               return;
             }
 
-            graphService.addNodeToCy({
+            commands.executeAddNodeCommand({
               id: nodeId,
               label,
               x: position.x,
               y: position.y,
             });
-            addNode({ id: nodeId, label, x: position.x, y: position.y });
           },
         });
       },
-      onEdgeAdd: addEdge,
-      onNodeUpdate: ({ id, position }) => {
+      onEdgeAdd: (edge) => {
+        commands.executeAddEdgeCommand(edge);
+      },
+      onNodeUpdate: ({ id, x, y }) => {
         const interactionMode = useUIStore.getState().mode;
-        if (!["view", "add-edge"].includes(interactionMode)) return;
-
-        const { x, y } = position;
+        if (!["view", "add-edge"].includes(interactionMode) || !x || !y) return;
 
         openNodeInputAt({
           x,
@@ -70,10 +64,12 @@ export const useGraphInteractions = () => {
           onComplete: (label: string) => {
             if (!label.trim()) return;
 
-            graphService.updateNodeInCy({ id, label });
-            updateNode(id, { label });
+            commands.executeUpdateLabelCommand(id, label);
           },
         });
+      },
+      onNodePositionChange: (changes) => {
+        commands.executeMoveNodesCommand(changes);
       },
     });
   };
@@ -81,19 +77,7 @@ export const useGraphInteractions = () => {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Delete" || event.key === "Backspace") {
-        const { nodeIds, edgeIds } = graphService.removeSelectedElements();
-
-        const currentNodes = useGraphDataStore.getState().nodes;
-        const currentEdges = useGraphDataStore.getState().edges;
-
-        const updatedNodes = currentNodes.filter((n) => !nodeIds.includes(n.id));
-        const updatedEdges = currentEdges.filter(
-          (e) =>
-            !edgeIds.includes(e.id) && !nodeIds.includes(e.source) && !nodeIds.includes(e.target),
-        );
-
-        updateNodes(updatedNodes);
-        updateEdges(updatedEdges);
+        commands.executeBatchRemoveCommand();
       }
     };
 

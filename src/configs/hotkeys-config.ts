@@ -1,4 +1,4 @@
-import { ClickToActionBinding, HoldToActionBinding } from "@/types/hotkey-store";
+import { KeyCombo } from "@/types/hotkey-store";
 
 type FUNCTION_KEY =
   | "VIEW"
@@ -8,14 +8,20 @@ type FUNCTION_KEY =
   | "CLEAR_GRAPH"
   | "TOGGLE_SIDEBAR"
   | "TOGGLE_BOTTOM_PANEL"
+  | "TOGGLE_SIDEBAR"
   | "ZOOM_IN"
-  | "ZOOM_OUT";
+  | "ZOOM_OUT"
+  | "FORWARD"
+  | "BACKWARD"
+  | "TOGGLE_RUN"
+  | "UNDO"
+  | "REDO"
 
 export const HOTKEYS_CONFIG: Record<
   "CLICK",
-  Partial<Record<FUNCTION_KEY, ClickToActionBinding["combo"]>>
+  Record<FUNCTION_KEY, KeyCombo>
 > &
-  Record<"HOLD", Partial<Record<FUNCTION_KEY, HoldToActionBinding["combo"]>>> = {
+  Record<"HOLD", Partial<Record<FUNCTION_KEY, KeyCombo>>> = {
   CLICK: {
     // Graph Interaction
     VIEW: "v",
@@ -23,12 +29,19 @@ export const HOTKEYS_CONFIG: Record<
     ADD_EDGE: "e",
     AUTO_LAYOUT: "ctrl+e",
     CLEAR_GRAPH: "ctrl+shift+c",
+    UNDO: "ctrl+z",
+    REDO: "ctrl+y",
 
     // UI Layout interaction
     TOGGLE_SIDEBAR: "ctrl+b",
     TOGGLE_BOTTOM_PANEL: "ctrl+a",
     ZOOM_IN: "ctrl+plus",
     ZOOM_OUT: "ctrl+minus",
+
+    // Visualization Interaction
+    FORWARD: "arrowright",
+    BACKWARD: "arrowleft",
+    TOGGLE_RUN: "space",
   },
 
   HOLD: {

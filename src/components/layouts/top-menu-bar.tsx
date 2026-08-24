@@ -3,7 +3,6 @@ import { useState, useEffect, useRef } from "react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { HotkeyProcessor } from "@/types/hotkey-store";
 import { cn } from "@/utils/cn";
-import { useRegisterHotkey } from "@/hooks/use-register-hotkey";
 
 export default function TopMenuBar() {
   const [fileOpen, setFileOpen] = useState(false);
@@ -60,9 +59,9 @@ export default function TopMenuBar() {
   };
 
   return (
-    <header className="max-w-full window-drag h-10 border-b border-(--od-border) bg-(--od-bg-1) text-(--od-fg-0)">
+    <header className="max-w-full window-drag min-h-8 border-b border-(--od-border) bg-(--od-bg-1) text-(--od-fg-0)">
       <div className="relative flex h-full items-center justify-between pl-2 pr-0.5">
-        <div className="window-no-drag shrink-0 flex items-center">
+        <div className="window-no-drag shrink-0 flex items-center h-full">
           <img src="./icon.ico" alt="" className="mr-3 h-6 w-6" />
 
           <Popover
@@ -75,7 +74,7 @@ export default function TopMenuBar() {
             <PopoverTrigger asChild>
               <button
                 onClick={openFile}
-                className="rounded! px-2.5 py-1 text-sm! text-(--od-fg-1) hover:bg-(--od-bg-3) hover:text-(--od-fg-0)"
+                className="rounded! px-2.5 py-0.5 text-sm! text-(--od-fg-1) hover:bg-(--od-bg-3) hover:text-(--od-fg-0)"
               >
                 File
               </button>
@@ -117,7 +116,7 @@ export default function TopMenuBar() {
             <PopoverTrigger asChild>
               <button
                 onClick={openView}
-                className="rounded! px-2.5 py-1 text-sm! text-(--od-fg-1) hover:bg-(--od-bg-3) hover:text-(--od-fg-0)"
+                className="rounded! px-2.5 py-0.5 text-sm! text-(--od-fg-1) hover:bg-(--od-bg-3) hover:text-(--od-fg-0)"
               >
                 View
               </button>
