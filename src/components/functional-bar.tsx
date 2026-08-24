@@ -17,8 +17,7 @@ import { Tooltip } from "@/components/ui/tooltip";
 import { useRegisterHotkey } from "@/hooks/use-register-hotkey";
 import { HOTKEYS_CONFIG } from "@/configs/hotkeys-config";
 import { useCommandManager } from "@/hooks/use-command-manager";
-import { ClearGraphCommand, AutoLayoutCommand } from "@/stores/commands";
-
+import { AutoLayoutCommand } from "@/stores/commands";
 
 const modes: {
   id: keyof typeof HOTKEYS_CONFIG.CLICK;
@@ -32,14 +31,14 @@ const modes: {
 ];
 
 function FunctionalBar() {
-  const { execute: executeCommand } = useCommandManager();
+  const { execute: executeCommand, commands } = useCommandManager();
 
   const interactionMode = useUIStore((s) => s.mode);
   const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
   const setMode = useUIStore((s) => s.setMode);
 
   const handleClear = () => {
-    executeCommand(new ClearGraphCommand());
+    commands.executeClearGraphCommand();
   };
 
   const handleValueChange = (value: GraphMode) => {
@@ -91,7 +90,7 @@ function FunctionalBar() {
   });
 
   const handleAutoLayout = () => {
-    executeCommand(new AutoLayoutCommand(currentAlgorithm));
+    commands.executeAutoLayoutCommand(currentAlgorithm);
   };
 
   const handleZoomIn = () => {

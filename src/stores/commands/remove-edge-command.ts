@@ -1,12 +1,14 @@
 import { Command, GraphEdgeSnapshot } from "@/types/command";
-import { useGraphDataStore } from "../graph-data-store";
-import { graphService } from "@/services/graph-service";
+import { CommandContext } from "@/services/command-context";
 
 class RemoveEdgeCommand implements Command {
-  private edge: GraphEdgeSnapshot | null = null;
+  private edge: GraphEdgeSnapshot;
 
-  constructor(private edgeId: string) {
-    const edgeData = useGraphDataStore.getState().getEdgeDataById(this.edgeId);
+  constructor(
+    private edgeId: string,
+    private context: CommandContext,
+  ) {
+    const edgeData = this.context.graphDataStore.getEdgeDataById(this.edgeId);
 
     if (!edgeData) {
       throw new Error(
@@ -14,25 +16,23 @@ class RemoveEdgeCommand implements Command {
       );
     }
 
-    if (edgeData) {
-      const classes = graphService.getClassesByElementId(this.edgeId);
-      this.edge = {
-        data: edgeData,
-        classes: classes,
-      };
-    }
+    const classes = this.context.graphService.getClassesByElementId(this.edgeId);
+    this.edge = {
+      data: edgeData,
+      classes: classes,
+    };
   }
 
   execute() {
-    useGraphDataStore.getState().removeEdge(this.edgeId);
-    graphService.removeElementById(this.edgeId);
+    this.context.graphDataStore.removeEdge(this.edgeId);
+    this.context.graphService.removeElementById(this.edgeId);
   }
 
   undo() {
     if (!this.edge) throw new Error("Cannot undo RemoveEdgeCommand: edge snapshot is missing.");
 
-    useGraphDataStore.getState().addEdge(this.edge.data);
-    graphService.addEdgesToCy([this.edge]);
+    this.context.graphDataStore.addEdge(this.edge.data);
+    this.context.graphService.addEdgesToCy([this.edge]);
   }
 }
 

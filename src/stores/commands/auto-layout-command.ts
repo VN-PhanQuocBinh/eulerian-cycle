@@ -1,21 +1,24 @@
 import { Command } from "@/types/command";
-import { graphService } from "@/services/graph-service";
 import { GraphData } from "@/types/graph-data-store";
 import { GraphAlgorithm } from "@/types/algorithm-store";
+import { CommandContext } from "@/services/command-context";
 
 class AutoLayoutCommand implements Command {
   private previousSnapshot: GraphData;
 
-  constructor(private algorithm: GraphAlgorithm) {
-    this.previousSnapshot = graphService.getGraphSnapshot();
+  constructor(
+    private algorithm: GraphAlgorithm,
+    private context: CommandContext,
+  ) {
+    this.previousSnapshot = this.context.graphService.getGraphSnapshot();
   }
 
   execute() {
-    graphService.autoLayout(this.algorithm);
+    this.context.graphService.autoLayout(this.algorithm);
   }
 
   undo() {
-    graphService.drawGraphFromData(this.previousSnapshot);
+    this.context.graphService.drawGraphFromData(this.previousSnapshot);
   }
 }
 

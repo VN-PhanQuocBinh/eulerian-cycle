@@ -1,23 +1,22 @@
 import { Command } from "@/types/command";
-import { graphService } from "@/services/graph-service";
-import { useGraphDataStore } from "../graph-data-store";
 import { GraphData } from "@/types/graph-data-store";
+import { CommandContext } from "@/services/command-context";
 
 class ClearGraphCommand implements Command {
   private previousSnapshot: GraphData;
 
-  constructor() {
-    this.previousSnapshot = graphService.getGraphSnapshot();
+  constructor(private context: CommandContext) {
+    this.previousSnapshot = this.context.graphService.getGraphSnapshot();
   }
 
   execute() {
-    graphService.clearCanvas();
-    useGraphDataStore.getState().clearGraphData();
+    this.context.graphService.clearCanvas();
+    this.context.graphDataStore.clearGraphData();
   }
 
   undo() {
-    graphService.drawGraphFromData(this.previousSnapshot);
-    useGraphDataStore.getState().updateGraphData(this.previousSnapshot);
+    this.context.graphService.drawGraphFromData(this.previousSnapshot);
+    this.context.graphDataStore.updateGraphData(this.previousSnapshot);
   }
 }
 

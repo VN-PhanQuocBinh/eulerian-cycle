@@ -14,7 +14,6 @@ import { useNodeInput } from "./ui/node-input";
 import { useAlgorithmOperations } from "@/hooks/use-algorithm-operations";
 import FullscreenButton from "./fullscreen-button";
 import { useCommandManager } from "@/hooks/use-command-manager";
-import { RemoveEdgeCommand, RemoveNodeCommand } from "@/stores/commands";
 
 import {
   ContextMenu,
@@ -33,7 +32,7 @@ type ContextTarget = { kind: "node"; id: string } | { kind: "edge"; id: string }
 const GraphCanvas = () => {
   const { initCoreListeners } = useGraphInteractions();
   const { loadGraph, saveGraph, saveImage } = useFileOperations();
-  const { execute: executeCommand } = useCommandManager();
+  const { execute: executeCommand, commands } = useCommandManager();
 
   const interactionMode = useUIStore((s) => s.mode);
   const isDirected = useGraphDataStore((state) => state.isDirected);
@@ -138,13 +137,15 @@ const GraphCanvas = () => {
 
   const handleDeleteTarget = () => {
     if (!contextTarget || !graphService.cy) return;
+    const targetId = contextTarget.id;
+    const targetType = contextTarget.kind;
 
-    if (contextTarget.kind === "node") {
-      executeCommand(new RemoveNodeCommand(contextTarget.id));
+    if (targetType === "node") {
+      commands.executeRemoveNodeCommand(targetId);
     }
 
-    if (contextTarget.kind === "edge") {
-      executeCommand(new RemoveEdgeCommand(contextTarget.id));
+    if (targetType === "edge") {
+      commands.executeRemoveEdgeCommand(targetId);
     }
 
     setContextTarget(null);

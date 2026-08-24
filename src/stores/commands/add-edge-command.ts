@@ -1,19 +1,23 @@
 import { Command } from "@/types/command";
 import { GraphEdge } from "@/types/graph-data-store";
-import { useGraphDataStore } from "../graph-data-store";
-import { graphService } from "@/services/graph-service";
+import { CommandContext } from "@/services/command-context";
 
 class AddEdgeCommand implements Command {
-  constructor(private edge: GraphEdge) {}
+  constructor(
+    private edge: GraphEdge,
+    private context: CommandContext,
+  ) {}
 
   execute() {
-    useGraphDataStore.getState().addEdge(this.edge);
-    graphService.addEdgeToCy(this.edge);
+    this.context.graphDataStore.addEdge(this.edge);
+    this.context.graphService.addEdgeToCy({
+      data: this.edge,
+    });
   }
 
   undo() {
-    useGraphDataStore.getState().removeEdge(this.edge.id);
-    graphService.removeElementById(this.edge.id);
+    this.context.graphDataStore.removeEdge(this.edge.id);
+    this.context.graphService.removeElementById(this.edge.id);
   }
 }
 

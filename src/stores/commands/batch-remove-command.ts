@@ -1,26 +1,32 @@
 import { Command, GraphEdgeSnapshot, GraphNodeSnapshot } from "@/types/command";
-import { useGraphDataStore } from "@/stores";
-import { graphService } from "@/services/graph-service";
+import { CommandContext } from "@/services/command-context";
 
 class BatchRemoveCommand implements Command {
-  private elementsSnapshot: { nodes: GraphNodeSnapshot[]; edges: GraphEdgeSnapshot[] } = {
-    nodes: [],
-    edges: [],
-  };
+  private elementsSnapshot: { nodes: GraphNodeSnapshot[]; edges: GraphEdgeSnapshot[] };
 
-  constructor() {
-    const selectedElements = graphService.getSelectedElements();
+  constructor(private context: CommandContext) {
+    const selectedElements = this.context.graphService.getSelectedElements();
 
     const connectedEdges: GraphEdgeSnapshot[] = [];
     const edgeIdsSet = new Set<string>(); // To avoid duplicates when collecting connected edges
 
+    selectedElements.edges.forEach((edge) => {
+      const edgeSnapshot = this.context.graphService.getEdgeSnapshotById(edge.data.id);
+      if (!edgeSnapshot) {
+        throw new Error(
+          `Cannot create BatchRemoveCommand: selected edge with ID ${edge.data.id} does not exist.`,
+        );
+      }
+      connectedEdges.push(edgeSnapshot);
+    });
+
     selectedElements.nodes.forEach((node) => {
-      const selectedEdges = useGraphDataStore.getState().getEdgesByNodeId(node.data.id);
+      const selectedEdges = this.context.graphDataStore.getEdgesByNodeId(node.data.id);
       const selectedEdgesSnapshots: GraphEdgeSnapshot[] = [];
 
       // Collect snapshots of connected edges for each selected node
       selectedEdges.forEach((edge) => {
-        const edgeSnapshot = graphService.getEdgeSnapshotById(edge.id);
+        const edgeSnapshot = this.context.graphService.getEdgeSnapshotById(edge.id);
         if (!edgeSnapshot) {
           throw new Error(
             `Cannot create BatchRemoveCommand: connected edge with ID ${edge.id} does not exist.`,
@@ -49,29 +55,29 @@ class BatchRemoveCommand implements Command {
 
     // Remove nodes and edges from the store
     selectedNodeIds.forEach((nodeId) => {
-      useGraphDataStore.getState().removeNode(nodeId);
+      this.context.graphDataStore.removeNode(nodeId);
     });
     selectedEdgeIds.forEach((edgeId) => {
-      useGraphDataStore.getState().removeEdge(edgeId);
+      this.context.graphDataStore.removeEdge(edgeId);
     });
 
     // Remove edges first, then nodes from the canvas to avoid issues with connected edges
-    graphService.removeElementsByIds(selectedEdgeIds);
-    graphService.removeElementsByIds(selectedNodeIds);
+    this.context.graphService.removeElementsByIds(selectedEdgeIds);
+    this.context.graphService.removeElementsByIds(selectedNodeIds);
   }
 
   undo() {
     // Restore nodes and edges to the store
     this.elementsSnapshot.nodes.forEach((nodeSnapshot) => {
-      useGraphDataStore.getState().addNode(nodeSnapshot.data);
+      this.context.graphDataStore.addNode(nodeSnapshot.data);
     });
     this.elementsSnapshot.edges.forEach((edgeSnapshot) => {
-      useGraphDataStore.getState().addEdge(edgeSnapshot.data);
+      this.context.graphDataStore.addEdge(edgeSnapshot.data);
     });
 
     // Restore nodes first, then edges to the store
-    graphService.addNodesToCy(this.elementsSnapshot.nodes);
-    graphService.addEdgesToCy(this.elementsSnapshot.edges);
+    this.context.graphService.addNodesToCy(this.elementsSnapshot.nodes);
+    this.context.graphService.addEdgesToCy(this.elementsSnapshot.edges);
   }
 }
 

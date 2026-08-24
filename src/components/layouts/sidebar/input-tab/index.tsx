@@ -8,7 +8,6 @@ import { useToast } from "@/components/ui/toast";
 import { GRAPH_EXAMPLES, GraphExampleLine } from "@/constant/graph-examples";
 import { useGraphDataStore, useAlgorithmStore } from "@/stores";
 import { useCommandManager } from "@/hooks/use-command-manager";
-import { SyncEdgeListCommand } from "@/stores/commands";
 
 function parseGraphExample(lines: GraphExampleLine[]): string {
   return lines.map((line) => line.join(" ")).join("\n");
@@ -29,7 +28,7 @@ function InputTab({ className }: { className?: string }) {
   const [copyStatus, setCopyStatus] = useState<"idle" | "success" | "error">("idle");
   const [suggested, setSuggested] = useState(false);
 
-  const { execute } = useCommandManager();
+  const { execute, commands } = useCommandManager();
 
   useEffect(() => {
     if (!suggested) return;
@@ -48,11 +47,9 @@ function InputTab({ className }: { className?: string }) {
 
   const handleSync = () => {
     const { nodes: parsedNodes, edges: parsedEdges } = parseEdgeList(text);
-    execute(
-      new SyncEdgeListCommand(
-        { nodes: parsedNodes, edges: parsedEdges, isDirected },
-        currentAlgorithm!,
-      ),
+    commands.executeSyncEdgeListCommand(
+      { nodes: parsedNodes, edges: parsedEdges, isDirected },
+      currentAlgorithm!,
     );
   };
 

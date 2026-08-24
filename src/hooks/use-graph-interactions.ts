@@ -5,25 +5,14 @@ import { useGraphDataStore, useUIStore } from "@/stores";
 import { useEffect } from "react";
 import { useToast } from "@/components/ui/toast";
 import { useCommandManager } from "./use-command-manager";
-import {
-  AddNodeCommand,
-  AddEdgeCommand,
-  BatchRemoveCommand,
-  MoveNodesCommand,
-  UpdateLabelCommand,
-} from "@/stores/commands";
 
 export const useGraphInteractions = () => {
   // Graph Data Store
-  const updateNode = useGraphDataStore((s) => s.updateNode);
   const isNodeExists = useGraphDataStore((s) => s.isNodeExists);
-
-  const updateNodes = useGraphDataStore((s) => s.updateNodes);
-  const updateEdges = useGraphDataStore((s) => s.updateEdges);
 
   const { showToast } = useToast();
 
-  const { execute: executeCommand } = useCommandManager();
+  const { execute: executeCommand, commands } = useCommandManager();
 
   // Node Input
   const { openNodeInputAt } = useNodeInput();
@@ -53,19 +42,17 @@ export const useGraphInteractions = () => {
               return;
             }
 
-            executeCommand(
-              new AddNodeCommand({
-                id: nodeId,
-                label,
-                x: position.x,
-                y: position.y,
-              }),
-            );
+            commands.executeAddNodeCommand({
+              id: nodeId,
+              label,
+              x: position.x,
+              y: position.y,
+            });
           },
         });
       },
       onEdgeAdd: (edge) => {
-        executeCommand(new AddEdgeCommand(edge));
+        commands.executeAddEdgeCommand(edge);
       },
       onNodeUpdate: ({ id, x, y }) => {
         const interactionMode = useUIStore.getState().mode;
@@ -77,19 +64,12 @@ export const useGraphInteractions = () => {
           onComplete: (label: string) => {
             if (!label.trim()) return;
 
-            executeCommand(
-              new UpdateLabelCommand(
-                id,
-                label,
-              ),
-            );
-            // graphService.updateNodeInCy({ id, label });
-            // updateNode(id, { label });
+            commands.executeUpdateLabelCommand(id, label);
           },
         });
       },
       onNodePositionChange: (changes) => {
-        executeCommand(new MoveNodesCommand(changes));
+        commands.executeMoveNodesCommand(changes);
       },
     });
   };
@@ -97,7 +77,7 @@ export const useGraphInteractions = () => {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Delete" || event.key === "Backspace") {
-        executeCommand(new BatchRemoveCommand());
+        commands.executeBatchRemoveCommand();
       }
     };
 
