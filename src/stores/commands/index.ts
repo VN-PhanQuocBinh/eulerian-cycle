@@ -6,3 +6,5 @@ export { default as RemoveEdgeCommand } from '@/stores/commands/remove-edge-comm
 export { default as BatchRemoveCommand } from '@/stores/commands/batch-remove-command';
 export { default as SyncEdgeListCommand } from '@/stores/commands/sync-edge-list-command';
 export { default as UpdateLabelCommand } from '@/stores/commands/update-label-command';
+export { default as ClearGraphCommand } from '@/stores/commands/clear-graph-command';
+export { default as AutoLayoutCommand } from '@/stores/commands/auto-layout-command';

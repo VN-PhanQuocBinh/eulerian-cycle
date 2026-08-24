@@ -5,15 +5,17 @@ import { GraphAlgorithm } from "@/types/algorithm-store";
 import { useGraphDataStore } from "../graph-data-store";
 
 class SyncEdgeListCommand implements Command {
-  private previousGraphData = graphService.getGraphSnapshot();
+  private previousGraphData: GraphData;
   private currentSnapshot: GraphData | null = null;
 
   constructor(
     private graphData: { nodes: GraphNode[]; edges: GraphEdge[]; isDirected: boolean },
     private algorithm: GraphAlgorithm,
-  ) {}
+  ) {
+    this.previousGraphData = graphService.getGraphSnapshot();
+  }
 
-  async execute() {
+  execute() {
     if (!this.currentSnapshot) {
       graphService.drawGraphFromData(this.graphData);
       graphService.autoLayout(this.algorithm, false);
