@@ -1,6 +1,6 @@
 import { GraphData } from "./graph-data-store";
 
-export type GraphAlgorithm = "eulerian-cycle" | "connected-components";
+export type GraphAlgorithm = "eulerian-cycle" | "connected-components" | "dfs" | "bfs";
 export type RunMode = "step-by-step" | "continuous";
 
 export type StepNodeElement = {

@@ -1,18 +1,21 @@
+import { GraphData } from "./../types/graph-data-store";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { AlgorithmStore } from "@/types/algorithm-store";
 
-import type { ConnectedComponentsResult, Step } from "@/types/algorithm-store";
+import type { ConnectedComponentsResult, GraphAlgorithm, Step } from "@/types/algorithm-store";
 import { TarjanSCC } from "@/core/algorithms/tarjan-scc";
 import { EulerianCycle } from "@/core/algorithms/eulerian-cycle";
+import { DFS } from "@/core/algorithms/dfs";
 import { findConnectedComponents as findConnectedComponentsAlgorithm } from "@/core/algorithms/connected-components";
-import { GraphData } from "@/types/graph-data-store";
+
+const INITIAL_ALGORITHM: GraphAlgorithm = "dfs";
 
 export const useAlgorithmStore = create<AlgorithmStore>()(
   devtools(
     (set, get) => ({
       // Algorithm state
-      currentAlgorithm: "connected-components",
+      currentAlgorithm: INITIAL_ALGORITHM,
       isAnimating: false,
       steps: [],
       currentStepIndex: -1,
@@ -117,6 +120,13 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
           case "eulerian-cycle": {
             const { steps } = findEulerianCycle(data, startNodeIdToUse);
             setSteps(steps || []);
+            break;
+          }
+          case "dfs": {
+            const engine = new DFS(data);
+            const result = engine.execute(startNodeIdToUse, data.nodes[2]?.id || startNodeIdToUse);
+            console.log("DFS Steps:", result);
+            // setSteps(result.steps || []);
             break;
           }
           default:

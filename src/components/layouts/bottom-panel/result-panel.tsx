@@ -18,6 +18,8 @@ function ResultPanel() {
           <ConnectedComponentsStepsTable steps={steps} />
         ) : currentAlgorithm === "eulerian-cycle" ? (
           <EulerianCycleStepsTable steps={steps} />
+        ) : currentAlgorithm === "bfs" || currentAlgorithm === "dfs" ? (
+          <div>DFS/BFS Results</div>
         ) : (
           <div className="p-8 text-center text-slate-400 text-sm">
             Run an algorithm to see steps

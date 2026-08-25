@@ -27,4 +27,26 @@ export const ALGORITHM_LAYOUT_CONFIGS: Record<GraphAlgorithm, cytoscape.LayoutOp
     padding: 100,
     fit: true,
   } as cytoscape.LayoutOptions,
+
+  dfs: {
+    name: "dagre",
+    rankDir: "TB", 
+    animate: true,
+    animationDuration: 600,
+    nodeSep: 50, 
+    rankSep: 80,
+    padding: 80,
+    fit: true,
+  } as cytoscape.LayoutOptions,
+
+  bfs: {
+    name: "dagre",
+    rankDir: "LR", 
+    animate: true,
+    animationDuration: 600,
+    nodeSep: 60,
+    rankSep: 100, 
+    padding: 80,
+    fit: true,
+  } as cytoscape.LayoutOptions,
 };
