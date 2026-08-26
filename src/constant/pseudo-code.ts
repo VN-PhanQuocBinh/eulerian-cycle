@@ -1,5 +1,7 @@
 import { PseudoCodeLine } from "@/types/pseudo-code";
 
+const BLANK_LINE: PseudoCodeLine = { id: 0, text: "", indent: 0 };
+
 export const HIERHOLZER_PSEUDOCODE: PseudoCodeLine[] = [
   { id: 1, text: "procedure FindEulerianCycle(Graph, start)", indent: 0 },
   { id: 2, text: "create a copy G of Graph", indent: 1 },
@@ -33,7 +35,7 @@ export const CONNECTED_COMPONENTS_PSEUDOCODE: PseudoCodeLine[] = [
   { id: 10, text: "enqueue v to Q", indent: 4 },
   { id: 11, text: "end procedure", indent: 0 },
 
-  { id: 0, text: "", indent: 0 }, // Blank line
+  BLANK_LINE, // Blank line
 
   // Main procedure
   { id: 12, text: "procedure FindConnectedComponents(Graph)", indent: 0 },
@@ -61,7 +63,7 @@ export const TARJAN_SCC_PSEUDOCODE: PseudoCodeLine[] = [
   { id: 12, text: "add SCC to allSCCs", indent: 2 },
   { id: 13, text: "end procedure", indent: 0 },
 
-  { id: 0, text: "", indent: 0 }, // Blank line
+  BLANK_LINE, // Blank line
 
   // Main procedure
   { id: 14, text: "procedure FindSCCs(Graph)", indent: 0 },
@@ -70,4 +72,39 @@ export const TARJAN_SCC_PSEUDOCODE: PseudoCodeLine[] = [
   { id: 17, text: "if u is not visited", indent: 2 },
   { id: 18, text: "DFS(u)", indent: 3 },
   { id: 19, text: "return allSCCs", indent: 1 },
+];
+
+export const DFS_PSEUDOCODE: PseudoCodeLine[] = [
+  { id: 1, text: "procedure DFS(Graph, startNodeId, targetNodeId):", indent: 0 },
+  { id: 2, text: "create empty set Visited", indent: 1 },
+  { id: 3, text: "create empty stack S", indent: 1 },
+  { id: 4, text: "create empty map ParentMap", indent: 1 },
+
+  BLANK_LINE, // Blank line
+
+  { id: 5, text: "push startNodeId onto S", indent: 1 },
+  { id: 6, text: "initialize ParentMap[startNodeId] = null", indent: 1 },
+
+  BLANK_LINE, // Blank line
+
+  { id: 7, text: "while S is not empty:", indent: 1 },
+  { id: 8, text: "currentNode = pop from S", indent: 2 },
+  { id: 9, text: "if currentNode is in Visited: continue", indent: 2 },
+  { id: 10, text: "add currentNode to Visited", indent: 2 },
+
+  BLANK_LINE, // Blank line
+
+  { id: 11, text: "if currentNode == targetNodeId:", indent: 2 },
+  { id: 12, text: "reconstruct path using ParentMap and break", indent: 3 },
+
+  BLANK_LINE, // Blank line
+
+  { id: 13, text: "for each neighbor v of currentNode:", indent: 2 },
+  { id: 14, text: "if v is not in Visited:", indent: 3 },
+  { id: 15, text: "set ParentMap[v] = currentNode", indent: 4 },
+  { id: 16, text: "push v onto S", indent: 4 },
+
+  BLANK_LINE, // Blank line
+
+  { id: 17, text: "return path and found status", indent: 1 },
 ];

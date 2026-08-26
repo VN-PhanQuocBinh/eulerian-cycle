@@ -153,6 +153,20 @@ export const graphStyles: cytoscape.StylesheetJson = [
     },
   },
 
+  // ========= STYLES FOR DFS, BFS ANIMATION ==========
+  {
+    selector: "node.processing-neighbor",
+    style: {
+      "background-color": "#616161",
+    },
+  },
+  {
+    selector: "node.visiting-neighbor",
+    style: {
+      "background-color": "#61afef",
+    },
+  },
+
   ...COMPONENT_COLORS.map(({ bg, border, text }, index) => ({
     selector: `node.component-${index}`,
     style: {

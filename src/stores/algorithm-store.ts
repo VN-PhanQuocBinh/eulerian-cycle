@@ -21,6 +21,7 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
       currentStepIndex: -1,
       speed: 1,
       startNodeId: null,
+      targetNodeId: null,
 
       // Mode actions
       setIsAnimating: (isAnimating) => set({ isAnimating }),
@@ -30,6 +31,7 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
       setSteps: (steps: Step[]) => set({ steps }),
       setCurrentAlgorithm: (algorithm) => set({ currentAlgorithm: algorithm }),
       setStartNodeId: (startNodeId) => set({ startNodeId }),
+      setTargetNodeId: (targetNodeId) => set({ targetNodeId }),
 
       nextStep: () => {
         const { currentStepIndex, steps } = get();
@@ -96,6 +98,7 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
         const {
           currentAlgorithm,
           startNodeId,
+          setTargetNodeId,
           setSteps,
           findSCCs,
           findConnectedComponents,
@@ -124,9 +127,13 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
           }
           case "dfs": {
             const engine = new DFS(data);
-            const result = engine.execute(startNodeIdToUse, data.nodes[2]?.id || startNodeIdToUse);
+
+            const targetNodeId = data.nodes[2]?.id || startNodeIdToUse; // Use the second node as the target if available
+
+            const result = engine.execute(startNodeIdToUse, targetNodeId);
             console.log("DFS Steps:", result);
             setSteps(result.steps || []);
+            setTargetNodeId(targetNodeId);
             break;
           }
           default:

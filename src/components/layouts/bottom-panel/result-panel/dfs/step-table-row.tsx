@@ -17,16 +17,6 @@ interface Props {
 
 function StepTableRow({ step, index, isActive, graphUtils }: Props) {
   const rowRef = useSmartScroll(isActive);
-  const elements = step.elements;
-
-  const currentNode: StepNodeElement | undefined = useMemo(() => {
-    return elements.find((el) => el.type === "node") as StepNodeElement | undefined;
-  }, [elements]);
-
-  // const nextNode: StepNodeElement | undefined = useMemo(() => {
-  //   const edge = elements.find((el) => el.type === "edge") as StepEdgeElement | undefined;
-  //   return edge?.target as StepNodeElement | undefined;
-  // }, [elements]);
 
   const stackNodes = useMemo(() => {
     return (
@@ -38,7 +28,8 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
   }, [step.stack, graphUtils]);
 
   const visitedNodes = useMemo(() => {
-    const visitedArray = step.visited instanceof Set ? Array.from(step.visited) : (step.visited || []);
+    const visitedArray =
+      step.visited instanceof Set ? Array.from(step.visited) : step.visited || [];
     return visitedArray.map((nodeId) => ({
       id: nodeId,
       label: graphUtils.getNode(nodeId)?.label || nodeId,
@@ -58,24 +49,14 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
       </TableCell>
 
       <TableCell className="px-3 py-2 text-center">
-        {currentNode ? (
+        {step.currentNode ? (
           <span className="inline-flex rounded border border-(--od-border) bg-(--od-bg-2) px-2 py-0.5 text-(--od-fg-0)">
-            {currentNode.label}
+            {step.currentNode.label}
           </span>
         ) : (
           <span className="italic text-(--od-fg-2)">_</span>
         )}
       </TableCell>
-
-      {/* <TableCell className="px-3 py-2 text-center">
-        {nextNode ? (
-          <span className="inline-flex rounded border border-(--od-border) bg-(--od-bg-2) px-2 py-0.5 text-(--od-fg-0)">
-            {nextNode.label}
-          </span>
-        ) : (
-          <span className="italic text-(--od-fg-2)">_</span>
-        )}
-      </TableCell> */}
 
       <TableCell className="px-3 py-2">
         <div className="flex max-w-[160px] items-center">

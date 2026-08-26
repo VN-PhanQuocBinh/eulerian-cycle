@@ -25,6 +25,8 @@ export type Step = {
   circuit?: string[];
   visited?: Set<string>;
 
+  currentNode?: StepNodeElement & { classes: string[] };
+
   // scc
   dsc?: Map<string, number>;
   lowLink?: Map<string, number>;
@@ -47,6 +49,7 @@ export interface AlgorithmStore {
   currentStepIndex: number;
   speed: number;
   startNodeId: string | null;
+  targetNodeId: string | null;
 
   // Actions
   setIsAnimating: (isAnimating: boolean) => void;
@@ -64,6 +67,7 @@ export interface AlgorithmStore {
   setCurrentAlgorithm: (algorithm: GraphAlgorithm) => void;
   setSteps: (steps: Step[]) => void;
   setStartNodeId: (startNodeId: string | null) => void;
+  setTargetNodeId: (targetNodeId: string | null) => void;
 
   // Algorithm implementations
 

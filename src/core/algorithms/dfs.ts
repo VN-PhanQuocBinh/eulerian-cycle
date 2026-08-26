@@ -53,7 +53,9 @@ export class DFS {
       elements: [],
       message: [
         `Starting DFS traversal from node ${startNode?.label || startNodeId} to find node ${targetNode?.label || targetNodeId}.`,
+        "Initializing stack and visited set.",
       ],
+      highlightedPseudoCodeLineIds: [1, [2, 3, 4]],
       stack: [...stack],
       visited: new Set(visited),
     });
@@ -67,10 +69,11 @@ export class DFS {
           type: "node",
           id: startNodeId,
           label: startNode?.label || startNodeId,
-          classes: ["scc-in-stack"],
+          classes: ["processing-neighbor"],
         },
       ],
-      message: [`Pushed node ${startNode?.label || startNodeId} onto the stack.`],
+      message: [`Initialized stack with starting node ${startNode?.label || startNodeId}.`],
+      highlightedPseudoCodeLineIds: [5, 6],
       stack: [...stack],
       visited: new Set(visited),
     });
@@ -78,6 +81,12 @@ export class DFS {
     while (stack.length > 0) {
       const currentNodeId = stack.pop()!;
       const currentNode = this.utils.getNode(currentNodeId);
+      const currentStepNode: Step["currentNode"] = {
+        type: "node",
+        id: currentNodeId,
+        label: currentNode?.label || currentNodeId,
+        classes: ["visiting-neighbor"],
+      };
 
       // If the current node has already been visited, skip it and continue to the next iteration
       if (visited.has(currentNodeId)) {
@@ -87,10 +96,14 @@ export class DFS {
               type: "node",
               id: currentNodeId,
               label: currentNode?.label || currentNodeId,
-              classes: ["scc-visiting"],
+              classes: ["visiting-neighbor"],
             },
           ],
-          message: [`Node ${currentNodeId} has already been visited. Skipping.`],
+          message: [
+            `Pop ${currentNode?.label || currentNodeId} from stack.`,
+            `Node ${currentNodeId} has already been visited. Skipping.`,
+          ],
+          highlightedPseudoCodeLineIds: [8, 9],
           stack: [...stack],
           visited: new Set(visited),
         });
@@ -108,15 +121,20 @@ export class DFS {
         }
 
         steps.push({
+          currentNode: currentStepNode,
           elements: [
             {
               type: "node",
               id: currentNodeId,
               label: currentNode?.label || currentNodeId,
-              classes: ["scc-visiting"],
+              classes: ["visiting-neighbor"],
             },
           ],
-          message: [`Found target node ${currentNode?.label || currentNodeId}.`],
+          message: [
+            `Pop ${currentNode?.label || currentNodeId} from stack.`,
+            `Found target node ${currentNode?.label || currentNodeId}.`,
+          ],
+          highlightedPseudoCodeLineIds: [[8, 10], [11, 12]],
           stack: [...stack],
           visited: new Set(visited),
         });
@@ -125,15 +143,20 @@ export class DFS {
       }
 
       steps.push({
+        currentNode: currentStepNode,
         elements: [
           {
             type: "node",
             id: currentNodeId,
             label: currentNode?.label || currentNodeId,
-            classes: ["scc-visiting"],
+            classes: ["visiting-neighbor"],
           },
         ],
-        message: [`Visiting node ${currentNode?.label || currentNodeId}.`],
+        message: [
+          `Pop ${currentNode?.label || currentNodeId} from stack.`,
+          `Visiting node ${currentNode?.label || currentNodeId}.`,
+        ],
+        highlightedPseudoCodeLineIds: [[8, 10]],
         stack: [...stack],
         visited: new Set(visited),
       });
@@ -166,13 +189,13 @@ export class DFS {
                 id: neighbor,
                 label: currentNeighborNode?.label || neighbor,
               },
-              classes: ["scc-in-stack"],
+              classes: ["processing-neighbor"],
             },
             {
               type: "node",
               id: neighbor,
               label: currentNeighborNode?.label || neighbor,
-              classes: ["scc-in-stack"],
+              classes: ["processing-neighbor"],
             },
           );
           neighborLabels.push(currentNeighborNode?.label || neighbor);
@@ -180,8 +203,12 @@ export class DFS {
       }
 
       steps.push({
+        currentNode: currentStepNode,
         elements: visitedNeighbors,
-        message: [`Pushed neighbor ${neighborLabels.join(", ")} onto the stack.`],
+        message: [
+          `Pushed neighbor${neighborLabels.length > 1 ? "s" : ""}: ${neighborLabels.join(", ")} onto the stack.`,
+        ],
+        highlightedPseudoCodeLineIds: [13, 14, [15, 16]],
         stack: [...stack],
         visited: new Set(visited),
       });
@@ -192,6 +219,7 @@ export class DFS {
       message: [
         `DFS traversal from node ${startNode?.label || startNodeId} to node ${targetNode?.label || targetNodeId} completed.`,
       ],
+      highlightedPseudoCodeLineIds: [17],
       stack: [...stack],
       visited: new Set(visited),
     });

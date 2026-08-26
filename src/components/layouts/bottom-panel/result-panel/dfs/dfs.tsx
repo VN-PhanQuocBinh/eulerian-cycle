@@ -39,7 +39,6 @@ export function DfsStepsTable({ steps }: Props) {
           <TableRow className="top-0 border-b border-(--od-border) hover:bg-transparent">
             <TableHead className="w-10 bg-(--od-bg-2) text-(--od-blue)">Step</TableHead>
             <TableHead className="bg-(--od-bg-2) text-(--od-blue) text-center">Current</TableHead>
-            {/* <TableHead className="bg-(--od-bg-2) text-(--od-blue) text-center">Neighbor</TableHead> */}
             <TableHead className="bg-(--od-bg-2) text-(--od-blue)">Stack</TableHead>
             <TableHead className="bg-(--od-bg-2) text-(--od-blue)">Visited</TableHead>
             <TableHead className="bg-(--od-bg-2) text-(--od-blue)">Explain</TableHead>
