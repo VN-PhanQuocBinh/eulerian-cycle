@@ -3,7 +3,7 @@ import { createGraphUtils } from "@/core/helpers/graph-utils";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { CopyButton } from "@/components/copy-button";
 import JumpButton from "../../jump-button";
-import { Step, StepNodeElement } from "@/types/algorithm-store";
+import { Step, StepNodeElement, StepEdgeElement } from "@/types/algorithm-store";
 import { cn } from "@/utils/cn";
 import { arrayToString } from "@/utils";
 import { useSmartScroll } from "@/hooks/use-smart-scroll";
@@ -20,14 +20,13 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
   const elements = step.elements;
 
   const currentNode: StepNodeElement | undefined = useMemo(() => {
-    return elements.length == 1 && elements[0].type === "node"
-      ? (elements[0] as StepNodeElement)
-      : undefined;
+    return elements.find((el) => el.type === "node") as StepNodeElement | undefined;
   }, [elements]);
 
-  const nextNode: StepNodeElement | undefined = useMemo(() => {
-    return elements.filter((el) => el.type === "edge")[0]?.target;
-  }, [elements]);
+  // const nextNode: StepNodeElement | undefined = useMemo(() => {
+  //   const edge = elements.find((el) => el.type === "edge") as StepEdgeElement | undefined;
+  //   return edge?.target as StepNodeElement | undefined;
+  // }, [elements]);
 
   const stackNodes = useMemo(() => {
     return (
@@ -38,14 +37,13 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
     );
   }, [step.stack, graphUtils]);
 
-  const circuitNodes = useMemo(() => {
-    return (
-      step.circuit?.map((nodeId) => ({
-        id: nodeId,
-        label: graphUtils.getNode(nodeId)?.label || nodeId,
-      })) ?? []
-    );
-  }, [step.circuit, graphUtils]);
+  const visitedNodes = useMemo(() => {
+    const visitedArray = step.visited instanceof Set ? Array.from(step.visited) : (step.visited || []);
+    return visitedArray.map((nodeId) => ({
+      id: nodeId,
+      label: graphUtils.getNode(nodeId)?.label || nodeId,
+    }));
+  }, [step.visited, graphUtils]);
 
   return (
     <TableRow
@@ -69,7 +67,7 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
         )}
       </TableCell>
 
-      <TableCell className="px-3 py-2 text-center">
+      {/* <TableCell className="px-3 py-2 text-center">
         {nextNode ? (
           <span className="inline-flex rounded border border-(--od-border) bg-(--od-bg-2) px-2 py-0.5 text-(--od-fg-0)">
             {nextNode.label}
@@ -77,7 +75,7 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
         ) : (
           <span className="italic text-(--od-fg-2)">_</span>
         )}
-      </TableCell>
+      </TableCell> */}
 
       <TableCell className="px-3 py-2">
         <div className="flex max-w-[160px] items-center">
@@ -96,17 +94,17 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
               <CopyButton text={arrayToString(stackNodes.map((node) => node.label))} />
             </>
           ) : (
-            <span className="italic text-(--od-fg-2)">Empty stack</span>
+            <span className="italic text-(--od-fg-2)">Empty</span>
           )}
         </div>
       </TableCell>
 
       <TableCell className="px-3 py-2">
         <div className="flex max-w-[220px] items-center">
-          {circuitNodes.length > 0 ? (
+          {visitedNodes.length > 0 ? (
             <>
               <div className="flex flex-1 flex-wrap items-center gap-2">
-                {circuitNodes.map((node, idx) => (
+                {visitedNodes.map((node, idx) => (
                   <span
                     key={node.id + "-" + idx}
                     className="w-max rounded border border-(--od-border-strong) bg-(--od-bg-2) px-1.5 py-0.5 text-xs text-(--od-yellow)"
@@ -115,10 +113,10 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
                   </span>
                 ))}
               </div>
-              <CopyButton text={arrayToString(circuitNodes.map((node) => node.label))} />
+              <CopyButton text={arrayToString(visitedNodes.map((node) => node.label))} />
             </>
           ) : (
-            <span className="italic text-(--od-fg-2)">Empty circuit</span>
+            <span className="italic text-(--od-fg-2)">Empty</span>
           )}
         </div>
       </TableCell>

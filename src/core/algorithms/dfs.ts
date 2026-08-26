@@ -26,6 +26,19 @@ export class DFS {
   }
 
   execute(startNodeId: string, targetNodeId: string): AlgorithmResult<DFSResult> {
+    if (this.nodes.length === 0) {
+      return {
+        result: {
+          startNodeId,
+          targetNodeId,
+          path: [],
+          found: false,
+        },
+        steps: [],
+        message: "Graph is empty. Please add nodes and edges to perform DFS.",
+      };
+    }
+
     const startNode = this.utils.getNode(startNodeId);
     const targetNode = this.utils.getNode(targetNodeId);
 
@@ -84,6 +97,8 @@ export class DFS {
         continue;
       }
 
+      visited.add(currentNodeId);
+
       // Found the target node, reconstruct the path and break the loop
       if (currentNodeId === targetNodeId) {
         let nodeId: string | null = currentNodeId;
@@ -109,43 +124,67 @@ export class DFS {
         break;
       }
 
+      steps.push({
+        elements: [
+          {
+            type: "node",
+            id: currentNodeId,
+            label: currentNode?.label || currentNodeId,
+            classes: ["scc-visiting"],
+          },
+        ],
+        message: [`Visiting node ${currentNode?.label || currentNodeId}.`],
+        stack: [...stack],
+        visited: new Set(visited),
+      });
+
       const neighors = this.adjacencyList.get(currentNodeId) || [];
+      const visitedNeighbors: Step["elements"] = [];
+      const neighborLabels: string[] = [];
       for (const neighbor of neighors) {
         if (!visited.has(neighbor)) {
           stack.push(neighbor);
-          parentMap.set(neighbor, currentNodeId);
+
+          if (!parentMap.has(neighbor)) {
+            parentMap.set(neighbor, currentNodeId);
+          }
 
           const currentNeighborNode = this.utils.getNode(neighbor);
           const currentEdge = this.utils.getEdges(currentNodeId, neighbor)[0];
 
-          steps.push({
-            elements: [
-              {
-                type: "edge",
-                id: currentEdge?.id || "PLACEHOLDER_EDGE_ID",
-                source: {
-                  type: "node",
-                  id: currentNodeId,
-                  label: currentNode?.label || currentNodeId,
-                },
-                target: {
-                  type: "node",
-                  id: neighbor,
-                  label: currentNeighborNode?.label || neighbor,
-                },
-                classes: ["scc-visiting"],
+          visitedNeighbors.push(
+            {
+              type: "edge",
+              id: currentEdge?.id || "PLACEHOLDER_EDGE_ID",
+              source: {
+                type: "node",
+                id: currentNodeId,
+                label: currentNode?.label || currentNodeId,
               },
-            ],
-            message: [
-              `Pushed neighbor node ${currentNeighborNode?.label || neighbor} onto the stack.`,
-            ],
-            stack: [...stack],
-            visited: new Set(visited),
-          });
+              target: {
+                type: "node",
+                id: neighbor,
+                label: currentNeighborNode?.label || neighbor,
+              },
+              classes: ["scc-in-stack"],
+            },
+            {
+              type: "node",
+              id: neighbor,
+              label: currentNeighborNode?.label || neighbor,
+              classes: ["scc-in-stack"],
+            },
+          );
+          neighborLabels.push(currentNeighborNode?.label || neighbor);
         }
       }
 
-      visited.add(currentNodeId);
+      steps.push({
+        elements: visitedNeighbors,
+        message: [`Pushed neighbor ${neighborLabels.join(", ")} onto the stack.`],
+        stack: [...stack],
+        visited: new Set(visited),
+      });
     }
 
     steps.push({
@@ -162,7 +201,7 @@ export class DFS {
         startNodeId,
         targetNodeId,
         path,
-        found: false,
+        found: path.length > 0,
       },
       steps,
       message: `DFS traversal from node ${startNode?.label || startNodeId} to node ${targetNode?.label || targetNodeId} completed.`,

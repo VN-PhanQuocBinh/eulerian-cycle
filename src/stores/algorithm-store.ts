@@ -126,7 +126,7 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
             const engine = new DFS(data);
             const result = engine.execute(startNodeIdToUse, data.nodes[2]?.id || startNodeIdToUse);
             console.log("DFS Steps:", result);
-            // setSteps(result.steps || []);
+            setSteps(result.steps || []);
             break;
           }
           default:

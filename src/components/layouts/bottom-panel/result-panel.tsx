@@ -1,6 +1,7 @@
 import { EulerianCycleStepsTable } from "./result-panel/eulerian-cycle/eulerian-cycle";
 import { ConnectedComponentsStepsTable } from "./result-panel/connected-components/connected-components";
 import { SCCResult } from "./result-panel/tarjan-scc/scc-result";
+import { DfsStepsTable } from "./result-panel/dfs/dfs";
 import { useAlgorithmStore } from "@/stores";
 import { useGraphDataStore } from "@/stores";
 
@@ -19,7 +20,7 @@ function ResultPanel() {
         ) : currentAlgorithm === "eulerian-cycle" ? (
           <EulerianCycleStepsTable steps={steps} />
         ) : currentAlgorithm === "bfs" || currentAlgorithm === "dfs" ? (
-          <div>DFS/BFS Results</div>
+          <DfsStepsTable steps={steps} />
         ) : (
           <div className="p-8 text-center text-slate-400 text-sm">
             Run an algorithm to see steps
