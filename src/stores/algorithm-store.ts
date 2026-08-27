@@ -15,6 +15,9 @@ const INITIAL_ALGORITHM: GraphAlgorithm = "dfs";
 export const useAlgorithmStore = create<AlgorithmStore>()(
   devtools(
     (set, get) => ({
+      // Constant values
+      ALGORITHMS_WITH_TARGET_NODE: ["dfs", "bfs"],
+
       // Algorithm state
       currentAlgorithm: INITIAL_ALGORITHM,
       isAnimating: false,
@@ -23,6 +26,8 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
       speed: 1,
       startNodeId: null,
       targetNodeId: null,
+
+      // For further customization of algorithm parameters, we can use a generic setter
       algorithmParams: {
         "eulerian-cycle": {
           startNodeId: "",
@@ -50,6 +55,8 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
       setCurrentAlgorithm: (algorithm) => set({ currentAlgorithm: algorithm }),
       setStartNodeId: (startNodeId) => set({ startNodeId }),
       setTargetNodeId: (targetNodeId) => set({ targetNodeId }),
+
+      // For further customization of algorithm parameters, we can use a generic setter
       setAlgorithmParams: (algo, params) => {
         set((state) => ({
           algorithmParams: {
@@ -128,6 +135,7 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
         const {
           currentAlgorithm,
           startNodeId,
+          targetNodeId,
           setTargetNodeId,
           setSteps,
           findSCCs,
@@ -162,9 +170,7 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
           case "dfs": {
             const engine = new DFS(data);
 
-            const targetNodeId = data.nodes[2]?.id || startNodeIdToUse; // Use the second node as the target if available
-
-            const result = engine.execute(startNodeIdToUse, targetNodeId);
+            const result = engine.execute(startNodeIdToUse, targetNodeId || startNodeIdToUse);
 
             setTargetNodeId(targetNodeId);
             setSteps(result.steps || []);

@@ -66,6 +66,9 @@ type AssertKeysEqual = [GraphAlgorithm] extends [keyof AlgorithmParamsMap]
 const _assertion: AssertKeysEqual = true;
 
 export interface AlgorithmStore {
+  // Constant values
+  ALGORITHMS_WITH_TARGET_NODE: GraphAlgorithm[];
+
   // Algorithm state
   currentAlgorithm: GraphAlgorithm;
   steps: Step[];

@@ -33,7 +33,7 @@ export function EulerianCycleStepsTable({ steps }: Props) {
   }
 
   return (
-    <div className="h-full overflow-y-auto custom-scrollbar rounded-md border border-(--od-border) bg-(--od-bg-1) px-4">
+    <div className="h-full overflow-y-auto custom-scrollbar rounded-md border border-(--od-border) bg-(--od-bg-0)">
       <Table className="text-(--od-fg-1)">
         <TableHeader>
           <TableRow className="top-0 border-b border-(--od-border) hover:bg-transparent">

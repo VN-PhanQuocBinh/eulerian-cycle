@@ -3,7 +3,7 @@ import cytoscape from "cytoscape";
 import edgehandles from "cytoscape-edgehandles";
 import FunctionalBar from "./functional-bar";
 import dagre from "cytoscape-dagre";
-import { useGraphDataStore } from "@/stores";
+import { useGraphDataStore, useAlgorithmStore } from "@/stores";
 import { graphService } from "@/services/graph-service";
 import { useGraphInteractions } from "@/hooks/use-graph-interactions";
 import { useUIStore } from "@/stores";
@@ -14,6 +14,7 @@ import { useNodeInput } from "./ui/node-input";
 import { useAlgorithmOperations } from "@/hooks/use-algorithm-operations";
 import FullscreenButton from "./fullscreen-button";
 import { useCommandManager } from "@/hooks/use-command-manager";
+import { GraphAlgorithm } from "@/types/algorithm-store";
 
 import {
   ContextMenu,
@@ -36,12 +37,16 @@ const GraphCanvas = () => {
 
   const interactionMode = useUIStore((s) => s.mode);
   const isDirected = useGraphDataStore((state) => state.isDirected);
-  const updateNode = useGraphDataStore((state) => state.updateNode);
   const edges = useGraphDataStore((state) => state.edges);
+  const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
+  const ALGORITHMS_WITH_TARGET_NODE = useAlgorithmStore(
+    (state) => state.ALGORITHMS_WITH_TARGET_NODE,
+  );
+  const updateNode = useGraphDataStore((state) => state.updateNode);
   const containerRef = useRef<HTMLDivElement>(null);
   const [contextTarget, setContextTarget] = useState<ContextTarget>(null);
   const { openNodeInputAt } = useNodeInput();
-  const { handleStartNodeChange } = useAlgorithmOperations();
+  const { handleStartNodeChange, handleTargetNodeChange } = useAlgorithmOperations();
 
   const triggerRef = useRef<HTMLDivElement>(null);
 
@@ -179,6 +184,12 @@ const GraphCanvas = () => {
     setContextTarget(null);
   };
 
+  const handleSetTargetNode = () => {
+    if (!contextTarget || contextTarget.kind !== "node") return;
+    handleTargetNodeChange(contextTarget.id);
+    setContextTarget(null);
+  };
+
   return (
     <div className="relative flex-1 h-full overflow-hidden bg-(--od-bg-0)">
       <ContextMenu>
@@ -208,6 +219,14 @@ const GraphCanvas = () => {
                 >
                   Set as Start Node
                 </ContextMenuItem>
+                {ALGORITHMS_WITH_TARGET_NODE.includes(currentAlgorithm) && (
+                  <ContextMenuItem
+                    onSelect={handleSetTargetNode}
+                    className="focus:bg-(--od-bg-2) focus:text-(--od-fg-0)"
+                  >
+                    Set as Target Node
+                  </ContextMenuItem>
+                )}
                 <ContextMenuSeparator className="bg-(--od-border)" />
                 <ContextMenuItem
                   onSelect={handleDeleteTarget}

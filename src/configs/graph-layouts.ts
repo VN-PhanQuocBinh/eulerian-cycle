@@ -29,24 +29,38 @@ export const ALGORITHM_LAYOUT_CONFIGS: Record<GraphAlgorithm, cytoscape.LayoutOp
   } as cytoscape.LayoutOptions,
 
   dfs: {
-    name: "dagre",
-    rankDir: "TB", 
+    name: "cose",
     animate: true,
     animationDuration: 600,
-    nodeSep: 50, 
-    rankSep: 80,
-    padding: 80,
     fit: true,
+    padding: 80,
+    randomize: false,
+    nodeRepulsion: () => 100000, // Đẩy các node xa nhau ra
+    idealEdgeLength: () => 30, // Độ dài mong muốn của cạnh
+    edgeElasticity: () => 100,
+    nestingFactor: 5,
+    gravity: 80,
+    numIter: 1000,
+    initialTemp: 1000,
+    coolingFactor: 0.99,
+    minTemp: 1.0,
   } as cytoscape.LayoutOptions,
 
   bfs: {
-    name: "dagre",
-    rankDir: "LR", 
+    name: "cose",
     animate: true,
     animationDuration: 600,
-    nodeSep: 60,
-    rankSep: 100, 
-    padding: 80,
     fit: true,
+    padding: 80,
+    randomize: false,
+    nodeRepulsion: () => 100000, // Đẩy các node xa nhau ra
+    idealEdgeLength: () => 30, // Độ dài mong muốn của cạnh
+    edgeElasticity: () => 100,
+    nestingFactor: 5,
+    gravity: 80,
+    numIter: 1000,
+    initialTemp: 1000,
+    coolingFactor: 0.99,
+    minTemp: 1.0,
   } as cytoscape.LayoutOptions,
 };
