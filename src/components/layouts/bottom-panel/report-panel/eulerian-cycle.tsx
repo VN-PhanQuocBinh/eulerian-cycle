@@ -11,8 +11,6 @@ function EulerianCycleReport() {
   const edges = useGraphDataStore((state) => state.edges);
   const isDirected = useGraphDataStore((state) => state.isDirected);
   const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
-  const currentStartNodeId = useAlgorithmStore((state) => state.startNodeId);
-  const findEulerianCycle = useAlgorithmStore((state) => state.findEulerianCycle);
   const executionResult = useAlgorithmStore((state) => state.executionResult);
 
   const graphUtils = useMemo(
@@ -24,19 +22,6 @@ function EulerianCycleReport() {
       }),
     [nodes, edges, isDirected],
   );
-
-  // const circuit = useMemo(() => {
-  //   if (currentAlgorithm !== "eulerian-cycle") return null;
-  //   const { cycle } = findEulerianCycle(
-  //     {
-  //       nodes,
-  //       edges,
-  //       isDirected,
-  //     },
-  //     currentStartNodeId || nodes[0].id,
-  //   );
-  //   return cycle;
-  // }, [currentAlgorithm, nodes, edges, isDirected]);
 
   let circuit: string[] | null = null;
   let hasEulerianCycle: boolean | null = null;

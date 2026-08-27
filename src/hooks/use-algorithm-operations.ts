@@ -45,8 +45,6 @@ export const useAlgorithmOperations = () => {
     (nodeId: string) => {
       const isAloneNode =
         !graphUtils.adjacencyList.get(nodeId) || graphUtils.adjacencyList.get(nodeId)?.length === 0;
-      
-        console.log(graphUtils.adjacencyList.get(nodeId))
 
       if (isAloneNode && currentAlgorithm === "eulerian-cycle") {
         showToast({

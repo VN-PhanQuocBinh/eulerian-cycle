@@ -1,7 +1,7 @@
 import { GraphData } from "./../types/graph-data-store";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import { AlgorithmStore } from "@/types/algorithm-store";
+import { AlgorithmParamsMap, AlgorithmStore } from "@/types/algorithm-store";
 
 import { ConnectedComponentsResult } from "@/core/types/algorithm";
 import type { GraphAlgorithm, Step } from "@/types/algorithm-store";
@@ -23,6 +23,23 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
       speed: 1,
       startNodeId: null,
       targetNodeId: null,
+      algorithmParams: {
+        "eulerian-cycle": {
+          startNodeId: "",
+        },
+        "connected-components": {
+          startNodeId: "",
+        },
+        dfs: {
+          startNodeId: "",
+          targetNodeId: "",
+        },
+        bfs: {
+          startNodeId: "",
+          targetNodeId: "",
+        },
+      } as AlgorithmParamsMap,
+      executionResult: null,
 
       // Mode actions
       setIsAnimating: (isAnimating) => set({ isAnimating }),
@@ -33,6 +50,17 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
       setCurrentAlgorithm: (algorithm) => set({ currentAlgorithm: algorithm }),
       setStartNodeId: (startNodeId) => set({ startNodeId }),
       setTargetNodeId: (targetNodeId) => set({ targetNodeId }),
+      setAlgorithmParams: (algo, params) => {
+        set((state) => ({
+          algorithmParams: {
+            ...state.algorithmParams,
+            [algo]: {
+              ...state.algorithmParams[algo],
+              ...params,
+            },
+          },
+        }));
+      },
       setExecutionResult: (result) => set({ executionResult: result }),
 
       nextStep: () => {

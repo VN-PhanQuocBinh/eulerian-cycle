@@ -36,10 +36,34 @@ export type Step = {
   highlightedPseudoCodeLineIds?: Array<number | Array<number>>;
 };
 
-export type AlgorithmExecutionResult =
-  | DfsResult
-  | ConnectedComponentsResult
-  | EulerianCycleResult;
+export type AlgorithmExecutionResult = DfsResult | ConnectedComponentsResult | EulerianCycleResult;
+
+export interface AlgorithmParamsMap {
+  "eulerian-cycle": {
+    startNodeId: string;
+  };
+  "connected-components": {
+    startNodeId: string;
+  };
+  dfs: {
+    startNodeId: string;
+    targetNodeId: string;
+  };
+  bfs: {
+    startNodeId: string;
+    targetNodeId: string;
+  };
+}
+
+// This type assertion ensures that the keys of AlgorithmParamsMap are exactly the same as the values of GraphAlgorithm. If there is any mismatch, TypeScript will throw an error, helping to maintain consistency between the two types.
+type AssertKeysEqual = [GraphAlgorithm] extends [keyof AlgorithmParamsMap]
+  ? [keyof AlgorithmParamsMap] extends [GraphAlgorithm]
+    ? true
+    : "Lỗi: AlgorithmParamsMap chứa key không thuộc GraphAlgorithm"
+  : "Lỗi: AlgorithmParamsMap thiếu một số key từ GraphAlgorithm";
+
+// If the assertion fails, TypeScript will show an error message indicating which keys are missing or extra. This helps maintain consistency between the two types.
+const _assertion: AssertKeysEqual = true;
 
 export interface AlgorithmStore {
   // Algorithm state
@@ -50,6 +74,7 @@ export interface AlgorithmStore {
   speed: number;
   startNodeId: string | null;
   targetNodeId: string | null;
+  algorithmParams: AlgorithmParamsMap;
 
   executionResult: AlgorithmExecutionResult | null;
 
@@ -70,6 +95,10 @@ export interface AlgorithmStore {
   setSteps: (steps: Step[]) => void;
   setStartNodeId: (startNodeId: string | null) => void;
   setTargetNodeId: (targetNodeId: string | null) => void;
+  setAlgorithmParams: <T extends GraphAlgorithm>(
+    algo: T,
+    params: Partial<AlgorithmParamsMap[T]>,
+  ) => void;
   setExecutionResult: (result: AlgorithmExecutionResult) => void;
 
   // Algorithm implementations
