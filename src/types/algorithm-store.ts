@@ -1,3 +1,4 @@
+import { DfsResult, ConnectedComponentsResult, EulerianCycleResult } from "@/core/types/algorithm";
 import { GraphData } from "./graph-data-store";
 
 export type GraphAlgorithm = "eulerian-cycle" | "connected-components" | "dfs" | "bfs";
@@ -35,11 +36,10 @@ export type Step = {
   highlightedPseudoCodeLineIds?: Array<number | Array<number>>;
 };
 
-export interface ConnectedComponentsResult {
-  components: string[][];
-  steps: Step[];
-  message: string;
-}
+export type AlgorithmExecutionResult =
+  | DfsResult
+  | ConnectedComponentsResult
+  | EulerianCycleResult;
 
 export interface AlgorithmStore {
   // Algorithm state
@@ -50,6 +50,8 @@ export interface AlgorithmStore {
   speed: number;
   startNodeId: string | null;
   targetNodeId: string | null;
+
+  executionResult: AlgorithmExecutionResult | null;
 
   // Actions
   setIsAnimating: (isAnimating: boolean) => void;
@@ -68,6 +70,7 @@ export interface AlgorithmStore {
   setSteps: (steps: Step[]) => void;
   setStartNodeId: (startNodeId: string | null) => void;
   setTargetNodeId: (targetNodeId: string | null) => void;
+  setExecutionResult: (result: AlgorithmExecutionResult) => void;
 
   // Algorithm implementations
 
@@ -75,14 +78,7 @@ export interface AlgorithmStore {
 
   findConnectedComponents: (data: GraphData, startNodeId: string) => ConnectedComponentsResult;
 
-  findEulerianCycle: (
-    data: GraphData,
-    startNodeId: string,
-  ) => {
-    cycle: string[] | null;
-    steps: Step[];
-    message?: string;
-  };
+  findEulerianCycle: (data: GraphData, startNodeId: string) => EulerianCycleResult;
 
   recalculateSteps(data: GraphData): void;
 }

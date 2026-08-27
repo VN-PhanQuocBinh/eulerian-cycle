@@ -3,6 +3,7 @@ import { Step } from "@/types/algorithm-store";
 import { TarjanSCC } from "@/core/algorithms/tarjan-scc";
 import { GraphData } from "@/types/graph-data-store";
 import { createGraphUtils } from "@/core/helpers/graph-utils";
+import { EulerianCycleResult } from "@/core/types/algorithm";
 
 export type AlgorithmCheckResult = {
   exists: boolean;
@@ -69,7 +70,7 @@ export class EulerianCycle {
   }
 
   checkSCC(startNodeId: string): AlgorithmCheckResult {
-    const { components } = new TarjanSCC({
+    const { result } = new TarjanSCC({
       nodes: this.nodes,
       edges: this.edges,
       isDirected: this.isDirected,
@@ -84,7 +85,7 @@ export class EulerianCycle {
       }
     });
 
-    for (const component of components) {
+    for (const component of result.components) {
       if (component.length === 1 && !aloneNodes.has(component[0])) {
         return {
           exists: false,
@@ -131,21 +132,27 @@ export class EulerianCycle {
     return { exists: true };
   }
 
-  execute(startNodeId: string) {
+  execute(startNodeId: string): EulerianCycleResult {
     // Logic to find Eulerian Cycle
     if (this.nodes.length === 0) {
-      return { cycle: null, steps: [] };
+      return { result: { cycle: [], found: false }, steps: [], message: "Graph is empty." };
     }
 
     const check = this.checkEulerianCycle(startNodeId);
     if (!check.exists) {
-      return { cycle: null, steps: [], message: check.reasons };
+      return {
+        result: { cycle: [], found: false },
+        steps: [],
+        message: Array.isArray(check.reasons)
+          ? check.reasons.join(", ")
+          : "Graph does not have an Eulerian cycle.",
+      };
     }
 
     // Initialize starting point
     if (!startNodeId) {
       return {
-        cycle: null,
+        result: { cycle: [], found: false },
         steps: [],
         message: `Start node ID ${startNodeId} not found. Starting from default node.`,
       };
@@ -302,7 +309,7 @@ export class EulerianCycle {
     });
 
     return {
-      cycle: circuit,
+      result: { cycle: circuit, found: true },
       steps: this.steps,
       message: "Eulerian cycle found successfully.",
     };

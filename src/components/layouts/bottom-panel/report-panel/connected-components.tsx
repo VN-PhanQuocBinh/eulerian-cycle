@@ -1,36 +1,20 @@
-import { useMemo } from "react";
 import { useAlgorithmStore, useGraphDataStore } from "@/stores";
 
 import { SectionTitle } from "./components/section-title";
 import { InfoRow } from "./components/info-row";
+import { ConnectedComponentsResult } from "@/core/types/algorithm";
 
 function ConnectedComponentReport() {
-  const nodes = useGraphDataStore((state) => state.nodes);
-  const edges = useGraphDataStore((state) => state.edges);
-  const isDirected = useGraphDataStore((state) => state.isDirected);
   const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
-  const findConnectedComponents = useAlgorithmStore((state) => state.findConnectedComponents);
-  const getCurrentGraphData = useGraphDataStore((state) => state.getCurrentGraphData);
-  const findSCCs = useAlgorithmStore((state) => state.findSCCs);
+  const executionResult = useAlgorithmStore((state) => state.executionResult);
+  const getNodeDataById = useGraphDataStore((state) => state.getNodeDataById);
 
-  const components = useMemo(() => {
-    if (nodes.length === 0) return [];
+  let components: string[][] = [];
 
-    let components: string[][] = [];
-    const graphData = getCurrentGraphData();
-
-    const startNodeIdToUse = useAlgorithmStore.getState().startNodeId || nodes[0].id;
-
-    if (isDirected) {
-      const { components: sccs } = findSCCs(graphData, startNodeIdToUse);
-      components = sccs;
-    } else {
-      const { components: undirectedComps } = findConnectedComponents(graphData, startNodeIdToUse);
-      components = undirectedComps;
-    }
-
-    return components;
-  }, [nodes, edges, currentAlgorithm, isDirected]);
+  if (executionResult && currentAlgorithm === "connected-components") {
+    const connectedComponentsResult = executionResult as ConnectedComponentsResult;
+    components = connectedComponentsResult.result?.components || [];
+  }
 
   return (
     <section>
@@ -40,7 +24,13 @@ function ConnectedComponentReport() {
       </div>
       <div className="space-y-1.5">
         {components.map((comp, i) => {
-          const labels = comp.map((id) => nodes.find((n) => n.id === id)?.label ?? id);
+          const labels = new Set<string>();
+          for (const id of comp) {
+            const node = getNodeDataById(id);
+            if (node) {
+              labels.add(node.label);
+            }
+          }
           return (
             <div
               key={i}
@@ -49,7 +39,7 @@ function ConnectedComponentReport() {
               <span className="shrink-0 text-xs font-bold text-(--od-fg-0)">
                 Component {i + 1} ({comp.length} nodes):
               </span>
-              <span className="text-(--od-fg-1)">{labels.join(", ")}</span>
+              <span className="text-(--od-fg-1)">{Array.from(labels).join(", ")}</span>
             </div>
           );
         })}

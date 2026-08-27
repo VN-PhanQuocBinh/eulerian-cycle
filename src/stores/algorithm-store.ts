@@ -3,7 +3,8 @@ import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { AlgorithmStore } from "@/types/algorithm-store";
 
-import type { ConnectedComponentsResult, GraphAlgorithm, Step } from "@/types/algorithm-store";
+import { ConnectedComponentsResult } from "@/core/types/algorithm";
+import type { GraphAlgorithm, Step } from "@/types/algorithm-store";
 import { TarjanSCC } from "@/core/algorithms/tarjan-scc";
 import { EulerianCycle } from "@/core/algorithms/eulerian-cycle";
 import { DFS } from "@/core/algorithms/dfs";
@@ -32,6 +33,7 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
       setCurrentAlgorithm: (algorithm) => set({ currentAlgorithm: algorithm }),
       setStartNodeId: (startNodeId) => set({ startNodeId }),
       setTargetNodeId: (targetNodeId) => set({ targetNodeId }),
+      setExecutionResult: (result) => set({ executionResult: result }),
 
       nextStep: () => {
         const { currentStepIndex, steps } = get();
@@ -103,6 +105,7 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
           findSCCs,
           findConnectedComponents,
           findEulerianCycle,
+          setExecutionResult,
         } = get();
 
         const startNodeIdToUse = startNodeId || data.nodes[0]?.id || "";
@@ -110,19 +113,22 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
         switch (currentAlgorithm) {
           case "connected-components": {
             if (data.isDirected) {
-              const { steps } = findSCCs(data, startNodeIdToUse);
+              const result = findSCCs(data, startNodeIdToUse);
               // console.log("SCC Steps:", steps);
-              setSteps(steps || []);
+              setSteps(result.steps || []);
+              setExecutionResult(result);
             } else {
-              const { steps } = findConnectedComponents(data, startNodeIdToUse);
-              setSteps(steps || []);
+              const result = findConnectedComponents(data, startNodeIdToUse);
+              setSteps(result.steps || []);
+              setExecutionResult(result);
             }
 
             break;
           }
           case "eulerian-cycle": {
-            const { steps } = findEulerianCycle(data, startNodeIdToUse);
-            setSteps(steps || []);
+            const result = findEulerianCycle(data, startNodeIdToUse);
+            setSteps(result.steps || []);
+            setExecutionResult(result);
             break;
           }
           case "dfs": {
@@ -131,9 +137,10 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
             const targetNodeId = data.nodes[2]?.id || startNodeIdToUse; // Use the second node as the target if available
 
             const result = engine.execute(startNodeIdToUse, targetNodeId);
-            console.log("DFS Steps:", result);
-            setSteps(result.steps || []);
+
             setTargetNodeId(targetNodeId);
+            setSteps(result.steps || []);
+            setExecutionResult(result);
             break;
           }
           default:

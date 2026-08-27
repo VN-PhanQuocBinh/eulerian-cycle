@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { createGraphUtils } from "@/core/helpers/graph-utils";
 import { useAlgorithmStore, useGraphDataStore } from "@/stores";
+import { EulerianCycleResult } from "@/core/types/algorithm";
 
 import { SectionTitle } from "./components/section-title";
 import { InfoRow } from "./components/info-row";
@@ -12,6 +13,7 @@ function EulerianCycleReport() {
   const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
   const currentStartNodeId = useAlgorithmStore((state) => state.startNodeId);
   const findEulerianCycle = useAlgorithmStore((state) => state.findEulerianCycle);
+  const executionResult = useAlgorithmStore((state) => state.executionResult);
 
   const graphUtils = useMemo(
     () =>
@@ -23,18 +25,26 @@ function EulerianCycleReport() {
     [nodes, edges, isDirected],
   );
 
-  const circuit = useMemo(() => {
-    if (currentAlgorithm !== "eulerian-cycle") return null;
-    const { cycle } = findEulerianCycle(
-      {
-        nodes,
-        edges,
-        isDirected,
-      },
-      currentStartNodeId || nodes[0].id,
-    );
-    return cycle;
-  }, [currentAlgorithm, nodes, edges, isDirected]);
+  // const circuit = useMemo(() => {
+  //   if (currentAlgorithm !== "eulerian-cycle") return null;
+  //   const { cycle } = findEulerianCycle(
+  //     {
+  //       nodes,
+  //       edges,
+  //       isDirected,
+  //     },
+  //     currentStartNodeId || nodes[0].id,
+  //   );
+  //   return cycle;
+  // }, [currentAlgorithm, nodes, edges, isDirected]);
+
+  let circuit: string[] | null = null;
+  let hasEulerianCycle: boolean | null = null;
+  if (currentAlgorithm === "eulerian-cycle" && executionResult) {
+    const eulerianExecutionResult = executionResult as EulerianCycleResult;
+    circuit = eulerianExecutionResult.result?.cycle || null;
+    hasEulerianCycle = eulerianExecutionResult.result?.found || false;
+  }
 
   const oddDegreeNodes = useMemo(
     () =>
@@ -62,7 +72,12 @@ function EulerianCycleReport() {
             )
           }
         />
-        {circuit && <InfoRow label="Circuit length" value={`${circuit.length - 1} edges`} />}
+        {circuit && (
+          <InfoRow
+            label="Circuit length"
+            value={`${hasEulerianCycle ? circuit.length - 1 : 0} edges`}
+          />
+        )}
         {circuit && (
           <InfoRow
             label="Circuit"

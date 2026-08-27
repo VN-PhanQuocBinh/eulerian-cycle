@@ -1,17 +1,9 @@
 import { useMemo } from "react";
 import { createGraphUtils } from "@/core/helpers/graph-utils";
 import { useAlgorithmStore, useGraphDataStore } from "@/stores";
-import { AlgorithmResult } from "@/core/types/algorithm";
+import { DfsResult } from "@/core/types/algorithm";
 import { SectionTitle } from "./components/section-title";
 import { InfoRow } from "./components/info-row";
-import { DFS } from "@/core/algorithms/dfs";
-
-interface SearchAlgorithmResult {
-  startNodeId: string;
-  targetNodeId: string;
-  path: string[];
-  found: boolean;
-}
 
 function DfsBfsReport() {
   const nodes = useGraphDataStore((state) => state.nodes);
@@ -20,6 +12,7 @@ function DfsBfsReport() {
   const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
   const startNodeId = useAlgorithmStore((state) => state.startNodeId);
   const currentTargetNodeId = useAlgorithmStore((state) => state.targetNodeId);
+  const executionResult = useAlgorithmStore((state) => state.executionResult);
 
   const graphUtils = useMemo(
     () =>
@@ -31,24 +24,16 @@ function DfsBfsReport() {
     [nodes, edges, isDirected],
   );
 
-  const searchResult = useMemo<AlgorithmResult<SearchAlgorithmResult> | null>(() => {
-    if (!startNodeId || !currentTargetNodeId) return null;
+  let path: string[] = [];
+  let found: boolean = false;
 
-    const graphData = { nodes, edges, isDirected };
+  // Ensure executionResult is not null and is a DfsResult before accessing its properties
+  if (executionResult && (currentAlgorithm === "dfs" || currentAlgorithm === "bfs")) {
+    const dfsExecutionResult = executionResult as DfsResult;
+    path = dfsExecutionResult.result?.path || [];
+    found = dfsExecutionResult.result?.found || false;
+  }
 
-    if (currentAlgorithm === "dfs") {
-      const engine = new DFS(graphData);
-      return engine.execute(startNodeId, currentTargetNodeId);
-    }
-    if (currentAlgorithm === "bfs") {
-      // Assuming you have a BFS implementation
-      // return findBfs(graphData, startNodeId, currentTargetNodeId);
-    }
-    return null;
-  }, [currentAlgorithm, nodes, edges, isDirected, startNodeId, currentTargetNodeId]);
-
-  const path = searchResult?.result?.path || [];
-  const found = searchResult?.result?.found || false;
   const startNodeLabel = graphUtils.getNode(startNodeId || "")?.label;
   const targetNodeLabel = graphUtils.getNode(currentTargetNodeId || "")?.label;
 

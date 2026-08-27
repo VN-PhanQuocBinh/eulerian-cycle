@@ -100,7 +100,7 @@ export function PseudoCodeViewer({ className }: PseudoCodeViewerProps) {
         className,
       )}
     >
-      <div className="p-4 font-mono text-sm text-(--od-fg-1)">
+      <div className="p-3 font-mono text-sm text-(--od-fg-1)">
         {lines.length === 0 && (
           <div className="py-8 text-center text-(--od-fg-2)">No pseudo code available.</div>
         )}
@@ -110,9 +110,9 @@ export function PseudoCodeViewer({ className }: PseudoCodeViewerProps) {
 
           return (
             <div
-              key={String(line.id) + line.text}
+              key={String(line.id) + line.text + index}
               className={cn(
-                "flex items-stretch border border-transparent px-3 transition-colors duration-200",
+                "flex items-stretch border border-transparent transition-colors duration-200",
                 {
                   "bg-(--od-bg-3) ": isActive,
                 },
