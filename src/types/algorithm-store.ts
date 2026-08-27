@@ -1,4 +1,9 @@
-import { DfsResult, ConnectedComponentsResult, EulerianCycleResult } from "@/core/types/algorithm";
+import {
+  DfsResult,
+  BfsResult,
+  ConnectedComponentsResult,
+  EulerianCycleResult,
+} from "@/core/types/algorithm";
 import { GraphData } from "./graph-data-store";
 
 export type GraphAlgorithm = "eulerian-cycle" | "connected-components" | "dfs" | "bfs";
@@ -36,7 +41,11 @@ export type Step = {
   highlightedPseudoCodeLineIds?: Array<number | Array<number>>;
 };
 
-export type AlgorithmExecutionResult = DfsResult | ConnectedComponentsResult | EulerianCycleResult;
+export type AlgorithmExecutionResult =
+  | DfsResult
+  | BfsResult
+  | ConnectedComponentsResult
+  | EulerianCycleResult;
 
 export interface AlgorithmParamsMap {
   "eulerian-cycle": {
@@ -64,6 +73,7 @@ type AssertKeysEqual = [GraphAlgorithm] extends [keyof AlgorithmParamsMap]
 
 // If the assertion fails, TypeScript will show an error message indicating which keys are missing or extra. This helps maintain consistency between the two types.
 const _assertion: AssertKeysEqual = true;
+_assertion; // This line is just to use the _assertion variable and avoid unused variable warnings.
 
 export interface AlgorithmStore {
   // Constant values

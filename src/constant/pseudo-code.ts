@@ -108,3 +108,38 @@ export const DFS_PSEUDOCODE: PseudoCodeLine[] = [
 
   { id: 17, text: "return path and found status", indent: 1 },
 ];
+
+export const BFS_PSEUDOCODE: PseudoCodeLine[] = [
+  { id: 1, text: "procedure BFS(Graph, startNodeId, targetNodeId):", indent: 0 },
+  { id: 2, text: "create empty set Visited", indent: 1 },
+  { id: 3, text: "create empty queue Q", indent: 1 },
+  { id: 4, text: "create empty map ParentMap", indent: 1 },
+
+  BLANK_LINE, // Blank line
+
+  { id: 5, text: "enqueue startNodeId into Q", indent: 1 },
+  { id: 6, text: "initialize ParentMap[startNodeId] = null", indent: 1 },
+
+  BLANK_LINE, // Blank line
+
+  { id: 7, text: "while Q is not empty:", indent: 1 },
+  { id: 8, text: "currentNode = dequeue from Q", indent: 2 },
+  { id: 9, text: "if currentNode is in Visited: continue", indent: 2 },
+  { id: 10, text: "add currentNode to Visited", indent: 2 },
+
+  BLANK_LINE, // Blank line
+
+  { id: 11, text: "if currentNode == targetNodeId:", indent: 2 },
+  { id: 12, text: "reconstruct path using ParentMap and break", indent: 3 },
+
+  BLANK_LINE, // Blank line
+
+  { id: 13, text: "for each neighbor v of currentNode:", indent: 2 },
+  { id: 14, text: "if v is not in Visited:", indent: 3 },
+  { id: 15, text: "set ParentMap[v] = currentNode", indent: 4 },
+  { id: 16, text: "enqueue v into Q", indent: 4 },
+
+  BLANK_LINE, // Blank line
+
+  { id: 17, text: "return path and found status", indent: 1 },
+];

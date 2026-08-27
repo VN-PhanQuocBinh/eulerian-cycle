@@ -3,7 +3,7 @@ import { createGraphUtils } from "@/core/helpers/graph-utils";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { CopyButton } from "@/components/copy-button";
 import JumpButton from "../../jump-button";
-import { Step, StepNodeElement, StepEdgeElement } from "@/types/algorithm-store";
+import { Step } from "@/types/algorithm-store";
 import { cn } from "@/utils/cn";
 import { arrayToString } from "@/utils";
 import { useSmartScroll } from "@/hooks/use-smart-scroll";
@@ -13,6 +13,24 @@ interface Props {
   index: number;
   isActive: boolean;
   graphUtils: ReturnType<typeof createGraphUtils>;
+}
+
+function StackOrQueueNodes({ nodes }: { nodes: { id: string; label: string }[] }) {
+  return (
+    <>
+      <div className="flex flex-1 flex-wrap items-center gap-2">
+        {nodes.map((node, idx) => (
+          <span
+            key={node.id + "-" + idx}
+            className="w-max rounded border border-(--od-border-strong) bg-(--od-bg-2) px-1.5 py-0.5 text-xs text-(--od-purple)"
+          >
+            {node.label}
+          </span>
+        ))}
+      </div>
+      <CopyButton text={arrayToString(nodes.map((node) => node.label))} />
+    </>
+  );
 }
 
 function StepTableRow({ step, index, isActive, graphUtils }: Props) {
@@ -26,6 +44,15 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
       })) ?? []
     );
   }, [step.stack, graphUtils]);
+
+  const queueNodes = useMemo(() => {
+    return (
+      step.queue?.map((nodeId) => ({
+        id: nodeId,
+        label: graphUtils.getNode(nodeId)?.label || nodeId,
+      })) ?? []
+    );
+  }, [step.queue, graphUtils]);
 
   const visitedNodes = useMemo(() => {
     const visitedArray =
@@ -61,19 +88,9 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
       <TableCell className="px-3 py-2">
         <div className="flex max-w-[160px] items-center">
           {stackNodes.length > 0 ? (
-            <>
-              <div className="flex flex-1 flex-wrap items-center gap-2">
-                {stackNodes.map((node, idx) => (
-                  <span
-                    key={node.id + "-" + idx}
-                    className="w-max rounded border border-(--od-border-strong) bg-(--od-bg-2) px-1.5 py-0.5 text-xs text-(--od-purple)"
-                  >
-                    {node.label}
-                  </span>
-                ))}
-              </div>
-              <CopyButton text={arrayToString(stackNodes.map((node) => node.label))} />
-            </>
+            <StackOrQueueNodes nodes={stackNodes} />
+          ) : queueNodes.length > 0 ? (
+            <StackOrQueueNodes nodes={queueNodes} />
           ) : (
             <span className="italic text-(--od-fg-2)">Empty</span>
           )}

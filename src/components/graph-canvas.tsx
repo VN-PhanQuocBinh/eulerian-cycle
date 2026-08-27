@@ -14,7 +14,6 @@ import { useNodeInput } from "./ui/node-input";
 import { useAlgorithmOperations } from "@/hooks/use-algorithm-operations";
 import FullscreenButton from "./fullscreen-button";
 import { useCommandManager } from "@/hooks/use-command-manager";
-import { GraphAlgorithm } from "@/types/algorithm-store";
 
 import {
   ContextMenu,

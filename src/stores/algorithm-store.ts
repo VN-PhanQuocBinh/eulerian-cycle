@@ -8,9 +8,10 @@ import type { GraphAlgorithm, Step } from "@/types/algorithm-store";
 import { TarjanSCC } from "@/core/algorithms/tarjan-scc";
 import { EulerianCycle } from "@/core/algorithms/eulerian-cycle";
 import { DFS } from "@/core/algorithms/dfs";
+import { BFS } from "@/core/algorithms/bfs";
 import { findConnectedComponents as findConnectedComponentsAlgorithm } from "@/core/algorithms/connected-components";
 
-const INITIAL_ALGORITHM: GraphAlgorithm = "dfs";
+const INITIAL_ALGORITHM: GraphAlgorithm = "bfs";
 
 export const useAlgorithmStore = create<AlgorithmStore>()(
   devtools(
@@ -172,6 +173,15 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
 
             const result = engine.execute(startNodeIdToUse, targetNodeId || startNodeIdToUse);
 
+            setTargetNodeId(targetNodeId);
+            setSteps(result.steps || []);
+            setExecutionResult(result);
+            break;
+          }
+          case "bfs": {
+            const engine = new BFS(data);
+
+            const result = engine.execute(startNodeIdToUse, targetNodeId || startNodeIdToUse);
             setTargetNodeId(targetNodeId);
             setSteps(result.steps || []);
             setExecutionResult(result);

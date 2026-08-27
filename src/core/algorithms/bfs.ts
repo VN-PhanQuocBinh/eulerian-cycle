@@ -1,9 +1,9 @@
-import { DfsResult } from "@/core/types/algorithm";
+import { BfsResult } from "@/core/types/algorithm";
 import { GraphData } from "@/types/graph-data-store";
 import { createGraphUtils } from "../helpers/graph-utils";
 import { Step } from "@/types/algorithm-store";
 
-export class DFS {
+export class BFS {
   private utils: ReturnType<typeof createGraphUtils>;
   readonly nodes: string[];
   readonly edges: string[];
@@ -18,7 +18,7 @@ export class DFS {
     this.adjacencyList = this.utils.adjacencyList;
   }
 
-  execute(startNodeId: string, targetNodeId: string): DfsResult {
+  execute(startNodeId: string, targetNodeId: string): BfsResult {
     if (this.nodes.length === 0) {
       return {
         result: {
@@ -29,7 +29,7 @@ export class DFS {
           found: false,
         },
         steps: [],
-        message: "Graph is empty. Please add nodes and edges to perform DFS.",
+        message: "Graph is empty. Please add nodes and edges to perform BFS.",
       };
     }
 
@@ -37,7 +37,7 @@ export class DFS {
     const targetNode = this.utils.getNode(targetNodeId);
 
     const visited = new Set<string>();
-    const stack: string[] = [];
+    const queue: string[] = [];
     const parentMap: Map<string, string | null> = new Map();
 
     const steps: Step[] = [];
@@ -47,15 +47,15 @@ export class DFS {
     steps.push({
       elements: [],
       message: [
-        `Starting DFS traversal from node ${startNode?.label || startNodeId} to find node ${targetNode?.label || targetNodeId}.`,
-        "Initializing stack and visited set.",
+        `Starting BFS traversal from node ${startNode?.label || startNodeId} to find node ${targetNode?.label || targetNodeId}.`,
+        "Initializing queue and visited set.",
       ],
       highlightedPseudoCodeLineIds: [1, [2, 3, 4]],
-      stack: [...stack],
+      stack: [...queue],
       visited: new Set(visited),
     });
 
-    stack.push(startNodeId);
+    queue.push(startNodeId);
     parentMap.set(startNodeId, null);
 
     steps.push({
@@ -67,14 +67,14 @@ export class DFS {
           classes: ["processing-neighbor"],
         },
       ],
-      message: [`Initialized stack with starting node ${startNode?.label || startNodeId}.`],
+      message: [`Initialized queue with starting node ${startNode?.label || startNodeId}.`],
       highlightedPseudoCodeLineIds: [5, 6],
-      stack: [...stack],
+      stack: [...queue],
       visited: new Set(visited),
     });
 
-    while (stack.length > 0) {
-      const currentNodeId = stack.pop()!;
+    while (queue.length > 0) {
+      const currentNodeId = queue.shift()!;
       const currentNode = this.utils.getNode(currentNodeId);
       const currentStepNode: Step["currentNode"] = {
         type: "node",
@@ -95,11 +95,11 @@ export class DFS {
             },
           ],
           message: [
-            `Pop ${currentNode?.label || currentNodeId} from stack.`,
+            `Dequeue ${currentNode?.label || currentNodeId} from queue.`,
             `Node ${currentNodeId} has already been visited. Skipping.`,
           ],
           highlightedPseudoCodeLineIds: [8, 9],
-          stack: [...stack],
+          stack: [...queue],
           visited: new Set(visited),
         });
         continue;
@@ -127,14 +127,14 @@ export class DFS {
             },
           ],
           message: [
-            `Pop ${currentNode?.label || currentNodeId} from stack.`,
+            `Dequeue ${currentNode?.label || currentNodeId} from queue.`,
             `Found target node ${currentNode?.label || currentNodeId}.`,
           ],
           highlightedPseudoCodeLineIds: [
             [8, 10],
             [11, 12],
           ],
-          stack: [...stack],
+          stack: [...queue],
           visited: new Set(visited),
         });
 
@@ -152,11 +152,11 @@ export class DFS {
           },
         ],
         message: [
-          `Pop ${currentNode?.label || currentNodeId} from stack.`,
+          `Dequeue ${currentNode?.label || currentNodeId} from queue.`,
           `Visiting node ${currentNode?.label || currentNodeId}.`,
         ],
         highlightedPseudoCodeLineIds: [[8, 10]],
-        stack: [...stack],
+        stack: [...queue],
         visited: new Set(visited),
       });
 
@@ -165,7 +165,7 @@ export class DFS {
       const neighborLabels: string[] = [];
       for (const neighbor of neighors) {
         if (!visited.has(neighbor)) {
-          stack.push(neighbor);
+          queue.push(neighbor);
 
           if (!parentMap.has(neighbor)) {
             parentMap.set(neighbor, currentNodeId);
@@ -205,62 +205,21 @@ export class DFS {
         currentNode: currentStepNode,
         elements: visitedNeighbors,
         message: [
-          `Pushed neighbor${neighborLabels.length > 1 ? "s" : ""}: ${neighborLabels.join(", ")} onto the stack.`,
+          `Enqueued neighbor${neighborLabels.length > 1 ? "s" : ""}: ${neighborLabels.join(", ")} into the queue.`,
         ],
         highlightedPseudoCodeLineIds: [13, 14, [15, 16]],
-        stack: [...stack],
+        stack: [...queue],
         visited: new Set(visited),
       });
     }
 
-    // Construct the final step with the path highlighted
-    const inPathElements: Step["elements"] = [];
-    for (let i = 0; i < path.length; i++) {
-      const sourceNodeId = path[i];
-      const sourceNode = this.utils.getNode(sourceNodeId);
-
-      if (sourceNode) {
-        inPathElements.push({
-          type: "node",
-          id: sourceNodeId,
-          label: sourceNode.label,
-          classes: ["in-path"],
-        });
-      }
-
-      if (i < path.length - 1) {
-        const targetNodeId = path[i + 1];
-
-        const targetNode = this.utils.getNode(targetNodeId);
-        const edge = this.utils.getEdges(sourceNodeId, targetNodeId)[0];
-
-        if (sourceNode && targetNode && edge) {
-          inPathElements.push({
-            type: "edge",
-            id: edge.id,
-            source: {
-              type: "node",
-              id: sourceNodeId,
-              label: sourceNode.label,
-            },
-            target: {
-              type: "node",
-              id: targetNodeId,
-              label: targetNode.label,
-            },
-            classes: ["in-path"],
-          });
-        }
-      }
-    }
-
     steps.push({
-      elements: inPathElements,
+      elements: [],
       message: [
-        `DFS traversal from node ${startNode?.label || startNodeId} to node ${targetNode?.label || targetNodeId} completed.`,
+        `BFS traversal from node ${startNode?.label || startNodeId} to node ${targetNode?.label || targetNodeId} completed.`,
       ],
       highlightedPseudoCodeLineIds: [17],
-      stack: [...stack],
+      stack: [...queue],
       visited: new Set(visited),
     });
 
@@ -273,7 +232,7 @@ export class DFS {
         found: path.length > 0,
       },
       steps,
-      message: `DFS traversal from node ${startNode?.label || startNodeId} to node ${targetNode?.label || targetNodeId} completed.`,
+      message: `BFS traversal from node ${startNode?.label || startNodeId} to node ${targetNode?.label || targetNodeId} completed.`,
     };
   }
 }

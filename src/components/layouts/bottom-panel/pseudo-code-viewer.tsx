@@ -7,6 +7,7 @@ import {
   CONNECTED_COMPONENTS_PSEUDOCODE,
   TARJAN_SCC_PSEUDOCODE,
   DFS_PSEUDOCODE,
+  BFS_PSEUDOCODE,
 } from "@/constant/pseudo-code";
 import { PseudoCodeLine } from "@/types/pseudo-code";
 import { GraphAlgorithm } from "@/types/algorithm-store";
@@ -20,7 +21,7 @@ const pseudoCodeMap: Record<GraphAlgorithm | "strongly-connected-components", Ps
   "connected-components": CONNECTED_COMPONENTS_PSEUDOCODE,
   "strongly-connected-components": TARJAN_SCC_PSEUDOCODE,
   dfs: DFS_PSEUDOCODE,
-  bfs: [],
+  bfs: BFS_PSEUDOCODE,
 };
 
 export function PseudoCodeViewer({ className }: PseudoCodeViewerProps) {
@@ -124,10 +125,7 @@ export function PseudoCodeViewer({ className }: PseudoCodeViewerProps) {
 
               <div className="flex items-center flex-1">
                 {Array.from({ length: line.indent }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="h-full border-l border-(--od-border) mr-6 py-1"
-                  ></div>
+                  <div key={i} className="h-full border-l border-(--od-border) mr-6 py-1"></div>
                 ))}
                 <span
                   className={cn("text-(--od-fg-1)", {

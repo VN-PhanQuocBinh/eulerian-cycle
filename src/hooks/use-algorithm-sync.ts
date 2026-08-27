@@ -10,6 +10,7 @@ export const useAlgorithmSync = () => {
   const isDirected = useGraphDataStore((state) => state.isDirected);
   const recalculateSteps = useAlgorithmStore((state) => state.recalculateSteps);
   const setStartNodeId = useAlgorithmStore((state) => state.setStartNodeId);
+  const setTargetNodeId = useAlgorithmStore((state) => state.setTargetNodeId);
   const isNodeExists = useGraphDataStore((state) => state.isNodeExists);
 
   useEffect(() => {
@@ -22,9 +23,9 @@ export const useAlgorithmSync = () => {
 
       if (
         ["dfs", "bfs"].includes(currentAlgorithm) &&
-        (!startNodeId || !isNodeExists(startNodeId))
+        (!targetNodeId || !isNodeExists(targetNodeId))
       ) {
-        setStartNodeId(nodes[0].id);
+        setTargetNodeId(nodes[0].id);
       }
     } else {
       setStartNodeId(null);

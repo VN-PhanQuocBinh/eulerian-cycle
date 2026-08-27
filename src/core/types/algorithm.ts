@@ -10,6 +10,15 @@ export type DfsResult = AlgorithmResult<{
   startNodeId: string;
   targetNodeId: string;
   path: string[];
+  traversalOrder: string[];
+  found: boolean;
+}>;
+
+export type BfsResult = AlgorithmResult<{
+  startNodeId: string;
+  targetNodeId: string;
+  path: string[];
+  traversalOrder: string[];
   found: boolean;
 }>;
 

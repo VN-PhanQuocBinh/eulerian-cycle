@@ -14,6 +14,8 @@ function DfsBfsReport() {
   const currentTargetNodeId = useAlgorithmStore((state) => state.targetNodeId);
   const executionResult = useAlgorithmStore((state) => state.executionResult);
 
+  console.log(currentTargetNodeId, "targetNodeId");
+
   const graphUtils = useMemo(
     () =>
       createGraphUtils({
@@ -25,12 +27,14 @@ function DfsBfsReport() {
   );
 
   let path: string[] = [];
+  let traversalOrder: string[] = [];
   let found: boolean = false;
 
   // Ensure executionResult is not null and is a DfsResult before accessing its properties
   if (executionResult && (currentAlgorithm === "dfs" || currentAlgorithm === "bfs")) {
     const dfsExecutionResult = executionResult as DfsResult;
     path = dfsExecutionResult.result?.path || [];
+    traversalOrder = dfsExecutionResult.result?.traversalOrder || [];
     found = dfsExecutionResult.result?.found || false;
   }
 
@@ -58,9 +62,18 @@ function DfsBfsReport() {
           }
         />
         {found && (
-          <InfoRow label="Path" value={path.map((n) => graphUtils.getNode(n)?.label).join(" → ")} />
+          <>
+            <InfoRow
+              label="Path"
+              value={path.map((n) => graphUtils.getNode(n)?.label).join(" → ")}
+            />
+            <InfoRow label="Path length" value={`${path.length - 1} edges`} />
+            <InfoRow
+              label="Traversal Order"
+              value={traversalOrder.map((n) => graphUtils.getNode(n)?.label).join(" → ")}
+            />
+          </>
         )}
-        {found && <InfoRow label="Path length" value={`${path.length - 1} edges`} />}
       </div>
     </section>
   );

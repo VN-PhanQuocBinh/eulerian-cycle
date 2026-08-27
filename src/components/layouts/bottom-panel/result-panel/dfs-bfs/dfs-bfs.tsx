@@ -11,6 +11,7 @@ interface Props {
 
 export function DfsStepsTable({ steps }: Props) {
   const currentStepIndex = useAlgorithmStore((state) => state.currentStepIndex);
+  const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
 
   const edges = useGraphDataStore((state) => state.edges);
   const nodes = useGraphDataStore((state) => state.nodes);
@@ -39,7 +40,9 @@ export function DfsStepsTable({ steps }: Props) {
           <TableRow className="top-0 border-b border-(--od-border) hover:bg-transparent">
             <TableHead className="w-10 bg-(--od-bg-2) text-(--od-blue)">Step</TableHead>
             <TableHead className="bg-(--od-bg-2) text-(--od-blue) text-center">Current</TableHead>
-            <TableHead className="bg-(--od-bg-2) text-(--od-blue)">Stack</TableHead>
+            <TableHead className="bg-(--od-bg-2) text-(--od-blue)">
+              {currentAlgorithm === "dfs" ? "Stack" : "Queue"}
+            </TableHead>
             <TableHead className="bg-(--od-bg-2) text-(--od-blue)">Visited</TableHead>
             <TableHead className="bg-(--od-bg-2) text-(--od-blue)">Explain</TableHead>
           </TableRow>
