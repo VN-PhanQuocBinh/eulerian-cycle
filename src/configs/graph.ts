@@ -153,6 +153,47 @@ export const graphStyles: cytoscape.StylesheetJson = [
     },
   },
 
+  // ========= STYLES FOR DFS, BFS ANIMATION ==========
+  {
+    selector: "node.processing-neighbor",
+    style: {
+      "background-color": "#616161",
+    },
+  },
+  {
+    selector: "node.visiting-neighbor",
+    style: {
+      "background-color": "#61afef",
+    },
+  },
+  {
+    selector: "edge.processing-neighbor",
+    style: {
+      "line-color": "#61afef",
+      "target-arrow-color": "#61afef",
+    },
+  },
+  {
+    selector: "edge.visiting-neighbor",
+    style: {
+      "line-color": "#61afef",
+      "target-arrow-color": "#61afef",
+    },
+  },
+  {
+    selector: "node.in-path",
+    style: {
+      "background-color": "#98c379",
+    },
+  },
+  {
+    selector: "edge.in-path",
+    style: {
+      "line-color": "#98c379",
+      "target-arrow-color": "#98c379",
+    },
+  },
+
   ...COMPONENT_COLORS.map(({ bg, border, text }, index) => ({
     selector: `node.component-${index}`,
     style: {

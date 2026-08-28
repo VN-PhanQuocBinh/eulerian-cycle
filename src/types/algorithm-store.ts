@@ -1,6 +1,12 @@
+import {
+  DfsResult,
+  BfsResult,
+  ConnectedComponentsResult,
+  EulerianCycleResult,
+} from "@/core/types/algorithm";
 import { GraphData } from "./graph-data-store";
 
-export type GraphAlgorithm = "eulerian-cycle" | "connected-components";
+export type GraphAlgorithm = "eulerian-cycle" | "connected-components" | "dfs" | "bfs";
 export type RunMode = "step-by-step" | "continuous";
 
 export type StepNodeElement = {
@@ -25,6 +31,8 @@ export type Step = {
   circuit?: string[];
   visited?: Set<string>;
 
+  currentNode?: StepNodeElement & { classes: string[] };
+
   // scc
   dsc?: Map<string, number>;
   lowLink?: Map<string, number>;
@@ -33,13 +41,44 @@ export type Step = {
   highlightedPseudoCodeLineIds?: Array<number | Array<number>>;
 };
 
-export interface ConnectedComponentsResult {
-  components: string[][];
-  steps: Step[];
-  message: string;
+export type AlgorithmExecutionResult =
+  | DfsResult
+  | BfsResult
+  | ConnectedComponentsResult
+  | EulerianCycleResult;
+
+export interface AlgorithmParamsMap {
+  "eulerian-cycle": {
+    startNodeId: string;
+  };
+  "connected-components": {
+    startNodeId: string;
+  };
+  dfs: {
+    startNodeId: string;
+    targetNodeId: string;
+  };
+  bfs: {
+    startNodeId: string;
+    targetNodeId: string;
+  };
 }
 
+// This type assertion ensures that the keys of AlgorithmParamsMap are exactly the same as the values of GraphAlgorithm. If there is any mismatch, TypeScript will throw an error, helping to maintain consistency between the two types.
+type AssertKeysEqual = [GraphAlgorithm] extends [keyof AlgorithmParamsMap]
+  ? [keyof AlgorithmParamsMap] extends [GraphAlgorithm]
+    ? true
+    : "Lỗi: AlgorithmParamsMap chứa key không thuộc GraphAlgorithm"
+  : "Lỗi: AlgorithmParamsMap thiếu một số key từ GraphAlgorithm";
+
+// If the assertion fails, TypeScript will show an error message indicating which keys are missing or extra. This helps maintain consistency between the two types.
+const _assertion: AssertKeysEqual = true;
+_assertion; // This line is just to use the _assertion variable and avoid unused variable warnings.
+
 export interface AlgorithmStore {
+  // Constant values
+  ALGORITHMS_WITH_TARGET_NODE: GraphAlgorithm[];
+
   // Algorithm state
   currentAlgorithm: GraphAlgorithm;
   steps: Step[];
@@ -47,6 +86,10 @@ export interface AlgorithmStore {
   currentStepIndex: number;
   speed: number;
   startNodeId: string | null;
+  targetNodeId: string | null;
+  algorithmParams: AlgorithmParamsMap;
+
+  executionResult: AlgorithmExecutionResult | null;
 
   // Actions
   setIsAnimating: (isAnimating: boolean) => void;
@@ -64,6 +107,12 @@ export interface AlgorithmStore {
   setCurrentAlgorithm: (algorithm: GraphAlgorithm) => void;
   setSteps: (steps: Step[]) => void;
   setStartNodeId: (startNodeId: string | null) => void;
+  setTargetNodeId: (targetNodeId: string | null) => void;
+  setAlgorithmParams: <T extends GraphAlgorithm>(
+    algo: T,
+    params: Partial<AlgorithmParamsMap[T]>,
+  ) => void;
+  setExecutionResult: (result: AlgorithmExecutionResult) => void;
 
   // Algorithm implementations
 
@@ -71,14 +120,7 @@ export interface AlgorithmStore {
 
   findConnectedComponents: (data: GraphData, startNodeId: string) => ConnectedComponentsResult;
 
-  findEulerianCycle: (
-    data: GraphData,
-    startNodeId: string,
-  ) => {
-    cycle: string[] | null;
-    steps: Step[];
-    message?: string;
-  };
+  findEulerianCycle: (data: GraphData, startNodeId: string) => EulerianCycleResult;
 
   recalculateSteps(data: GraphData): void;
 }

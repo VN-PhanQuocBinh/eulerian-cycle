@@ -38,21 +38,21 @@ export function BottomPanel() {
     <Tabs
       ref={tabsRootRef}
       defaultValue="steps"
-      className="h-full tabs-bar px-2 relative bg-(--od-bg-1) border-t border-border"
+      className="h-full tabs-bar px-2 relative bg-(--od-bg-1) border-t border-border gap-0"
       onValueChange={(tab) => setBottomPanelTab(tab as BottomPanelTab)}
     >
       <div className="flex items-center mb-2 py-1">
         <TabsList variant="line" className="">
           {tabs.map((tab) => (
-            <TabsTrigger key={tab.value} value={tab.value} className="text-sm!">
+            <TabsTrigger key={tab.value} value={tab.value} className="text-[12px] font-semibold">
               {tab.label}
             </TabsTrigger>
           ))}
         </TabsList>
-        <div className="flex-1 flex justify-end items-center gap-2 text-right text-sm ">
+        <div className="flex-1 flex justify-end items-center gap-1 text-right text-sm ">
           {bottomPanelTab === "steps" && (
             <>
-              <Button variant="outline" size="sm" onClick={toggleSmartScroll}>
+              <Button variant="outline" size="sm" onClick={toggleSmartScroll} className="text-[12px]">
                 {enableSmartScroll ? (
                   <EyeClosed className="size-4" />
                 ) : (

@@ -55,7 +55,7 @@ export function ConnectedComponentsStepsTable({ steps }: Props) {
   });
 
   return (
-    <div className="h-full overflow-y-auto custom-scrollbar bg-[#1E2127] px-4">
+    <div className="h-full overflow-y-auto custom-scrollbar bg-(--od-bg-0)">
       <Table className="text-[#ABB2BF]">
         <TableHeader>
           <TableRow className="border-b border-[#3E4451]">

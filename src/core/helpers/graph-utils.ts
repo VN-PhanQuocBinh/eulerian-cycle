@@ -1,5 +1,5 @@
 import { GraphEdge, GraphData } from "@/types/graph-data-store";
-import { getAdjacencyList } from "@/core/algorithms/adjacency-list";
+import { getAdjacencyList, getReverseAdjacencyList } from "@/core/algorithms/adjacency-list";
 
 export const createGraphUtils = (data: GraphData) => {
   const { nodes, edges, isDirected } = data;
@@ -7,7 +7,7 @@ export const createGraphUtils = (data: GraphData) => {
   const edgesMap = new Map(edges.map((e) => [e.id, e]));
   const adj = getAdjacencyList({ nodes, edges, isDirected });
   const reverseAdj: Map<string, string[]> = isDirected
-    ? getAdjacencyList({ nodes, edges, isDirected: false })
+    ? getReverseAdjacencyList({ nodes, edges, isDirected })
     : new Map();
 
   // Support for multiple edges between the same pair of nodes
@@ -22,9 +22,18 @@ export const createGraphUtils = (data: GraphData) => {
     edgeLookup.get(key)!.push(e);
   });
 
+  const getEdges = (source: string, target: string): GraphEdge[] => {
+    const edges = edgeLookup.get(`${source}-${target}`) || [];
+    if (!isDirected) {
+      const reverseEdges = edgeLookup.get(`${target}-${source}`) || [];
+      return [...edges, ...reverseEdges];
+    }
+    return edges;
+  };
+
   return {
     getNode: (id: string) => nodesMap.get(id),
-    getEdges: (source: string, target: string) => edgeLookup.get(`${source}-${target}`) || [],
+    getEdges,
     getEdgeById: (id: string) => edgesMap.get(id),
     getNeighbors: (id: string) => adj.get(id) || [],
     allNodeIds: nodes.map((n) => n.id),

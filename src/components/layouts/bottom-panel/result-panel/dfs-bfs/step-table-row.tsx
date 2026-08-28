@@ -3,7 +3,7 @@ import { createGraphUtils } from "@/core/helpers/graph-utils";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { CopyButton } from "@/components/copy-button";
 import JumpButton from "../../jump-button";
-import { Step, StepNodeElement } from "@/types/algorithm-store";
+import { Step } from "@/types/algorithm-store";
 import { cn } from "@/utils/cn";
 import { arrayToString } from "@/utils";
 import { useSmartScroll } from "@/hooks/use-smart-scroll";
@@ -15,19 +15,26 @@ interface Props {
   graphUtils: ReturnType<typeof createGraphUtils>;
 }
 
+function StackOrQueueNodes({ nodes }: { nodes: { id: string; label: string }[] }) {
+  return (
+    <>
+      <div className="flex flex-1 flex-wrap items-center gap-2">
+        {nodes.map((node, idx) => (
+          <span
+            key={node.id + "-" + idx}
+            className="w-max rounded border border-(--od-border-strong) bg-(--od-bg-2) px-1.5 py-0.5 text-xs text-(--od-purple)"
+          >
+            {node.label}
+          </span>
+        ))}
+      </div>
+      <CopyButton text={arrayToString(nodes.map((node) => node.label))} />
+    </>
+  );
+}
+
 function StepTableRow({ step, index, isActive, graphUtils }: Props) {
   const rowRef = useSmartScroll(isActive);
-  const elements = step.elements;
-
-  const currentNode: StepNodeElement | undefined = useMemo(() => {
-    return elements.length == 1 && elements[0].type === "node"
-      ? (elements[0] as StepNodeElement)
-      : undefined;
-  }, [elements]);
-
-  const nextNode: StepNodeElement | undefined = useMemo(() => {
-    return elements.filter((el) => el.type === "edge")[0]?.target;
-  }, [elements]);
 
   const stackNodes = useMemo(() => {
     return (
@@ -38,14 +45,23 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
     );
   }, [step.stack, graphUtils]);
 
-  const circuitNodes = useMemo(() => {
+  const queueNodes = useMemo(() => {
     return (
-      step.circuit?.map((nodeId) => ({
+      step.queue?.map((nodeId) => ({
         id: nodeId,
         label: graphUtils.getNode(nodeId)?.label || nodeId,
       })) ?? []
     );
-  }, [step.circuit, graphUtils]);
+  }, [step.queue, graphUtils]);
+
+  const visitedNodes = useMemo(() => {
+    const visitedArray =
+      step.visited instanceof Set ? Array.from(step.visited) : step.visited || [];
+    return visitedArray.map((nodeId) => ({
+      id: nodeId,
+      label: graphUtils.getNode(nodeId)?.label || nodeId,
+    }));
+  }, [step.visited, graphUtils]);
 
   return (
     <TableRow
@@ -60,19 +76,9 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
       </TableCell>
 
       <TableCell className="px-3 py-2 text-center">
-        {currentNode ? (
+        {step.currentNode ? (
           <span className="inline-flex rounded border border-(--od-border) bg-(--od-bg-2) px-2 py-0.5 text-(--od-fg-0)">
-            {currentNode.label}
-          </span>
-        ) : (
-          <span className="italic text-(--od-fg-2)">_</span>
-        )}
-      </TableCell>
-
-      <TableCell className="px-3 py-2 text-center">
-        {nextNode ? (
-          <span className="inline-flex rounded border border-(--od-border) bg-(--od-bg-2) px-2 py-0.5 text-(--od-fg-0)">
-            {nextNode.label}
+            {step.currentNode.label}
           </span>
         ) : (
           <span className="italic text-(--od-fg-2)">_</span>
@@ -82,31 +88,21 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
       <TableCell className="px-3 py-2">
         <div className="flex max-w-[160px] items-center">
           {stackNodes.length > 0 ? (
-            <>
-              <div className="flex flex-1 flex-wrap items-center gap-2">
-                {stackNodes.map((node, idx) => (
-                  <span
-                    key={node.id + "-" + idx}
-                    className="w-max rounded border border-(--od-border-strong) bg-(--od-bg-2) px-1.5 py-0.5 text-xs text-(--od-purple)"
-                  >
-                    {node.label}
-                  </span>
-                ))}
-              </div>
-              <CopyButton text={arrayToString(stackNodes.map((node) => node.label))} />
-            </>
+            <StackOrQueueNodes nodes={stackNodes} />
+          ) : queueNodes.length > 0 ? (
+            <StackOrQueueNodes nodes={queueNodes} />
           ) : (
-            <span className="italic text-(--od-fg-2)">Empty stack</span>
+            <span className="italic text-(--od-fg-2)">Empty</span>
           )}
         </div>
       </TableCell>
 
       <TableCell className="px-3 py-2">
         <div className="flex max-w-[220px] items-center">
-          {circuitNodes.length > 0 ? (
+          {visitedNodes.length > 0 ? (
             <>
               <div className="flex flex-1 flex-wrap items-center gap-2">
-                {circuitNodes.map((node, idx) => (
+                {visitedNodes.map((node, idx) => (
                   <span
                     key={node.id + "-" + idx}
                     className="w-max rounded border border-(--od-border-strong) bg-(--od-bg-2) px-1.5 py-0.5 text-xs text-(--od-yellow)"
@@ -115,10 +111,10 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
                   </span>
                 ))}
               </div>
-              <CopyButton text={arrayToString(circuitNodes.map((node) => node.label))} />
+              <CopyButton text={arrayToString(visitedNodes.map((node) => node.label))} />
             </>
           ) : (
-            <span className="italic text-(--od-fg-2)">Empty circuit</span>
+            <span className="italic text-(--od-fg-2)">Empty</span>
           )}
         </div>
       </TableCell>

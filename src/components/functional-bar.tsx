@@ -119,6 +119,7 @@ function FunctionalBar() {
                 value={value}
                 className="text-(--od-fg-1) hover:bg-(--od-bg-3) data-[state=on]:bg-(--od-blue) data-[state=on]:text-(--primary-foreground) outline-none"
                 asChild
+                size="sm"
               >
                 <Icon />
               </ToggleGroupItem>

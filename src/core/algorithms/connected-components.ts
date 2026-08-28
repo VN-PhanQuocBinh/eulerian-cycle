@@ -1,13 +1,7 @@
+import { ConnectedComponentsResult } from "@/core/types/algorithm";
 import { COMPONENT_COLORS } from "@/types/styles";
 import { GraphData } from "@/types/graph-data-store";
-import { Step } from "@/types/algorithm-store";
 import { createGraphUtils } from "@/core/helpers/graph-utils";
-
-export interface ConnectedComponentsResult {
-  components: string[][];
-  steps: Step[];
-  message: string;
-}
 
 export interface FindConnectedComponentsParam {
   data: GraphData;
@@ -22,7 +16,7 @@ export function findConnectedComponents({
   const startNodeExists = getNode(startNodeId) !== undefined;
   if (!startNodeExists) {
     return {
-      components: [],
+      result: { components: [] },
       steps: [],
       message: `Start node ID "${startNodeId}" not found. Starting from default node.`,
     };
@@ -32,7 +26,7 @@ export function findConnectedComponents({
 
   if (data.nodes.length === 0) {
     return {
-      components: [],
+      result: { components: [] },
       steps: [],
       message: "Graph is empty. Please add nodes and edges to run the algorithm.",
     };
@@ -163,7 +157,7 @@ export function findConnectedComponents({
   });
 
   return {
-    components: [...components],
+    result: { components: [...components] },
     steps,
     message: `Found ${components.length} connected component(s).`,
   };

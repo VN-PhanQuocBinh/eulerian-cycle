@@ -8,15 +8,16 @@ import { createGraphUtils } from "@/core/helpers/graph-utils";
 
 export const useAlgorithmOperations = () => {
   const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
+  const nodes = useGraphDataStore((state) => state.nodes);
+  const edges = useGraphDataStore((state) => state.edges);
+  const isDirected = useGraphDataStore((state) => state.isDirected);
   const setCurrentAlgorithm = useAlgorithmStore((state) => state.setCurrentAlgorithm);
   const setSteps = useAlgorithmStore((state) => state.setSteps);
   const setCurrentStepIndex = useAlgorithmStore((state) => state.setCurrentStepIndex);
   const setStartNodeId = useAlgorithmStore((state) => state.setStartNodeId);
+  const setTargetNodeId = useAlgorithmStore((state) => state.setTargetNodeId);
   const setIsAnimating = useAlgorithmStore((state) => state.setIsAnimating);
   const setIsDirected = useGraphDataStore((state) => state.setIsDirected);
-  const nodes = useGraphDataStore((state) => state.nodes);
-  const edges = useGraphDataStore((state) => state.edges);
-  const isDirected = useGraphDataStore((state) => state.isDirected);
   const { showToast } = useToast();
   const graphUtils = useMemo(
     () =>
@@ -41,12 +42,16 @@ export const useAlgorithmOperations = () => {
     setIsAnimating(false);
   }, []);
 
+  const handleTargetNodeChange = useCallback((nodeId: string) => {
+    handleReset();
+    setTargetNodeId(nodeId);
+    setIsAnimating(false);
+  }, []);
+
   const handleStartNodeChange = useCallback(
     (nodeId: string) => {
       const isAloneNode =
         !graphUtils.adjacencyList.get(nodeId) || graphUtils.adjacencyList.get(nodeId)?.length === 0;
-      
-        console.log(graphUtils.adjacencyList.get(nodeId))
 
       if (isAloneNode && currentAlgorithm === "eulerian-cycle") {
         showToast({
@@ -71,6 +76,7 @@ export const useAlgorithmOperations = () => {
   return {
     handleAlgorithmChange,
     handleStartNodeChange,
+    handleTargetNodeChange,
     handleGraphTypeChange,
     handleReset,
   };

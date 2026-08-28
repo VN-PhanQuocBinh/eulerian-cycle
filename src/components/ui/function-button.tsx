@@ -21,7 +21,7 @@ const FunctionButton = forwardRef<HTMLButtonElement, FunctionButtonProps>(
           ref={ref}
           {...props}
           className={cn(
-            "flex items-center justify-center p-3 rounded-lg text-sm",
+            "flex items-center justify-center p-2 rounded-lg text-sm",
             "border border-(--od-border) bg-(--od-bg-2) text-(--od-fg-1)",
             "hover:bg-(--od-bg-3) transition-all",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--od-blue)",
@@ -30,7 +30,7 @@ const FunctionButton = forwardRef<HTMLButtonElement, FunctionButtonProps>(
             props.className,
           )}
         >
-          <Icon size={18} />
+          <Icon size={16} />
         </button>
       </Tooltip>
     );
