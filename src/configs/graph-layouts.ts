@@ -27,4 +27,40 @@ export const ALGORITHM_LAYOUT_CONFIGS: Record<GraphAlgorithm, cytoscape.LayoutOp
     padding: 100,
     fit: true,
   } as cytoscape.LayoutOptions,
+
+  dfs: {
+    name: "cose",
+    animate: true,
+    animationDuration: 600,
+    fit: true,
+    padding: 80,
+    randomize: false,
+    nodeRepulsion: () => 100000, // Đẩy các node xa nhau ra
+    idealEdgeLength: () => 30, // Độ dài mong muốn của cạnh
+    edgeElasticity: () => 100,
+    nestingFactor: 5,
+    gravity: 80,
+    numIter: 1000,
+    initialTemp: 1000,
+    coolingFactor: 0.99,
+    minTemp: 1.0,
+  } as cytoscape.LayoutOptions,
+
+  bfs: {
+    name: "cose",
+    animate: true,
+    animationDuration: 600,
+    fit: true,
+    padding: 80,
+    randomize: false,
+    nodeRepulsion: () => 100000, // Đẩy các node xa nhau ra
+    idealEdgeLength: () => 30, // Độ dài mong muốn của cạnh
+    edgeElasticity: () => 100,
+    nestingFactor: 5,
+    gravity: 80,
+    numIter: 1000,
+    initialTemp: 1000,
+    coolingFactor: 0.99,
+    minTemp: 1.0,
+  } as cytoscape.LayoutOptions,
 };

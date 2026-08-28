@@ -1,13 +1,8 @@
+import { ConnectedComponentsResult } from "@/core/types/algorithm";
 import { COMPONENT_COLORS } from "@/types/styles";
 import { GraphData, GraphNode, GraphEdge } from "@/types/graph-data-store";
 import { Step } from "@/types/algorithm-store";
 import { createGraphUtils } from "@/core/helpers/graph-utils";
-
-interface SCCResult {
-  components: string[][];
-  steps: Step[];
-  message: string;
-}
 
 // Tarjan's algorithm implementation for finding strongly connected components
 
@@ -203,7 +198,7 @@ export class TarjanSCC {
     });
   }
 
-  execute(startNodeId: string): SCCResult {
+  execute(startNodeId: string): ConnectedComponentsResult {
     for (const nodeId of this.adjacencyList.keys()) {
       this.disc.set(nodeId, -1);
       this.lowLink.set(nodeId, -1);
@@ -279,7 +274,9 @@ export class TarjanSCC {
     });
 
     return {
-      components: this.allSCCs,
+      result: {
+        components: this.allSCCs,
+      },
       steps: this.steps, // For simplicity, not implementing step-by-step animation for SCCs in this version
       message: `Found ${this.allSCCs.length} strongly connected component(s).`,
     };

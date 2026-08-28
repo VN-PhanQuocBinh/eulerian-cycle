@@ -59,10 +59,10 @@ export default function TopMenuBar() {
   };
 
   return (
-    <header className="max-w-full window-drag min-h-8 border-b border-(--od-border) bg-(--od-bg-1) text-(--od-fg-0)">
+    <header className="max-w-full window-drag min-h-6 border-b border-(--od-border) bg-(--od-bg-1) text-(--od-fg-0)">
       <div className="relative flex h-full items-center justify-between pl-2 pr-0.5">
         <div className="window-no-drag shrink-0 flex items-center h-full">
-          <img src="./icon.ico" alt="" className="mr-3 h-6 w-6" />
+          <img src="./icon.ico" alt="" className="mr-3 h-5 w-5" />
 
           <Popover
             open={fileOpen}
@@ -74,7 +74,7 @@ export default function TopMenuBar() {
             <PopoverTrigger asChild>
               <button
                 onClick={openFile}
-                className="rounded! px-2.5 py-0.5 text-sm! text-(--od-fg-1) hover:bg-(--od-bg-3) hover:text-(--od-fg-0)"
+                className="rounded! px-2.5 py-0.5 text-[12px] font-semibold text-(--od-fg-1) hover:bg-(--od-bg-3) hover:text-(--od-fg-0)"
               >
                 File
               </button>
@@ -83,7 +83,7 @@ export default function TopMenuBar() {
               side="bottom"
               align="start"
               sideOffset={6}
-              className="window-no-drag w-60 border-(--od-border) bg-(--od-bg-0) p-1"
+              className="window-no-drag w-60 border-(--od-border) bg-(--od-bg-0) p-0.5"
             >
               <button
                 onClick={() => runFileAction((window as any).ipcRenderer.appMenu.openGraph)}
@@ -116,7 +116,7 @@ export default function TopMenuBar() {
             <PopoverTrigger asChild>
               <button
                 onClick={openView}
-                className="rounded! px-2.5 py-0.5 text-sm! text-(--od-fg-1) hover:bg-(--od-bg-3) hover:text-(--od-fg-0)"
+                className="rounded! px-2.5 py-0.5 text-[12px] font-semibold text-(--od-fg-1) hover:bg-(--od-bg-3) hover:text-(--od-fg-0)"
               >
                 View
               </button>
@@ -181,21 +181,21 @@ export default function TopMenuBar() {
           <button
             aria-label="Minimize"
             onClick={() => (window as any).ipcRenderer.windowControls.minimize()}
-            className="grid h-9 w-13 place-items-center rounded-none! text-(--od-fg-1) hover:bg-(--od-bg-3) hover:text-(--od-fg-0)"
+            className="grid h-7 w-13 place-items-center rounded-none! text-(--od-fg-1) hover:bg-(--od-bg-3) hover:text-(--od-fg-0)"
           >
             <Minus size={16} />
           </button>
           <button
             aria-label="Maximize"
             onClick={() => (window as any).ipcRenderer.windowControls.toggleMaximize()}
-            className="grid h-9 w-13 place-items-center rounded-none! text-(--od-fg-1) hover:bg-(--od-bg-3) hover:text-(--od-fg-0)"
+            className="grid h-7 w-13 place-items-center rounded-none! text-(--od-fg-1) hover:bg-(--od-bg-3) hover:text-(--od-fg-0)"
           >
             <Square size={14} className={isMaximized ? "opacity-60" : ""} />
           </button>
           <button
             aria-label="Close"
             onClick={() => (window as any).ipcRenderer.windowControls.close()}
-            className="grid h-9 w-13 place-items-center rounded-none! text-(--od-fg-1) hover:bg-(--od-red) hover:text-white"
+            className="grid h-7 w-13 place-items-center rounded-none! text-(--od-fg-1) hover:bg-(--od-red) hover:text-white"
           >
             <X size={16} />
           </button>

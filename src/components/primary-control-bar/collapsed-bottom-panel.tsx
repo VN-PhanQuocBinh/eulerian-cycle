@@ -12,6 +12,8 @@ import { useAlgorithmOperations } from "@/hooks/use-algorithm-operations";
 const algorithmOptions: Array<{ label: string; value: GraphAlgorithm }> = [
   { label: "Eulerian Cycle", value: "eulerian-cycle" },
   { label: "Connected Components", value: "connected-components" },
+  { label: "Depth-First Search (DFS)", value: "dfs" },
+  { label: "Breadth-First Search (BFS)", value: "bfs" },
 ];
 
 function CollapsedBottomPanel() {

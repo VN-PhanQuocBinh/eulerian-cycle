@@ -1,23 +1,51 @@
+import { GraphData } from "./../types/graph-data-store";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import { AlgorithmStore } from "@/types/algorithm-store";
+import { AlgorithmParamsMap, AlgorithmStore } from "@/types/algorithm-store";
 
-import type { ConnectedComponentsResult, Step } from "@/types/algorithm-store";
+import { ConnectedComponentsResult } from "@/core/types/algorithm";
+import type { GraphAlgorithm, Step } from "@/types/algorithm-store";
 import { TarjanSCC } from "@/core/algorithms/tarjan-scc";
 import { EulerianCycle } from "@/core/algorithms/eulerian-cycle";
+import { DFS } from "@/core/algorithms/dfs";
+import { BFS } from "@/core/algorithms/bfs";
 import { findConnectedComponents as findConnectedComponentsAlgorithm } from "@/core/algorithms/connected-components";
-import { GraphData } from "@/types/graph-data-store";
+
+const INITIAL_ALGORITHM: GraphAlgorithm = "dfs";
 
 export const useAlgorithmStore = create<AlgorithmStore>()(
   devtools(
     (set, get) => ({
+      // Constant values
+      ALGORITHMS_WITH_TARGET_NODE: ["dfs", "bfs"],
+
       // Algorithm state
-      currentAlgorithm: "connected-components",
+      currentAlgorithm: INITIAL_ALGORITHM,
       isAnimating: false,
       steps: [],
       currentStepIndex: -1,
       speed: 1,
       startNodeId: null,
+      targetNodeId: null,
+
+      // For further customization of algorithm parameters, we can use a generic setter
+      algorithmParams: {
+        "eulerian-cycle": {
+          startNodeId: "",
+        },
+        "connected-components": {
+          startNodeId: "",
+        },
+        dfs: {
+          startNodeId: "",
+          targetNodeId: "",
+        },
+        bfs: {
+          startNodeId: "",
+          targetNodeId: "",
+        },
+      } as AlgorithmParamsMap,
+      executionResult: null,
 
       // Mode actions
       setIsAnimating: (isAnimating) => set({ isAnimating }),
@@ -27,6 +55,21 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
       setSteps: (steps: Step[]) => set({ steps }),
       setCurrentAlgorithm: (algorithm) => set({ currentAlgorithm: algorithm }),
       setStartNodeId: (startNodeId) => set({ startNodeId }),
+      setTargetNodeId: (targetNodeId) => set({ targetNodeId }),
+
+      // For further customization of algorithm parameters, we can use a generic setter
+      setAlgorithmParams: (algo, params) => {
+        set((state) => ({
+          algorithmParams: {
+            ...state.algorithmParams,
+            [algo]: {
+              ...state.algorithmParams[algo],
+              ...params,
+            },
+          },
+        }));
+      },
+      setExecutionResult: (result) => set({ executionResult: result }),
 
       nextStep: () => {
         const { currentStepIndex, steps } = get();
@@ -93,10 +136,13 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
         const {
           currentAlgorithm,
           startNodeId,
+          targetNodeId,
+          setTargetNodeId,
           setSteps,
           findSCCs,
           findConnectedComponents,
           findEulerianCycle,
+          setExecutionResult,
         } = get();
 
         const startNodeIdToUse = startNodeId || data.nodes[0]?.id || "";
@@ -104,19 +150,39 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
         switch (currentAlgorithm) {
           case "connected-components": {
             if (data.isDirected) {
-              const { steps } = findSCCs(data, startNodeIdToUse);
-              // console.log("SCC Steps:", steps);
-              setSteps(steps || []);
+              const result = findSCCs(data, startNodeIdToUse);
+              setSteps(result.steps || []);
+              setExecutionResult(result);
             } else {
-              const { steps } = findConnectedComponents(data, startNodeIdToUse);
-              setSteps(steps || []);
+              const result = findConnectedComponents(data, startNodeIdToUse);
+              setSteps(result.steps || []);
+              setExecutionResult(result);
             }
 
             break;
           }
           case "eulerian-cycle": {
-            const { steps } = findEulerianCycle(data, startNodeIdToUse);
-            setSteps(steps || []);
+            const result = findEulerianCycle(data, startNodeIdToUse);
+            setSteps(result.steps || []);
+            setExecutionResult(result);
+            break;
+          }
+          case "dfs": {
+            const engine = new DFS(data);
+            const result = engine.execute(startNodeIdToUse, targetNodeId || startNodeIdToUse);
+
+            setTargetNodeId(targetNodeId);
+            setSteps(result.steps || []);
+            setExecutionResult(result);
+            break;
+          }
+          case "bfs": {
+            const engine = new BFS(data);
+
+            const result = engine.execute(startNodeIdToUse, targetNodeId || startNodeIdToUse);
+            setTargetNodeId(targetNodeId);
+            setSteps(result.steps || []);
+            setExecutionResult(result);
             break;
           }
           default:
