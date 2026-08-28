@@ -97,7 +97,7 @@ export function PseudoCodeViewer({ className }: PseudoCodeViewerProps) {
   return (
     <div
       className={cn(
-        "h-full overflow-y-auto custom-scrollbar rounded-md border border-(--od-border) bg-(--od-bg-1)",
+        "h-full overflow-y-auto custom-scrollbar rounded-md border border-(--od-border) bg-(--od-bg-0)",
         className,
       )}
     >

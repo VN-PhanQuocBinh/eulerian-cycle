@@ -1,3 +1,4 @@
+import { PathElementBuilder } from "@/core/helpers/path-element-builder";
 import { DfsResult } from "@/core/types/algorithm";
 import { GraphData } from "@/types/graph-data-store";
 import { createGraphUtils } from "../helpers/graph-utils";
@@ -214,45 +215,8 @@ export class DFS {
     }
 
     // Construct the final step with the path highlighted
-    const inPathElements: Step["elements"] = [];
-    for (let i = 0; i < path.length; i++) {
-      const sourceNodeId = path[i];
-      const sourceNode = this.utils.getNode(sourceNodeId);
-
-      if (sourceNode) {
-        inPathElements.push({
-          type: "node",
-          id: sourceNodeId,
-          label: sourceNode.label,
-          classes: ["in-path"],
-        });
-      }
-
-      if (i < path.length - 1) {
-        const targetNodeId = path[i + 1];
-
-        const targetNode = this.utils.getNode(targetNodeId);
-        const edge = this.utils.getEdges(sourceNodeId, targetNodeId)[0];
-
-        if (sourceNode && targetNode && edge) {
-          inPathElements.push({
-            type: "edge",
-            id: edge.id,
-            source: {
-              type: "node",
-              id: sourceNodeId,
-              label: sourceNode.label,
-            },
-            target: {
-              type: "node",
-              id: targetNodeId,
-              label: targetNode.label,
-            },
-            classes: ["in-path"],
-          });
-        }
-      }
-    }
+    const pathElementBuilder = new PathElementBuilder(this.utils);
+    const inPathElements = pathElementBuilder.build(path);
 
     steps.push({
       elements: inPathElements,

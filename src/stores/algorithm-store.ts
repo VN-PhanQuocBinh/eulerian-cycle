@@ -11,7 +11,7 @@ import { DFS } from "@/core/algorithms/dfs";
 import { BFS } from "@/core/algorithms/bfs";
 import { findConnectedComponents as findConnectedComponentsAlgorithm } from "@/core/algorithms/connected-components";
 
-const INITIAL_ALGORITHM: GraphAlgorithm = "bfs";
+const INITIAL_ALGORITHM: GraphAlgorithm = "dfs";
 
 export const useAlgorithmStore = create<AlgorithmStore>()(
   devtools(
@@ -151,7 +151,6 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
           case "connected-components": {
             if (data.isDirected) {
               const result = findSCCs(data, startNodeIdToUse);
-              // console.log("SCC Steps:", steps);
               setSteps(result.steps || []);
               setExecutionResult(result);
             } else {
@@ -170,7 +169,6 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
           }
           case "dfs": {
             const engine = new DFS(data);
-
             const result = engine.execute(startNodeIdToUse, targetNodeId || startNodeIdToUse);
 
             setTargetNodeId(targetNodeId);

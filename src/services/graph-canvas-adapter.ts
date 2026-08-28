@@ -138,7 +138,6 @@ export class GraphCanvasAdapter {
         if (nodes.length === 0) {
           const grabbedNode = this.cy.getElementById(_e.target.id());
           nodes = nodes.add(grabbedNode);
-          console.log(nodes);
         }
 
         nodes.forEach((node) => {

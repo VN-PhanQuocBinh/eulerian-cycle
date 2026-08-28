@@ -2,6 +2,7 @@ import { BfsResult } from "@/core/types/algorithm";
 import { GraphData } from "@/types/graph-data-store";
 import { createGraphUtils } from "../helpers/graph-utils";
 import { Step } from "@/types/algorithm-store";
+import { PathElementBuilder } from "@/core/helpers/path-element-builder";
 
 export class BFS {
   private utils: ReturnType<typeof createGraphUtils>;
@@ -213,8 +214,12 @@ export class BFS {
       });
     }
 
+    // Construct the final step with the path highlighted
+    const pathElementBuilder = new PathElementBuilder(this.utils);
+    const inPathElements = pathElementBuilder.build(path);
+
     steps.push({
-      elements: [],
+      elements: inPathElements,
       message: [
         `BFS traversal from node ${startNode?.label || startNodeId} to node ${targetNode?.label || targetNodeId} completed.`,
       ],

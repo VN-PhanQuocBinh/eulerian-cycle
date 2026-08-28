@@ -94,14 +94,14 @@ export function GraphReport() {
 
                     <TableCell>
                       <span className="inline-flex px-1.5 py-0.5 text-xs font-medium text-(--od-fg-0)">
-                        {degree}
+                        {inDegree}
                       </span>
                     </TableCell>
 
                     {isDirected && (
                       <TableCell>
                         <span className="inline-flex px-1.5 py-0.5 text-xs font-medium text-(--od-fg-0)">
-                          {inDegree}
+                          {degree}
                         </span>
                       </TableCell>
                     )}
