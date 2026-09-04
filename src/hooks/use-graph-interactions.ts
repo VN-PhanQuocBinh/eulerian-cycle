@@ -5,6 +5,7 @@ import { useGraphDataStore, useUIStore } from "@/stores";
 import { useEffect } from "react";
 import { useToast } from "@/components/ui/toast";
 import { useCommandManager } from "./use-command-manager";
+import { DEFAULT_EDGE_WEIGHT } from "@/constant/graph-constants";
 
 export const useGraphInteractions = () => {
   // Graph Data Store
@@ -52,7 +53,11 @@ export const useGraphInteractions = () => {
         });
       },
       onEdgeAdd: (edge) => {
-        commands.executeAddEdgeCommand(edge);
+        const edgeWithWeight = {
+          ...edge,
+          weight: edge.weight !== undefined ? edge.weight : DEFAULT_EDGE_WEIGHT,
+        };
+        commands.executeAddEdgeCommand(edgeWithWeight);
       },
       onNodeUpdate: ({ id, x, y }) => {
         const interactionMode = useUIStore.getState().mode;

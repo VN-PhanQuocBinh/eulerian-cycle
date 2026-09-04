@@ -219,12 +219,7 @@ export class GraphCanvasAdapter {
 
         this.cy?.add({
           group: "edges",
-          data: {
-            id: data.id,
-            source: data.source,
-            target: data.target,
-            label: data.label,
-          },
+          data,
           style: style || {},
           classes: classes?.join(" ") || "",
         });
@@ -416,6 +411,7 @@ export class GraphCanvasAdapter {
       id: edge.id(),
       source: edge.source().id(),
       target: edge.target().id(),
+      weight: edge.data("weight"),
     }));
 
     return {
@@ -435,6 +431,11 @@ export class GraphCanvasAdapter {
     this.cy.edges().data("isDirected", isDirected);
   }
 
+  toggleWeighted(isWeighted: boolean) {
+    if (!this.cy) return;
+    this.cy.edges().data("isWeighted", isWeighted);
+  }
+
   applyStylesFromMap(styles: Map<string, Set<string>>) {
     if (!this.cy) return;
 
@@ -451,27 +452,53 @@ export class GraphCanvasAdapter {
     });
   }
 
-  applyLabelsToEdges(labels: Map<string, string>) {
+  private setDataForEdges(field: "label" | "weight", data: Map<string, string>) {
     if (!this.cy) return;
 
-    for (const [edgeId, label] of labels.entries()) {
-      const edge = this.cy.getElementById(edgeId);
-      edge.data("label", label);
-    }
+    this.cy.batch(() => {
+      for (const [edgeId, value] of data.entries()) {
+        const edge = this.cy!.getElementById(edgeId);
+        if (edge.length > 0) {
+          edge.data(field, value);
+        }
+      }
+    });
+  }
+
+  applyLabelsToEdges(labels: Map<string, string>) {
+    this.setDataForEdges("label", labels);
   }
 
   clearLabelsFromEdges({ edgeIds = [], all = false }: { edgeIds?: string[]; all?: boolean }) {
-    if (!this.cy) return;
-
+    const labelsToClear = new Map<string, string>();
     if (all) {
-      this.cy.edges().data("label", "");
-      return;
+      this.cy?.edges().forEach((edge) => {
+        labelsToClear.set(edge.id(), "");
+      });
+    } else {
+      edgeIds.forEach((edgeId) => {
+        labelsToClear.set(edgeId, "");
+      });
     }
+    this.setDataForEdges("label", labelsToClear);
+  }
 
-    edgeIds.forEach((edgeId) => {
-      const edge = this.cy!.getElementById(edgeId);
-      edge.data("label", "");
-    });
+  applyWeightsToEdges(weights: Map<string, string>) {
+    this.setDataForEdges("weight", weights);
+  }
+
+  clearWeightsFromEdges({ edgeIds = [], all = false }: { edgeIds?: string[]; all?: boolean }) {
+    const weightsToClear = new Map<string, string>();
+    if (all) {
+      this.cy?.edges().forEach((edge) => {
+        weightsToClear.set(edge.id(), "");
+      });
+    } else {
+      edgeIds.forEach((edgeId) => {
+        weightsToClear.set(edgeId, "");
+      });
+    }
+    this.setDataForEdges("weight", weightsToClear);
   }
 
   highlightElement(elementId: string, className: string[], pulse = false) {

@@ -1,12 +1,17 @@
 import { generateNodeId, generateEdgeId } from "@/utils/generate-id";
 import { GraphNode, GraphEdge } from "@/types/graph-data-store";
+import { DEFAULT_EDGE_WEIGHT } from "@/constant/graph-constants";
 
 export const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 export const generateEdgeSelector = (sourceId: string, targetId: string) => {
   return `edge[source = "${sourceId}"][target = "${targetId}"], edge[source = "${targetId}"][target = "${sourceId}"]`;
 };
 
-export function graphToEdgeList(nodes: GraphNode[], edges: GraphEdge[]): string {
+export function graphToEdgeList(
+  nodes: GraphNode[],
+  edges: GraphEdge[],
+  isWeighted: boolean,
+): string {
   const nodeMap = new Map(nodes.map((n) => [n.id, n.label]));
   const hasNeighborlessNodes = new Set();
 
@@ -14,10 +19,11 @@ export function graphToEdgeList(nodes: GraphNode[], edges: GraphEdge[]): string 
     .map((e) => {
       const sourceLabel = nodeMap.get(e.source) ?? e.source;
       const targetLabel = nodeMap.get(e.target) ?? e.target;
+      const weightText = isWeighted && e.weight !== undefined ? `${e.weight}` : "";
       hasNeighborlessNodes.add(e.source);
       hasNeighborlessNodes.add(e.target);
 
-      return `${sourceLabel} ${targetLabel}`;
+      return `${sourceLabel} ${targetLabel} ${weightText}`.trim();
     })
     .join("\n");
 
@@ -55,13 +61,14 @@ export function parseEdgeList(text: string): { nodes: GraphNode[]; edges: GraphE
       continue;
     }
 
-    const [srcLabel, tgtLabel] = tokens;
+    const [srcLabel, tgtLabel, weight] = tokens;
     const sourceId = getOrCreateNode(srcLabel);
     const targetId = getOrCreateNode(tgtLabel);
     const edgeId = generateEdgeId(sourceId, targetId);
+    const weightValue = weight ? parseFloat(weight) : DEFAULT_EDGE_WEIGHT;
 
     if (!edges.find((e) => e.id === edgeId)) {
-      edges.push({ id: edgeId, source: sourceId, target: targetId });
+      edges.push({ id: edgeId, source: sourceId, target: targetId, weight: weightValue });
     }
   }
 

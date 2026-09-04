@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import cytoscape from "cytoscape";
 import edgehandles from "cytoscape-edgehandles";
 import FunctionalBar from "./functional-bar";
@@ -36,6 +36,7 @@ const GraphCanvas = () => {
 
   const interactionMode = useUIStore((s) => s.mode);
   const isDirected = useGraphDataStore((state) => state.isDirected);
+  const isWeighted = useGraphDataStore((state) => state.isWeighted);
   const edges = useGraphDataStore((state) => state.edges);
   const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
   const ALGORITHMS_WITH_TARGET_NODE = useAlgorithmStore(
@@ -89,6 +90,10 @@ const GraphCanvas = () => {
   useEffect(() => {
     graphService.toggleDirected(isDirected);
   }, [isDirected, edges]);
+
+  useEffect(() => {
+    graphService.toggleWeighted(isWeighted);
+  }, [isWeighted, edges]);
 
   // Initialize Cytoscape and EdgeHandles
   useEffect(() => {

@@ -19,13 +19,18 @@ const ALGORITHM_OPTIONS: { label: string; value: GraphAlgorithm }[] = [
 function ControlTab({ className }: { className?: string }) {
   // Graph store
   const isDirected = useGraphDataStore((state) => state.isDirected);
+  const isWeighted = useGraphDataStore((state) => state.isWeighted);
   const nodes = useGraphDataStore((state) => state.nodes);
 
   const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
   const isAnimating = useAlgorithmStore((state) => state.isAnimating);
   const startNodeId = useAlgorithmStore((state) => state.startNodeId);
-  const { handleAlgorithmChange, handleStartNodeChange, handleGraphTypeChange } =
-    useAlgorithmOperations();
+  const {
+    handleAlgorithmChange,
+    handleStartNodeChange,
+    handleGraphTypeChange,
+    handleWeightedChange,
+  } = useAlgorithmOperations();
 
   const startNodeOptions = useMemo(
     () => nodes.map((node) => ({ label: node.label, value: node.id })),
@@ -41,9 +46,26 @@ function ControlTab({ className }: { className?: string }) {
     >
       {/* GRAPH TYPE */}
       <GraphTypeSelect
+        label="Graph Type"
+        text={{
+          active: "Directed",
+          inactive: "Undirected",
+        }}
         isDirected={isDirected}
         isAnimating={isAnimating}
         onSelect={handleGraphTypeChange}
+      />
+
+      {/* GRAPH WEIGHT */}
+      <GraphTypeSelect
+        label="Graph Weight"
+        text={{
+          active: "Weighted",
+          inactive: "Unweighted",
+        }}
+        isDirected={isWeighted}
+        isAnimating={isAnimating}
+        onSelect={handleWeightedChange}
       />
 
       {/* ALGORITHM SELECTION */}

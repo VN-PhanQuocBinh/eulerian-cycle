@@ -18,6 +18,7 @@ export const useAlgorithmOperations = () => {
   const setTargetNodeId = useAlgorithmStore((state) => state.setTargetNodeId);
   const setIsAnimating = useAlgorithmStore((state) => state.setIsAnimating);
   const setIsDirected = useGraphDataStore((state) => state.setIsDirected);
+  const setIsWeighted = useGraphDataStore((state) => state.setIsWeighted);
   const { showToast } = useToast();
   const graphUtils = useMemo(
     () =>
@@ -73,11 +74,17 @@ export const useAlgorithmOperations = () => {
     setIsDirected(directed);
   }, []);
 
+  const handleWeightedChange = useCallback((weighted: boolean) => {
+    handleReset();
+    setIsWeighted(weighted);
+  }, []);
+
   return {
     handleAlgorithmChange,
     handleStartNodeChange,
     handleTargetNodeChange,
     handleGraphTypeChange,
     handleReset,
+    handleWeightedChange,
   };
 };

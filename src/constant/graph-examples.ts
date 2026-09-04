@@ -1,5 +1,5 @@
 import type { GraphAlgorithm } from "@/types/algorithm-store";
-export type GraphExampleLine = [string] | [string, string];
+export type GraphExampleLine = [string] | [string, string] | [string, string, string];
 
 export const GRAPH_EXAMPLES: Record<
   "directed" | "undirected",

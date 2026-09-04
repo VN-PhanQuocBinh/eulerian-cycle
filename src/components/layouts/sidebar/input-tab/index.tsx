@@ -8,9 +8,34 @@ import { useToast } from "@/components/ui/toast";
 import { GRAPH_EXAMPLES, GraphExampleLine } from "@/constant/graph-examples";
 import { useGraphDataStore, useAlgorithmStore } from "@/stores";
 import { useCommandManager } from "@/hooks/use-command-manager";
+import { DEFAULT_EDGE_WEIGHT } from "@/constant/graph-constants";
 
-function parseGraphExample(lines: GraphExampleLine[]): string {
-  return lines.map((line) => line.join(" ")).join("\n");
+const PLACEHOLDER_TEXT = `# one edge or alone node per line
+
+A B weight
+B C weight
+C A weight
+D
+E
+F
+# comment line
+
+Default weight = 1.
+`;
+
+function parseGraphExample(lines: GraphExampleLine[], isWeighted: boolean): string {
+  const textLines: string[] = lines.map((line) => {
+    let lineText = line.join(" ");
+    if (!isWeighted) return lineText;
+
+    if (line.length === 2) {
+      lineText += ` ${DEFAULT_EDGE_WEIGHT}`;
+    }
+
+    return lineText;
+  });
+
+  return textLines.join("\n");
 }
 
 function InputTab({ className }: { className?: string }) {
@@ -19,9 +44,13 @@ function InputTab({ className }: { className?: string }) {
   const edges = useGraphDataStore((state) => state.edges);
   const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
   const isDirected = useGraphDataStore((state) => state.isDirected);
+  const isWeighted = useGraphDataStore((state) => state.isWeighted);
   const suggestedIndexRef = useRef<number | null>(null);
 
-  const getStoreText = useCallback(() => graphToEdgeList(nodes, edges), [nodes, edges]);
+  const getStoreText = useCallback(
+    () => graphToEdgeList(nodes, edges, isWeighted),
+    [nodes, edges, isWeighted],
+  );
 
   const [text, setText] = useState(getStoreText);
   const [copyStatus, setCopyStatus] = useState<"idle" | "success" | "error">("idle");
@@ -72,7 +101,7 @@ function InputTab({ className }: { className?: string }) {
     }
   };
 
-  const handleSuggest = () => {
+  const handleSuggest = useCallback(() => {
     const examples =
       GRAPH_EXAMPLES[isDirected ? "directed" : "undirected"]?.[currentAlgorithm!] || [];
 
@@ -83,9 +112,9 @@ function InputTab({ className }: { className?: string }) {
     } while (randomIndex === suggestedIndexRef.current);
 
     const randomExample = examples[randomIndex];
-    setText(parseGraphExample(randomExample));
+    setText(parseGraphExample(randomExample, isWeighted));
     setSuggested(true);
-  };
+  }, [isDirected, isWeighted, currentAlgorithm]);
 
   return (
     <div className={cn("flex flex-col h-full gap-3 bg-(--od-bg-1)", className)}>
@@ -100,7 +129,7 @@ function InputTab({ className }: { className?: string }) {
           value={text}
           onChange={(e) => setText(e.target.value)}
           spellCheck={false}
-          placeholder={"# one edge or alone node per line\n\nA B\nB C\nC A"}
+          placeholder={PLACEHOLDER_TEXT}
           className={cn(
             " w-full h-full resize-none rounded-md border border-gray-600 px-3 py-2 text-sm font-mono placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-transparent bg-(--od-bg-0) text-white",
             {

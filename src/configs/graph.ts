@@ -4,7 +4,10 @@ export const NODE_STYLES: cytoscape.Css.Node = {
   "background-color": "#1e2227", // Tiệp màu nền nhưng tối hơn một chút
   "border-width": "2px",
   "border-color": "#abb2bf", // Viền xám sáng
-  label: "data(label)",
+  label: (ele: cytoscape.NodeSingular) => {
+    const data = ele.data();
+    return data.label !== undefined ? String(data.label) : "";
+  },
   color: "#ffffff", // Chữ trắng tinh để nổi bật
   "font-size": "14px",
   "text-valign": "center",
@@ -19,7 +22,12 @@ export const EDGE_STYLES: cytoscape.Css.Edge = {
   "target-arrow-color": "#b6bdca",
   "curve-style": "bezier",
   "control-point-step-size": 40,
-  label: "data(label)",
+  label: (ele: cytoscape.EdgeSingular) => {
+    const data = ele.data();
+    return data.label !== undefined ? String(data.label) : "";
+  },
+  "text-rotation": "autorotate",
+  "text-margin-y": -10,
   color: "#ffffff",
   "font-size": "12px",
 };
@@ -57,6 +65,19 @@ export const graphStyles: cytoscape.StylesheetJson = [
     selector: "edge[?isDirected]",
     style: {
       "target-arrow-shape": "triangle",
+    },
+  },
+  {
+    selector: "edge[?isWeighted]",
+    style: {
+      label: (ele: cytoscape.EdgeSingular) => {
+        const data = ele.data();
+        let finalLabel = data.label !== undefined ? String(data.label) : "";
+        if (data.weight !== undefined) {
+          finalLabel += ` (${data.weight})`;
+        }
+        return finalLabel;
+      },
     },
   },
   {

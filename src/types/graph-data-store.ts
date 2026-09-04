@@ -12,6 +12,7 @@ export interface GraphEdge {
   source: string;
   target: string;
   label?: string;
+  weight?: number;
 }
 
 export interface GraphData {
@@ -24,6 +25,7 @@ export interface GraphDataStore {
   nodes: GraphNode[];
   edges: GraphEdge[];
   isDirected: boolean;
+  isWeighted: boolean;
   graphData: GraphData;
   nodeSet: Set<string>; // For quick node existence checks
   nodeById: Map<string, GraphNode>;
@@ -31,6 +33,7 @@ export interface GraphDataStore {
 
   // Actions
   setIsDirected: (isDirected: boolean) => void;
+  setIsWeighted: (isWeighted: boolean) => void;
   getCurrentNodesData: () => GraphNode[];
   getCurrentEdgesData: () => GraphEdge[];
   getCurrentGraphData: () => GraphData;

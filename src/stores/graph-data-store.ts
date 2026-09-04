@@ -13,11 +13,13 @@ export const useGraphDataStore = create<GraphDataStore>()(
       nodes: [],
       edges: [],
       isDirected: false,
+      isWeighted: false,
       nodeSet: new Set(),
       nodeById: new Map(),
       edgeById: new Map(),
 
       setIsDirected: (isDirected) => set({ isDirected }),
+      setIsWeighted: (isWeighted) => set({ isWeighted }),
       getCurrentNodesData: () => {
         const { nodes } = get();
         return nodes;
