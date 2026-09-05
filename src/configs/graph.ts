@@ -21,6 +21,7 @@ export const EDGE_STYLES: cytoscape.Css.Edge = {
   "line-color": "#b6bdca", // edge mặc định sáng hơn rõ rệt trên nền tối
   "target-arrow-color": "#b6bdca",
   "curve-style": "bezier",
+  "font-weight": "bold",
   "control-point-step-size": 40,
   label: (ele: cytoscape.EdgeSingular) => {
     const data = ele.data();
@@ -212,6 +213,22 @@ export const graphStyles: cytoscape.StylesheetJson = [
     style: {
       "line-color": "#98c379",
       "target-arrow-color": "#98c379",
+    },
+  },
+
+  // ========= STYLES FOR DIJKSTRA ANIMATION ==========
+  {
+    selector: "node.visited",
+    style: {
+      "background-color": "#61afef",
+      "border-color": "#61afef",
+    },
+  },
+  {
+    selector: "edge.visited",
+    style: {
+      "line-color": "#61afef",
+      "target-arrow-color": "#61afef",
     },
   },
 

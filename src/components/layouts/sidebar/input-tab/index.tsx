@@ -102,8 +102,12 @@ function InputTab({ className }: { className?: string }) {
   };
 
   const handleSuggest = useCallback(() => {
-    const examples =
+    let examples =
       GRAPH_EXAMPLES[isDirected ? "directed" : "undirected"]?.[currentAlgorithm!] || [];
+
+    if (examples.length === 0) {
+      examples = GRAPH_EXAMPLES["undirected"]?.[currentAlgorithm!] || [];
+    }
 
     let randomIndex;
 

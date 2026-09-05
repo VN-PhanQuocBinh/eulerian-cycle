@@ -12,7 +12,7 @@ export interface GraphEdge {
   source: string;
   target: string;
   label?: string;
-  weight?: number;
+  weight: number;
 }
 
 export interface GraphData {

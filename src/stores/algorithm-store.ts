@@ -9,9 +9,10 @@ import { TarjanSCC } from "@/core/algorithms/tarjan-scc";
 import { EulerianCycle } from "@/core/algorithms/eulerian-cycle";
 import { DFS } from "@/core/algorithms/dfs";
 import { BFS } from "@/core/algorithms/bfs";
+import { Dijkstra } from "@/core/algorithms/dijkstra";
 import { findConnectedComponents as findConnectedComponentsAlgorithm } from "@/core/algorithms/connected-components";
 
-const INITIAL_ALGORITHM: GraphAlgorithm = "dfs";
+const INITIAL_ALGORITHM: GraphAlgorithm = "dijkstra";
 
 export const useAlgorithmStore = create<AlgorithmStore>()(
   devtools(
@@ -180,6 +181,16 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
             const engine = new BFS(data);
 
             const result = engine.execute(startNodeIdToUse, targetNodeId || startNodeIdToUse);
+            setTargetNodeId(targetNodeId);
+            setSteps(result.steps || []);
+            setExecutionResult(result);
+            break;
+          }
+          case "dijkstra": {
+            const engine = new Dijkstra(data);
+            const result = targetNodeId
+              ? engine.execute(startNodeIdToUse, targetNodeId)
+              : engine.execute(startNodeIdToUse);
             setTargetNodeId(targetNodeId);
             setSteps(result.steps || []);
             setExecutionResult(result);

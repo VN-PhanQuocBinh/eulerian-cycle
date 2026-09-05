@@ -3,10 +3,11 @@ import {
   BfsResult,
   ConnectedComponentsResult,
   EulerianCycleResult,
+  DijkstraResult,
 } from "@/core/types/algorithm";
 import { GraphData } from "./graph-data-store";
 
-export type GraphAlgorithm = "eulerian-cycle" | "connected-components" | "dfs" | "bfs";
+export type GraphAlgorithm = "eulerian-cycle" | "connected-components" | "dfs" | "bfs" | "dijkstra";
 export type RunMode = "step-by-step" | "continuous";
 
 export type StepNodeElement = {
@@ -37,6 +38,10 @@ export type Step = {
   dsc?: Map<string, number>;
   lowLink?: Map<string, number>;
 
+  // dijkstra
+  distances?: Map<string, number>;
+  previousNodes?: Map<string, string | null>;
+
   // Will set required after add pseudo code for connected components algorithm
   highlightedPseudoCodeLineIds?: Array<number | Array<number>>;
 };
@@ -45,7 +50,8 @@ export type AlgorithmExecutionResult =
   | DfsResult
   | BfsResult
   | ConnectedComponentsResult
-  | EulerianCycleResult;
+  | EulerianCycleResult
+  | DijkstraResult;
 
 export interface AlgorithmParamsMap {
   "eulerian-cycle": {
@@ -61,6 +67,10 @@ export interface AlgorithmParamsMap {
   bfs: {
     startNodeId: string;
     targetNodeId: string;
+  };
+  dijkstra: {
+    startNodeId: string;
+    targetNodeId?: string;
   };
 }
 
