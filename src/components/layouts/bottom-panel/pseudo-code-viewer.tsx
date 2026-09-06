@@ -22,6 +22,7 @@ const pseudoCodeMap: Record<GraphAlgorithm | "strongly-connected-components", Ps
   "strongly-connected-components": TARJAN_SCC_PSEUDOCODE,
   dfs: DFS_PSEUDOCODE,
   bfs: BFS_PSEUDOCODE,
+  dijkstra: [], // Placeholder for Dijkstra's pseudo-code, can be filled in later
 };
 
 export function PseudoCodeViewer({ className }: PseudoCodeViewerProps) {

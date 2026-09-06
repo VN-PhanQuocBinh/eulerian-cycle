@@ -53,6 +53,10 @@ export type AlgorithmExecutionResult =
   | EulerianCycleResult
   | DijkstraResult;
 
+export type AlgorithmWithTarget = "dfs" | "bfs" | "dijkstra";
+
+export const ALGORITHMS_WITH_TARGET_NODE: AlgorithmWithTarget[] = ["dfs", "bfs", "dijkstra"];
+
 export interface AlgorithmParamsMap {
   "eulerian-cycle": {
     startNodeId: string;
@@ -95,8 +99,6 @@ export interface AlgorithmStore {
   isAnimating: boolean;
   currentStepIndex: number;
   speed: number;
-  startNodeId: string | null;
-  targetNodeId: string | null;
   algorithmParams: AlgorithmParamsMap;
 
   executionResult: AlgorithmExecutionResult | null;
@@ -116,8 +118,6 @@ export interface AlgorithmStore {
   // Algorithm state operations
   setCurrentAlgorithm: (algorithm: GraphAlgorithm) => void;
   setSteps: (steps: Step[]) => void;
-  setStartNodeId: (startNodeId: string | null) => void;
-  setTargetNodeId: (targetNodeId: string | null) => void;
   setAlgorithmParams: <T extends GraphAlgorithm>(
     algo: T,
     params: Partial<AlgorithmParamsMap[T]>,

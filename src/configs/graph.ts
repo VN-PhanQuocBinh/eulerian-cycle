@@ -27,7 +27,7 @@ export const EDGE_STYLES: cytoscape.Css.Edge = {
     const data = ele.data();
     return data.label !== undefined ? String(data.label) : "";
   },
-  "text-rotation": "autorotate",
+  // "text-rotation": "autorotate",
   "text-margin-y": -10,
   color: "#ffffff",
   "font-size": "12px",
@@ -218,6 +218,13 @@ export const graphStyles: cytoscape.StylesheetJson = [
 
   // ========= STYLES FOR DIJKSTRA ANIMATION ==========
   {
+    selector: "node.relaxed",
+    style: {
+      "background-color": "#98c379",
+      "border-color": "#98c379",
+    },
+  },
+  {
     selector: "node.visited",
     style: {
       "background-color": "#61afef",
@@ -225,10 +232,31 @@ export const graphStyles: cytoscape.StylesheetJson = [
     },
   },
   {
+    selector: "edge.relaxed",
+    style: {
+      "line-color": "#98c379",
+      "target-arrow-color": "#98c379",
+    },
+  },
+  {
     selector: "edge.visited",
     style: {
       "line-color": "#61afef",
       "target-arrow-color": "#61afef",
+    },
+  },
+  {
+    selector: "node.in-shortest-path",
+    style: {
+      "background-color": "#e5c07b", //orange
+      "border-color": "#e5c07b",
+    },
+  },
+  {
+    selector: "edge.in-shortest-path",
+    style: {
+      "line-color": "#e5c07b",
+      "target-arrow-color": "#e5c07b",
     },
   },
 

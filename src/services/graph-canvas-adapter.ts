@@ -12,6 +12,7 @@ import {
   NodePositionChange,
 } from "@/types/command";
 import { UpdateEdgePayload, UpdateNodePayload } from "@/types/service";
+import { DEFAULT_EDGE_WEIGHT } from "@/constant/graph-constants";
 
 export interface GraphCanvasCallbacks {
   onNodeAdd: (params: { renderedPosition: Position; position: Position }) => void;
@@ -115,6 +116,7 @@ export class GraphCanvasAdapter {
           id: addedEdge.id(),
           source: sourceNode.id(),
           target: targetNode.id(),
+          weight: DEFAULT_EDGE_WEIGHT, // Default weight for new edges
         });
       },
     );
@@ -391,6 +393,7 @@ export class GraphCanvasAdapter {
         source: edge.source().id(),
         target: edge.target().id(),
         label: edge.data("label"),
+        weight: edge.data("weight"),
       },
       style: {},
       classes: edge.classes(),

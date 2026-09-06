@@ -14,8 +14,7 @@ export const useAlgorithmOperations = () => {
   const setCurrentAlgorithm = useAlgorithmStore((state) => state.setCurrentAlgorithm);
   const setSteps = useAlgorithmStore((state) => state.setSteps);
   const setCurrentStepIndex = useAlgorithmStore((state) => state.setCurrentStepIndex);
-  const setStartNodeId = useAlgorithmStore((state) => state.setStartNodeId);
-  const setTargetNodeId = useAlgorithmStore((state) => state.setTargetNodeId);
+  const setAlgorithmParams = useAlgorithmStore((state) => state.setAlgorithmParams);
   const setIsAnimating = useAlgorithmStore((state) => state.setIsAnimating);
   const setIsDirected = useGraphDataStore((state) => state.setIsDirected);
   const setIsWeighted = useGraphDataStore((state) => state.setIsWeighted);
@@ -43,11 +42,16 @@ export const useAlgorithmOperations = () => {
     setIsAnimating(false);
   }, []);
 
-  const handleTargetNodeChange = useCallback((nodeId: string) => {
-    handleReset();
-    setTargetNodeId(nodeId);
-    setIsAnimating(false);
-  }, []);
+  const handleTargetNodeChange = useCallback(
+    (nodeId: string) => {
+      handleReset();
+      setAlgorithmParams(currentAlgorithm, {
+        targetNodeId: nodeId,
+      });
+      setIsAnimating(false);
+    },
+    [currentAlgorithm],
+  );
 
   const handleStartNodeChange = useCallback(
     (nodeId: string) => {
@@ -64,7 +68,9 @@ export const useAlgorithmOperations = () => {
       }
 
       handleReset();
-      setStartNodeId(nodeId);
+      setAlgorithmParams(currentAlgorithm, {
+        startNodeId: nodeId,
+      });
     },
     [currentAlgorithm, graphUtils],
   );

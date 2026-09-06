@@ -5,12 +5,12 @@ import { createGraphUtils } from "@/core/helpers/graph-utils";
 import { cn } from "@/utils/cn";
 import { useSmartScroll } from "@/hooks/use-smart-scroll";
 import JumpButton from "../../jump-button";
+import NodeElement from "../../node-element";
 
 function DijkstraStepTableRow({
   step,
   index,
   isActive,
-  graphUtils,
 }: {
   step: Step;
   index: number;
@@ -19,7 +19,6 @@ function DijkstraStepTableRow({
 }) {
   const rowRef = useSmartScroll(isActive);
   const element = step.elements[0];
-  const currentNode = step.currentNode || (element?.type === "node" ? element : undefined);
 
   return (
     <TableRow
@@ -32,14 +31,14 @@ function DijkstraStepTableRow({
         <JumpButton index={index} />
       </TableCell>
       <TableCell className="px-3 py-2 text-center">
-        {currentNode ? (
-          <span className="rounded border border-(--od-border) bg-(--od-bg-2) px-2 py-0.5 font-medium text-(--od-fg-0)">
-            {graphUtils.getNode(currentNode.id)?.label || currentNode.label}
-          </span>
+        {step.currentNode ? (
+          <NodeElement label={step.currentNode.label} />
         ) : element?.type === "edge" ? (
-          <span className="text-(--od-fg-1)">
-            {element.source.label} &rarr; {element.target.label}
-          </span>
+          <div className="flex items-center justify-center gap-1">
+            <NodeElement label={element.source.label} />
+            <span className="text-(--od-fg-2)">→</span>
+            <NodeElement label={element.target.label} />
+          </div>
         ) : (
           <span className="text-(--od-fg-2) italic">-</span>
         )}

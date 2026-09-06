@@ -1,3 +1,4 @@
+import { PathElementBuilder } from "@/core/helpers/path-element-builder";
 import { MinHeap } from "@/core/helpers/min-heap";
 import { GraphData } from "@/types/graph-data-store";
 import { createGraphUtils } from "../helpers/graph-utils";
@@ -35,6 +36,7 @@ export class Dijkstra {
     const distances = new Map<string, number>();
     const previousNodes = new Map<string, string | null>();
     const steps: Step[] = [];
+    const shortestPath: string[] = [];
 
     for (const node of this.graphData.nodes) {
       distances.set(node.id, node.id === startNodeId ? 0 : Infinity);
@@ -71,10 +73,21 @@ export class Dijkstra {
       const current = priorityQueue.pop();
       if (!current) break;
       const currentNode = this.graphUtils.getNode(current.id);
+      const previousNode = this.graphUtils.getNode(previousNodes.get(current.id) || "");
+      const visitedEdge = this.graphUtils.getEdges(
+        previousNode?.id || "",
+        currentNode?.id || "",
+      )[0];
 
       if (!currentNode) continue;
 
       if (currentNode.id === targetNodeId) {
+        let currentPathId = targetNodeId;
+        while (currentPathId) {
+          shortestPath.unshift(currentPathId);
+          currentPathId = previousNodes.get(currentPathId) || "";
+        }
+
         steps.push({
           currentNode: {
             type: "node",
@@ -99,38 +112,73 @@ export class Dijkstra {
         break;
       }
 
+      if (current.priority > distances.get(currentNode.id)!) {
+        // steps.push({
+        //   currentNode: {
+        //     type: "node",
+        //     id: currentNode.id,
+        //     label: currentNode.label || currentNode.id,
+        //     classes: ["visited"],
+        //   },
+        //   elements: [],
+        //   message: [
+        //     `Skipping node ${currentNode.label || currentNode.id} as a shorter path has already been found.`,
+        //   ],
+        //   ...snapshot(),
+        // });
+
+        continue;
+      }
+
       steps.push({
         currentNode: {
           type: "node",
-          id: current.id,
-          label: currentNode.id || current.id,
+          id: currentNode.id,
+          label: currentNode.label || currentNode.id,
           classes: ["visited"],
         },
         elements: [
           {
             type: "node",
-            id: current.id,
-            label: currentNode.id || current.id,
+            id: currentNode.id,
+            label: currentNode.label || currentNode.id,
             classes: ["visited"],
           },
-        ],
+          previousNode &&
+            visitedEdge &&
+            ({
+              type: "edge",
+              id: visitedEdge.id,
+              source: {
+                type: "node",
+                id: previousNode.id,
+                label: previousNode.label || previousNode.id,
+              },
+              target: {
+                type: "node",
+                id: currentNode.id,
+                label: currentNode.label || currentNode.id,
+              },
+              classes: ["visited"],
+            } satisfies Step["elements"][number]),
+        ].filter(Boolean) as Step["elements"],
         message: [`Processing node ${currentNode.label || currentNode.id}.`],
         highlightedPseudoCodeLineIds: [],
         ...snapshot(),
       });
 
-      const neighborIds = this.graphUtils.getNeighbors(current.id);
+      const neighborIds = this.graphUtils.getNeighbors(currentNode.id);
       for (const neighbor of neighborIds) {
-        const [edge] = this.graphUtils.getEdges(current.id, neighbor);
+        const [edge] = this.graphUtils.getEdges(currentNode.id, neighbor);
         if (!edge) continue;
 
-        const newDistance = distances.get(current.id)! + edge.weight;
+        const newDistance = distances.get(currentNode.id)! + edge.weight;
         if (newDistance < distances.get(neighbor)!) {
           const neighborNode = this.graphUtils.getNode(neighbor);
           if (!neighborNode) continue;
 
           distances.set(neighbor, newDistance);
-          previousNodes.set(neighbor, current.id);
+          previousNodes.set(neighbor, currentNode.id);
           priorityQueue.push({ id: neighbor, priority: newDistance });
 
           steps.push({
@@ -140,15 +188,21 @@ export class Dijkstra {
                 id: edge.id,
                 source: {
                   type: "node",
-                  id: current.id,
-                  label: currentNode.id || current.id,
+                  id: currentNode.id,
+                  label: currentNode.label || currentNode.id,
                 },
                 target: {
                   type: "node",
                   id: neighbor,
                   label: neighborNode.label || neighbor,
                 },
-                classes: ["visited"],
+                classes: ["relaxed"],
+              },
+              {
+                type: "node",
+                id: neighbor,
+                label: neighborNode.label || neighbor,
+                classes: ["relaxed"],
               },
             ],
             message: [
@@ -162,8 +216,11 @@ export class Dijkstra {
       }
     }
 
+    const pathElementBuilder = new PathElementBuilder(this.graphUtils);
+    const shortestPathElements = pathElementBuilder.build(shortestPath, ["in-shortest-path"]);
+
     steps.push({
-      elements: [],
+      elements: shortestPathElements,
       message: [`Dijkstra's algorithm completed.`],
       highlightedPseudoCodeLineIds: [],
       ...snapshot(),

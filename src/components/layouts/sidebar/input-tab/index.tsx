@@ -9,6 +9,7 @@ import { GRAPH_EXAMPLES, GraphExampleLine } from "@/constant/graph-examples";
 import { useGraphDataStore, useAlgorithmStore } from "@/stores";
 import { useCommandManager } from "@/hooks/use-command-manager";
 import { DEFAULT_EDGE_WEIGHT } from "@/constant/graph-constants";
+import { useAlgorithmOperations } from "@/hooks/use-algorithm-operations";
 
 const PLACEHOLDER_TEXT = `# one edge or alone node per line
 
@@ -46,6 +47,7 @@ function InputTab({ className }: { className?: string }) {
   const isDirected = useGraphDataStore((state) => state.isDirected);
   const isWeighted = useGraphDataStore((state) => state.isWeighted);
   const suggestedIndexRef = useRef<number | null>(null);
+  const { handleReset: handleResetStepIndex } = useAlgorithmOperations();
 
   const getStoreText = useCallback(
     () => graphToEdgeList(nodes, edges, isWeighted),
@@ -79,6 +81,7 @@ function InputTab({ className }: { className?: string }) {
       { nodes: parsedNodes, edges: parsedEdges, isDirected },
       currentAlgorithm!,
     );
+    handleResetStepIndex();
   };
 
   const handleCopy = () => {

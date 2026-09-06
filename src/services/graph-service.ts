@@ -196,6 +196,7 @@ class GraphService implements IGraphService {
           source: edge.data("source"),
           target: edge.data("target"),
           label: edge.data("label"),
+          weight: edge.data("weight"),
         }));
 
         headlessCy.destroy();

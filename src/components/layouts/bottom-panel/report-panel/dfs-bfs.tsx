@@ -10,11 +10,8 @@ function DfsBfsReport() {
   const edges = useGraphDataStore((state) => state.edges);
   const isDirected = useGraphDataStore((state) => state.isDirected);
   const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
-  const startNodeId = useAlgorithmStore((state) => state.startNodeId);
-  const currentTargetNodeId = useAlgorithmStore((state) => state.targetNodeId);
+  const algorithmParams = useAlgorithmStore((state) => state.algorithmParams);
   const executionResult = useAlgorithmStore((state) => state.executionResult);
-
-  console.log(currentTargetNodeId, "targetNodeId");
 
   const graphUtils = useMemo(
     () =>
@@ -38,12 +35,16 @@ function DfsBfsReport() {
     found = dfsExecutionResult.result?.found || false;
   }
 
-  const startNodeLabel = graphUtils.getNode(startNodeId || "")?.label;
-  const targetNodeLabel = graphUtils.getNode(currentTargetNodeId || "")?.label;
-
   if (currentAlgorithm !== "dfs" && currentAlgorithm !== "bfs") {
     return null;
   }
+
+  const startNodeLabel = graphUtils.getNode(
+    algorithmParams[currentAlgorithm]?.startNodeId || "",
+  )?.label;
+  const targetNodeLabel = graphUtils.getNode(
+    algorithmParams[currentAlgorithm]?.targetNodeId || "",
+  )?.label;
 
   return (
     <section>

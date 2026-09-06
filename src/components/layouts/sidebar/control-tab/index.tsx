@@ -24,7 +24,7 @@ function ControlTab({ className }: { className?: string }) {
 
   const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
   const isAnimating = useAlgorithmStore((state) => state.isAnimating);
-  const startNodeId = useAlgorithmStore((state) => state.startNodeId);
+  const algorithmParams = useAlgorithmStore((state) => state.algorithmParams);
   const {
     handleAlgorithmChange,
     handleStartNodeChange,
@@ -80,7 +80,7 @@ function ControlTab({ className }: { className?: string }) {
       <RunConfigSelect
         title="Starting Node"
         options={startNodeOptions}
-        currentValue={startNodeId || ""}
+        currentValue={algorithmParams[currentAlgorithm]?.startNodeId || ""}
         isAnimating={isAnimating}
         onSelect={handleStartNodeChange}
       />

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import cytoscape from "cytoscape";
 import edgehandles from "cytoscape-edgehandles";
 import FunctionalBar from "./functional-bar";

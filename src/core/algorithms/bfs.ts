@@ -216,7 +216,7 @@ export class BFS {
 
     // Construct the final step with the path highlighted
     const pathElementBuilder = new PathElementBuilder(this.utils);
-    const inPathElements = pathElementBuilder.build(path);
+    const inPathElements = pathElementBuilder.build(path, ["in-path"]);
 
     steps.push({
       elements: inPathElements,

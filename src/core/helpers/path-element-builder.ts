@@ -4,7 +4,7 @@ import { Step } from "@/types/algorithm-store";
 export class PathElementBuilder {
   constructor(private utils: ReturnType<typeof createGraphUtils>) {}
 
-  build(path: string[]): Step["elements"] {
+  build(path: string[], classes: string[]): Step["elements"] {
     const inPathElements: Step["elements"] = [];
 
     for (let i = 0; i < path.length; i++) {
@@ -16,7 +16,7 @@ export class PathElementBuilder {
           type: "node",
           id: sourceNodeId,
           label: sourceNode.label,
-          classes: ["in-path"],
+          classes: [...classes],
         });
       }
 
@@ -40,7 +40,7 @@ export class PathElementBuilder {
               id: targetNodeId,
               label: targetNode.label,
             },
-            classes: ["in-path"],
+            classes: [...classes],
             label: String(i + 1),
           });
         }
