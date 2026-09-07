@@ -48,6 +48,8 @@ interface IGraphService {
   highlightElement(elementId: string, className: string[], pulse?: boolean): void;
   applyLabelsToEdges(labels: Map<string, string>): void;
   clearLabelsFromEdges(params: { edgeIds?: string[]; all?: boolean }): void;
+  applyWeightsToEdges(weights: Map<string, string>): void;
+  clearWeightsFromEdges(params: { edgeIds?: string[]; all?: boolean }): void;
   toggleDirected(isDirected: boolean): void;
   applyStylesFromMap(styles: Map<string, Set<string>>): void;
   zoomGraph(type: "in" | "out"): void;
@@ -194,6 +196,7 @@ class GraphService implements IGraphService {
           source: edge.data("source"),
           target: edge.data("target"),
           label: edge.data("label"),
+          weight: edge.data("weight"),
         }));
 
         headlessCy.destroy();
@@ -220,8 +223,20 @@ class GraphService implements IGraphService {
     return this.visualizer.clearLabelsFromEdges(params);
   }
 
+  applyWeightsToEdges(weights: Map<string, string>) {
+    return this.visualizer.applyWeightsToEdges(weights);
+  }
+
+  clearWeightsFromEdges(params: { edgeIds?: string[]; all?: boolean }) {
+    return this.visualizer.clearWeightsFromEdges(params);
+  }
+
   toggleDirected(isDirected: boolean) {
     return this.visualizer.toggleDirected(isDirected);
+  }
+
+  toggleWeighted(isWeighted: boolean) {
+    return this.visualizer.toggleWeighted(isWeighted);
   }
 
   applyStylesFromMap(styles: Map<string, Set<string>>) {

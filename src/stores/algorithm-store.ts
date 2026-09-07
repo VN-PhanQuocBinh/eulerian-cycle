@@ -9,15 +9,16 @@ import { TarjanSCC } from "@/core/algorithms/tarjan-scc";
 import { EulerianCycle } from "@/core/algorithms/eulerian-cycle";
 import { DFS } from "@/core/algorithms/dfs";
 import { BFS } from "@/core/algorithms/bfs";
+import { Dijkstra } from "@/core/algorithms/dijkstra";
 import { findConnectedComponents as findConnectedComponentsAlgorithm } from "@/core/algorithms/connected-components";
 
-const INITIAL_ALGORITHM: GraphAlgorithm = "dfs";
+const INITIAL_ALGORITHM: GraphAlgorithm = "dijkstra";
 
 export const useAlgorithmStore = create<AlgorithmStore>()(
   devtools(
     (set, get) => ({
       // Constant values
-      ALGORITHMS_WITH_TARGET_NODE: ["dfs", "bfs"],
+      ALGORITHMS_WITH_TARGET_NODE: ["dfs", "bfs", "dijkstra"],
 
       // Algorithm state
       currentAlgorithm: INITIAL_ALGORITHM,
@@ -25,8 +26,6 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
       steps: [],
       currentStepIndex: -1,
       speed: 1,
-      startNodeId: null,
-      targetNodeId: null,
 
       // For further customization of algorithm parameters, we can use a generic setter
       algorithmParams: {
@@ -44,6 +43,10 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
           startNodeId: "",
           targetNodeId: "",
         },
+        dijkstra: {
+          startNodeId: "",
+          targetNodeId: "",
+        },
       } as AlgorithmParamsMap,
       executionResult: null,
 
@@ -54,20 +57,30 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
 
       setSteps: (steps: Step[]) => set({ steps }),
       setCurrentAlgorithm: (algorithm) => set({ currentAlgorithm: algorithm }),
-      setStartNodeId: (startNodeId) => set({ startNodeId }),
-      setTargetNodeId: (targetNodeId) => set({ targetNodeId }),
 
       // For further customization of algorithm parameters, we can use a generic setter
       setAlgorithmParams: (algo, params) => {
-        set((state) => ({
-          algorithmParams: {
-            ...state.algorithmParams,
-            [algo]: {
-              ...state.algorithmParams[algo],
-              ...params,
+        set((state) => {
+          const currentParams = state.algorithmParams[algo];
+
+          const hasChanged = Object.entries(params).some(
+            ([key, value]) => currentParams[key as keyof typeof currentParams] !== value,
+          );
+
+          if (!hasChanged) {
+            return state;
+          }
+
+          return {
+            algorithmParams: {
+              ...state.algorithmParams,
+              [algo]: {
+                ...currentParams,
+                ...params,
+              },
             },
-          },
-        }));
+          };
+        });
       },
       setExecutionResult: (result) => set({ executionResult: result }),
 
@@ -135,9 +148,8 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
       recalculateSteps: (data: GraphData) => {
         const {
           currentAlgorithm,
-          startNodeId,
-          targetNodeId,
-          setTargetNodeId,
+          algorithmParams,
+          setAlgorithmParams,
           setSteps,
           findSCCs,
           findConnectedComponents,
@@ -145,10 +157,12 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
           setExecutionResult,
         } = get();
 
-        const startNodeIdToUse = startNodeId || data.nodes[0]?.id || "";
-
         switch (currentAlgorithm) {
           case "connected-components": {
+            const startNodeIdToUse =
+              algorithmParams["connected-components"].startNodeId || data.nodes[0]?.id;
+            setAlgorithmParams("connected-components", { startNodeId: startNodeIdToUse });
+
             if (data.isDirected) {
               const result = findSCCs(data, startNodeIdToUse);
               setSteps(result.steps || []);
@@ -162,25 +176,53 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
             break;
           }
           case "eulerian-cycle": {
-            const result = findEulerianCycle(data, startNodeIdToUse);
+            const result = findEulerianCycle(
+              data,
+              algorithmParams["eulerian-cycle"].startNodeId || data.nodes[0]?.id,
+            );
             setSteps(result.steps || []);
             setExecutionResult(result);
             break;
           }
           case "dfs": {
             const engine = new DFS(data);
-            const result = engine.execute(startNodeIdToUse, targetNodeId || startNodeIdToUse);
+            const startNodeIdToUse = algorithmParams["dfs"].startNodeId || data.nodes[0]?.id;
+            const targetNodeIdToUse = algorithmParams["dfs"].targetNodeId || data.nodes[0]?.id;
 
-            setTargetNodeId(targetNodeId);
+            const result = engine.execute(startNodeIdToUse, targetNodeIdToUse);
+
+            setAlgorithmParams("dfs", {
+              startNodeId: startNodeIdToUse,
+              targetNodeId: targetNodeIdToUse,
+            });
             setSteps(result.steps || []);
             setExecutionResult(result);
             break;
           }
           case "bfs": {
             const engine = new BFS(data);
+            const startNodeIdToUse = algorithmParams["bfs"].startNodeId || data.nodes[0]?.id;
+            const targetNodeIdToUse = algorithmParams["bfs"].targetNodeId || startNodeIdToUse;
 
-            const result = engine.execute(startNodeIdToUse, targetNodeId || startNodeIdToUse);
-            setTargetNodeId(targetNodeId);
+            const result = engine.execute(startNodeIdToUse, targetNodeIdToUse);
+            setAlgorithmParams("bfs", {
+              startNodeId: startNodeIdToUse,
+              targetNodeId: targetNodeIdToUse,
+            });
+            setSteps(result.steps || []);
+            setExecutionResult(result);
+            break;
+          }
+          case "dijkstra": {
+            const engine = new Dijkstra(data);
+            const startNodeIdToUse = algorithmParams["dijkstra"].startNodeId || data.nodes[0]?.id;
+            const targetNodeIdToUse = algorithmParams["dijkstra"].targetNodeId;
+
+            const result =
+              targetNodeIdToUse !== startNodeIdToUse
+                ? engine.execute(startNodeIdToUse, targetNodeIdToUse)
+                : engine.execute(startNodeIdToUse);
+
             setSteps(result.steps || []);
             setExecutionResult(result);
             break;

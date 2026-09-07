@@ -71,7 +71,7 @@ export function NewSidebar({ isOpen, onOpenChange }: NewSidebarProps) {
       {isOpen && (
         <>
           <TabsContent value="input-tab" className="overflow-hidden">
-            <InputTab className="p-3 pl-0" />
+            <InputTab className="p-3 pl-1" />
           </TabsContent>
           <TabsContent value="control-tab" className="overflow-hidden">
             <ControlTab className="p-3 pl-0" />

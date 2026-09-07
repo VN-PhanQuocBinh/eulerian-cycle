@@ -33,7 +33,8 @@ export const useStepControl = () => {
       const elements = steps[nextIdx].elements;
 
       elements.forEach((elem) => {
-        graphService.highlightElement(elem.id, elem.classes, elem.type === "node");
+        const isPulse = elem.animations?.pulse === false ? false : elem.type === "node"; // Default pulse = true for nodes, false for edges
+        graphService.highlightElement(elem.id, elem.classes, isPulse);
         if (elem.type === "edge" && elem.label) {
           graphService.applyLabelsToEdges(new Map([[elem.id, elem.label]]));
         }

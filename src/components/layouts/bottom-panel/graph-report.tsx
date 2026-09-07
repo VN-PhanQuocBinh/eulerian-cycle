@@ -16,6 +16,7 @@ import { InfoRow } from "./report-panel/components/info-row";
 import ConnectedComponentReport from "./report-panel/connected-components";
 import EulerianCycleReport from "./report-panel/eulerian-cycle";
 import DfsBfsReport from "./report-panel/dfs-bfs";
+import DijkstraReport from "./report-panel/dijkstra";
 
 export function GraphReport() {
   const nodes = useGraphDataStore((state) => state.nodes);
@@ -134,6 +135,8 @@ export function GraphReport() {
       {currentAlgorithm === "eulerian-cycle" && <EulerianCycleReport />}
 
       {(currentAlgorithm === "dfs" || currentAlgorithm === "bfs") && <DfsBfsReport />}
+
+      {currentAlgorithm === "dijkstra" && <DijkstraReport />}
 
       {!currentAlgorithm && (
         <p className="text-center text-xs italic text-(--od-fg-2)">

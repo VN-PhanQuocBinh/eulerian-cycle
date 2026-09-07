@@ -63,4 +63,18 @@ export const ALGORITHM_LAYOUT_CONFIGS: Record<GraphAlgorithm, cytoscape.LayoutOp
     coolingFactor: 0.99,
     minTemp: 1.0,
   } as cytoscape.LayoutOptions,
+
+  dijkstra: {
+    name: "cose",
+    animate: true,
+    animationDuration: 600,
+    fit: true,
+    padding: 80,
+    randomize: false,
+    nodeRepulsion: () => 200000, // Đẩy các node xa nhau hơn để lộ rõ label weight trên edge
+    idealEdgeLength: () => 100, // Tăng độ dài cạnh giúp con số trọng số không bị che lấp
+    edgeElasticity: () => 100,
+    gravity: 60, // Giảm lực hút về tâm để đồ thị giãn rộng rãi
+    numIter: 1000,
+  } as cytoscape.LayoutOptions,
 };

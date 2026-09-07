@@ -52,7 +52,7 @@ export class BFS {
         "Initializing queue and visited set.",
       ],
       highlightedPseudoCodeLineIds: [1, [2, 3, 4]],
-      stack: [...queue],
+      queue: [...queue],
       visited: new Set(visited),
     });
 
@@ -70,7 +70,7 @@ export class BFS {
       ],
       message: [`Initialized queue with starting node ${startNode?.label || startNodeId}.`],
       highlightedPseudoCodeLineIds: [5, 6],
-      stack: [...queue],
+      queue: [...queue],
       visited: new Set(visited),
     });
 
@@ -97,10 +97,10 @@ export class BFS {
           ],
           message: [
             `Dequeue ${currentNode?.label || currentNodeId} from queue.`,
-            `Node ${currentNodeId} has already been visited. Skipping.`,
+            `Node ${currentNode?.label || currentNodeId} has already been visited. Skipping.`,
           ],
           highlightedPseudoCodeLineIds: [8, 9],
-          stack: [...queue],
+          queue: [...queue],
           visited: new Set(visited),
         });
         continue;
@@ -135,7 +135,7 @@ export class BFS {
             [8, 10],
             [11, 12],
           ],
-          stack: [...queue],
+          queue: [...queue],
           visited: new Set(visited),
         });
 
@@ -157,7 +157,7 @@ export class BFS {
           `Visiting node ${currentNode?.label || currentNodeId}.`,
         ],
         highlightedPseudoCodeLineIds: [[8, 10]],
-        stack: [...queue],
+        queue: [...queue],
         visited: new Set(visited),
       });
 
@@ -209,14 +209,14 @@ export class BFS {
           `Enqueued neighbor${neighborLabels.length > 1 ? "s" : ""}: ${neighborLabels.join(", ")} into the queue.`,
         ],
         highlightedPseudoCodeLineIds: [13, 14, [15, 16]],
-        stack: [...queue],
+        queue: [...queue],
         visited: new Set(visited),
       });
     }
 
     // Construct the final step with the path highlighted
     const pathElementBuilder = new PathElementBuilder(this.utils);
-    const inPathElements = pathElementBuilder.build(path);
+    const inPathElements = pathElementBuilder.build(path, ["in-path"]);
 
     steps.push({
       elements: inPathElements,
@@ -224,7 +224,7 @@ export class BFS {
         `BFS traversal from node ${startNode?.label || startNodeId} to node ${targetNode?.label || targetNodeId} completed.`,
       ],
       highlightedPseudoCodeLineIds: [17],
-      stack: [...queue],
+      queue: [...queue],
       visited: new Set(visited),
     });
 

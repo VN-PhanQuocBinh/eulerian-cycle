@@ -9,7 +9,7 @@ interface Props {
   steps: Step[];
 }
 
-export function DfsStepsTable({ steps }: Props) {
+export function DfsBfsStepsTable({ steps }: Props) {
   const currentStepIndex = useAlgorithmStore((state) => state.currentStepIndex);
   const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
 

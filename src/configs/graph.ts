@@ -4,7 +4,10 @@ export const NODE_STYLES: cytoscape.Css.Node = {
   "background-color": "#1e2227", // Tiệp màu nền nhưng tối hơn một chút
   "border-width": "2px",
   "border-color": "#abb2bf", // Viền xám sáng
-  label: "data(label)",
+  label: (ele: cytoscape.NodeSingular) => {
+    const data = ele.data();
+    return data.label !== undefined ? String(data.label) : "";
+  },
   color: "#ffffff", // Chữ trắng tinh để nổi bật
   "font-size": "14px",
   "text-valign": "center",
@@ -18,8 +21,14 @@ export const EDGE_STYLES: cytoscape.Css.Edge = {
   "line-color": "#b6bdca", // edge mặc định sáng hơn rõ rệt trên nền tối
   "target-arrow-color": "#b6bdca",
   "curve-style": "bezier",
+  "font-weight": "bold",
   "control-point-step-size": 40,
-  label: "data(label)",
+  label: (ele: cytoscape.EdgeSingular) => {
+    const data = ele.data();
+    return data.label !== undefined ? String(data.label) : "";
+  },
+  // "text-rotation": "autorotate",
+  "text-margin-y": -10,
   color: "#ffffff",
   "font-size": "12px",
 };
@@ -57,6 +66,19 @@ export const graphStyles: cytoscape.StylesheetJson = [
     selector: "edge[?isDirected]",
     style: {
       "target-arrow-shape": "triangle",
+    },
+  },
+  {
+    selector: "edge[?isWeighted]",
+    style: {
+      label: (ele: cytoscape.EdgeSingular) => {
+        const data = ele.data();
+        let finalLabel = data.label !== undefined ? String(data.label) : "";
+        if (data.weight !== undefined) {
+          finalLabel += ` (${data.weight})`;
+        }
+        return finalLabel;
+      },
     },
   },
   {
@@ -191,6 +213,64 @@ export const graphStyles: cytoscape.StylesheetJson = [
     style: {
       "line-color": "#98c379",
       "target-arrow-color": "#98c379",
+    },
+  },
+
+  // ========= STYLES FOR DIJKSTRA ANIMATION ==========
+  {
+    selector: "node.considering",
+    style: {
+      "background-color": "#e5c07b",
+      "border-color": "#e5c07b",
+    },
+  },
+  {
+    selector: "node.relaxed",
+    style: {
+      "background-color": "#98c379",
+      "border-color": "#98c379",
+    },
+  },
+  {
+    selector: "node.visited",
+    style: {
+      "background-color": "#61afef",
+      "border-color": "#61afef",
+    },
+  },
+  {
+    selector: "edge.considering",
+    style: {
+      "line-color": "#e5c07b",
+      "target-arrow-color": "#e5c07b",
+    },
+  },
+  {
+    selector: "edge.relaxed",
+    style: {
+      "line-color": "#98c379",
+      "target-arrow-color": "#98c379",
+    },
+  },
+  {
+    selector: "edge.visited",
+    style: {
+      "line-color": "#61afef",
+      "target-arrow-color": "#61afef",
+    },
+  },
+  {
+    selector: "node.in-shortest-path",
+    style: {
+      "background-color": "#e5c07b", //orange
+      "border-color": "#e5c07b",
+    },
+  },
+  {
+    selector: "edge.in-shortest-path",
+    style: {
+      "line-color": "#e5c07b",
+      "target-arrow-color": "#e5c07b",
     },
   },
 
