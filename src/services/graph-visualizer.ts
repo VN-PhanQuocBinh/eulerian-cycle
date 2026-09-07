@@ -33,8 +33,20 @@ export class GraphVisualizer {
     this.canvas.clearLabelsFromEdges(params);
   }
 
+  applyWeightsToEdges(weights: Map<string, string>) {
+    this.canvas.applyWeightsToEdges(weights);
+  }
+
+  clearWeightsFromEdges(params: { edgeIds?: string[]; all?: boolean }) {
+    this.canvas.clearWeightsFromEdges(params);
+  }
+
   toggleDirected(isDirected: boolean) {
     this.canvas.toggleDirected(isDirected);
+  }
+
+  toggleWeighted(isWeighted: boolean) {
+    this.canvas.toggleWeighted(isWeighted);
   }
 
   applyStylesFromMap(styles: Map<string, Set<string>>) {

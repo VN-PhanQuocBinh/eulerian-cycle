@@ -18,7 +18,13 @@ export function computeFinalStyles(steps: Step[], targetStepIndex: number): fina
       }
 
       const currentClasses = finalStyles.get(element.id)!;
-      element.classes.forEach((cls) => currentClasses.add(cls));
+      element.classes.forEach((cls) => {
+        if (cls.startsWith("-")) {
+          currentClasses.delete(cls.substring(1));
+        } else {
+          currentClasses.add(cls);
+        }
+      });
 
       if (element.type === "edge" && element.label) {
         finalLabels.set(element.id, element.label);

@@ -14,6 +14,7 @@ const algorithmOptions: Array<{ label: string; value: GraphAlgorithm }> = [
   { label: "Connected Components", value: "connected-components" },
   { label: "Depth-First Search (DFS)", value: "dfs" },
   { label: "Breadth-First Search (BFS)", value: "bfs" },
+  { label: "Dijkstra's Algorithm", value: "dijkstra" },
 ];
 
 function CollapsedBottomPanel() {

@@ -4,14 +4,26 @@ interface GraphTypeSelectProps {
   className?: string;
   isDirected: boolean;
   isAnimating: boolean;
+  label: string;
+  text: {
+    active: string;
+    inactive: string;
+  };
   onSelect: (isDirected: boolean) => void;
 }
 
-function GraphTypeSelect({ className, isDirected, isAnimating, onSelect }: GraphTypeSelectProps) {
+function GraphTypeSelect({
+  className,
+  isDirected,
+  isAnimating,
+  label,
+  text,
+  onSelect,
+}: GraphTypeSelectProps) {
   return (
     <section className={cn("", className)}>
       <h3 className="text-base font-semibold text-(--od-fg-0) mb-2 flex items-center gap-2">
-        Graph Type
+        {label}
       </h3>
 
       <div className="flex rounded-md border border-(--od-border) overflow-hidden">
@@ -26,7 +38,7 @@ function GraphTypeSelect({ className, isDirected, isAnimating, onSelect }: Graph
               : "bg-(--od-bg-0) text-(--od-fg-1) hover:bg-(--od-bg-3)",
           )}
         >
-          Undirected
+          {text.inactive}
         </button>
         <button
           type="button"
@@ -39,7 +51,7 @@ function GraphTypeSelect({ className, isDirected, isAnimating, onSelect }: Graph
               : "bg-(--od-bg-0) text-(--od-fg-1) hover:bg-(--od-bg-3)",
           )}
         >
-          Directed
+          {text.active}
         </button>
       </div>
     </section>

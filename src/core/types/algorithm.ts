@@ -30,3 +30,13 @@ export type EulerianCycleResult = AlgorithmResult<{
   cycle: string[];
   found: boolean;
 }>;
+
+export type DijkstraResult = AlgorithmResult<{
+  startNodeId: string;
+  targetNodeId?: string;
+  shortestPath?: string[];
+  shortestDistance?: number;
+  distances: Map<string, number>;
+  previousNodes: Map<string, string | null>;
+  found: boolean;
+}>;

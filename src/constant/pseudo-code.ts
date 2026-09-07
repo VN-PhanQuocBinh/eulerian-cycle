@@ -143,3 +143,37 @@ export const BFS_PSEUDOCODE: PseudoCodeLine[] = [
 
   { id: 17, text: "return path and found status", indent: 1 },
 ];
+
+export const DIJKSTRA_PSEUDOCODE: PseudoCodeLine[] = [
+  { id: 1, text: "procedure Dijkstra(Graph, startNodeId, targetNodeId)", indent: 0 },
+  { id: 2, text: "create map Distances and set all distances to infinity", indent: 1 },
+  { id: 3, text: "create map PreviousNodes and set all previous nodes to null", indent: 1 },
+  { id: 4, text: "set Distances[startNodeId] = 0", indent: 1 },
+  { id: 5, text: "create empty priority queue Q", indent: 1 },
+  { id: 6, text: "push (startNodeId, 0) onto Q", indent: 1 },
+
+  BLANK_LINE,
+
+  { id: 7, text: "while Q is not empty:", indent: 1 },
+  { id: 8, text: "(currentNode, distance) = pop minimum from Q", indent: 2 },
+  { id: 9, text: "if currentNode is already visited: continue", indent: 2 },
+  { id: 10, text: "mark currentNode as visited", indent: 2 },
+
+  BLANK_LINE,
+
+  { id: 11, text: "if currentNode == targetNodeId:", indent: 2 },
+  { id: 12, text: "reconstruct shortest path using PreviousNodes and break", indent: 3 },
+
+  BLANK_LINE,
+
+  { id: 13, text: "for each neighbor v of currentNode:", indent: 2 },
+  { id: 14, text: "calculate newDistance = Distances[currentNode] + weight(currentNode, v)", indent: 3 },
+  { id: 15, text: "if newDistance < Distances[v]:", indent: 3 },
+  { id: 16, text: "Distances[v] = newDistance", indent: 4 },
+  { id: 17, text: "PreviousNodes[v] = currentNode", indent: 4 },
+  { id: 18, text: "push (v, newDistance) onto Q", indent: 4 },
+
+  BLANK_LINE,
+
+  { id: 19, text: "return shortest path, distances, previous nodes, and found status", indent: 1 },
+];

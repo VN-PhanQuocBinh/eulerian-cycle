@@ -1,10 +1,11 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useAlgorithmStore, useGraphDataStore } from "@/stores";
 import { GraphAlgorithm } from "@/types/algorithm-store";
 import { graphService } from "@/services/graph-service";
 import { useCallback } from "react";
 import { useToast } from "@/components/ui/toast";
 import { createGraphUtils } from "@/core/helpers/graph-utils";
+import { isAlgorithmRequiresWeightedGraph } from "@/types/check-type";
 
 export const useAlgorithmOperations = () => {
   const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
@@ -14,10 +15,10 @@ export const useAlgorithmOperations = () => {
   const setCurrentAlgorithm = useAlgorithmStore((state) => state.setCurrentAlgorithm);
   const setSteps = useAlgorithmStore((state) => state.setSteps);
   const setCurrentStepIndex = useAlgorithmStore((state) => state.setCurrentStepIndex);
-  const setStartNodeId = useAlgorithmStore((state) => state.setStartNodeId);
-  const setTargetNodeId = useAlgorithmStore((state) => state.setTargetNodeId);
+  const setAlgorithmParams = useAlgorithmStore((state) => state.setAlgorithmParams);
   const setIsAnimating = useAlgorithmStore((state) => state.setIsAnimating);
   const setIsDirected = useGraphDataStore((state) => state.setIsDirected);
+  const setIsWeighted = useGraphDataStore((state) => state.setIsWeighted);
   const { showToast } = useToast();
   const graphUtils = useMemo(
     () =>
@@ -29,11 +30,26 @@ export const useAlgorithmOperations = () => {
     [nodes, edges, isDirected],
   );
 
-  const handleAlgorithmChange = useCallback((algorithm: GraphAlgorithm) => {
-    handleReset();
-    setSteps([]);
-    setCurrentAlgorithm(algorithm);
-  }, []);
+  const updateWeightedStatus = useCallback(() => {
+    if (isAlgorithmRequiresWeightedGraph(currentAlgorithm)) {
+      setIsWeighted(true);
+    }
+  }, [currentAlgorithm, setIsWeighted]);
+
+  useEffect(() => {
+    updateWeightedStatus();
+  }, [updateWeightedStatus]);
+
+  const handleAlgorithmChange = useCallback(
+    (algorithm: GraphAlgorithm) => {
+      handleReset();
+      setSteps([]);
+      setCurrentAlgorithm(algorithm);
+
+      updateWeightedStatus();
+    },
+    [updateWeightedStatus],
+  );
 
   const handleReset = useCallback(() => {
     graphService.resetGraph();
@@ -42,11 +58,16 @@ export const useAlgorithmOperations = () => {
     setIsAnimating(false);
   }, []);
 
-  const handleTargetNodeChange = useCallback((nodeId: string) => {
-    handleReset();
-    setTargetNodeId(nodeId);
-    setIsAnimating(false);
-  }, []);
+  const handleTargetNodeChange = useCallback(
+    (nodeId: string) => {
+      handleReset();
+      setAlgorithmParams(currentAlgorithm, {
+        targetNodeId: nodeId,
+      });
+      setIsAnimating(false);
+    },
+    [currentAlgorithm],
+  );
 
   const handleStartNodeChange = useCallback(
     (nodeId: string) => {
@@ -63,7 +84,9 @@ export const useAlgorithmOperations = () => {
       }
 
       handleReset();
-      setStartNodeId(nodeId);
+      setAlgorithmParams(currentAlgorithm, {
+        startNodeId: nodeId,
+      });
     },
     [currentAlgorithm, graphUtils],
   );
@@ -73,11 +96,17 @@ export const useAlgorithmOperations = () => {
     setIsDirected(directed);
   }, []);
 
+  const handleWeightedChange = useCallback((weighted: boolean) => {
+    handleReset();
+    setIsWeighted(weighted);
+  }, []);
+
   return {
     handleAlgorithmChange,
     handleStartNodeChange,
     handleTargetNodeChange,
     handleGraphTypeChange,
     handleReset,
+    handleWeightedChange,
   };
 };

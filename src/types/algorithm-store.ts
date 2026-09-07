@@ -3,10 +3,11 @@ import {
   BfsResult,
   ConnectedComponentsResult,
   EulerianCycleResult,
+  DijkstraResult,
 } from "@/core/types/algorithm";
 import { GraphData } from "./graph-data-store";
 
-export type GraphAlgorithm = "eulerian-cycle" | "connected-components" | "dfs" | "bfs";
+export type GraphAlgorithm = "eulerian-cycle" | "connected-components" | "dfs" | "bfs" | "dijkstra";
 export type RunMode = "step-by-step" | "continuous";
 
 export type StepNodeElement = {
@@ -24,7 +25,9 @@ export type StepEdgeElement = {
 };
 
 export type Step = {
-  elements: Array<(StepNodeElement | StepEdgeElement) & { classes: string[] }>;
+  elements: Array<
+    (StepNodeElement | StepEdgeElement) & { classes: string[]; animations?: { pulse?: boolean } } // Default pulse = true
+  >;
   message: string[];
   stack?: string[];
   queue?: string[];
@@ -37,6 +40,10 @@ export type Step = {
   dsc?: Map<string, number>;
   lowLink?: Map<string, number>;
 
+  // dijkstra
+  distances?: Map<string, number>;
+  previousNodes?: Map<string, string | null>;
+
   // Will set required after add pseudo code for connected components algorithm
   highlightedPseudoCodeLineIds?: Array<number | Array<number>>;
 };
@@ -45,7 +52,15 @@ export type AlgorithmExecutionResult =
   | DfsResult
   | BfsResult
   | ConnectedComponentsResult
-  | EulerianCycleResult;
+  | EulerianCycleResult
+  | DijkstraResult;
+
+type EnsureAlgorithms<T extends GraphAlgorithm> = T;
+export type AlgorithmWithTarget = EnsureAlgorithms<"dfs" | "bfs" | "dijkstra">;
+export type AlgorithmRequiresWeightedGraph = EnsureAlgorithms<"dijkstra">;
+
+export const ALGORITHMS_WITH_TARGET_NODE: AlgorithmWithTarget[] = ["dfs", "bfs", "dijkstra"];
+export const ALGORITHMS_REQUIRING_WEIGHTED_GRAPH: AlgorithmRequiresWeightedGraph[] = ["dijkstra"];
 
 export interface AlgorithmParamsMap {
   "eulerian-cycle": {
@@ -61,6 +76,10 @@ export interface AlgorithmParamsMap {
   bfs: {
     startNodeId: string;
     targetNodeId: string;
+  };
+  dijkstra: {
+    startNodeId: string;
+    targetNodeId?: string;
   };
 }
 
@@ -85,8 +104,6 @@ export interface AlgorithmStore {
   isAnimating: boolean;
   currentStepIndex: number;
   speed: number;
-  startNodeId: string | null;
-  targetNodeId: string | null;
   algorithmParams: AlgorithmParamsMap;
 
   executionResult: AlgorithmExecutionResult | null;
@@ -106,8 +123,6 @@ export interface AlgorithmStore {
   // Algorithm state operations
   setCurrentAlgorithm: (algorithm: GraphAlgorithm) => void;
   setSteps: (steps: Step[]) => void;
-  setStartNodeId: (startNodeId: string | null) => void;
-  setTargetNodeId: (targetNodeId: string | null) => void;
   setAlgorithmParams: <T extends GraphAlgorithm>(
     algo: T,
     params: Partial<AlgorithmParamsMap[T]>,
