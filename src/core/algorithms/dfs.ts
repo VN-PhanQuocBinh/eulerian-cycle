@@ -97,7 +97,7 @@ export class DFS {
           ],
           message: [
             `Pop ${currentNode?.label || currentNodeId} from stack.`,
-            `Node ${currentNodeId} has already been visited. Skipping.`,
+            `Node ${currentNode?.label || currentNodeId} has already been visited. Skipping.`,
           ],
           highlightedPseudoCodeLineIds: [8, 9],
           stack: [...stack],

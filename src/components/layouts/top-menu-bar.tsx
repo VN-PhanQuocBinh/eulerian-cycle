@@ -171,7 +171,7 @@ export default function TopMenuBar() {
         >
           {hotkeyLog.length > 0 &&
             hotkeyLog.map((log, index) => (
-              <div className="rounded-sm bg-(--od-bg-0) px-4 py-0.5" key={index}>
+              <div className="rounded-sm bg-(--od-bg-0) px-4" key={index}>
                 {log}
               </div>
             ))}
