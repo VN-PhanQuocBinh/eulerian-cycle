@@ -8,6 +8,7 @@ import {
   TARJAN_SCC_PSEUDOCODE,
   DFS_PSEUDOCODE,
   BFS_PSEUDOCODE,
+  DIJKSTRA_PSEUDOCODE,
 } from "@/constant/pseudo-code";
 import { PseudoCodeLine } from "@/types/pseudo-code";
 import { GraphAlgorithm } from "@/types/algorithm-store";
@@ -22,7 +23,7 @@ const pseudoCodeMap: Record<GraphAlgorithm | "strongly-connected-components", Ps
   "strongly-connected-components": TARJAN_SCC_PSEUDOCODE,
   dfs: DFS_PSEUDOCODE,
   bfs: BFS_PSEUDOCODE,
-  dijkstra: [], // Placeholder for Dijkstra's pseudo-code, can be filled in later
+  dijkstra: DIJKSTRA_PSEUDOCODE,
 };
 
 export function PseudoCodeViewer({ className }: PseudoCodeViewerProps) {
@@ -116,11 +117,13 @@ export function PseudoCodeViewer({ className }: PseudoCodeViewerProps) {
               className={cn(
                 "flex items-stretch border border-transparent transition-colors duration-200",
                 {
-                  "bg-(--od-bg-3) ": isActive,
+                  "bg-(--od-green)/15 ": isActive,
                 },
               )}
             >
-              <span className="mr-4 inline-block w-8 shrink-0 self-center select-none text-right text-(--od-fg-2)">
+              <span className={cn("mr-4 inline-block w-8 shrink-0 self-center select-none text-right text-(--od-fg-2)", {
+                "text-(--od-green) font-semibold": isActive,
+              })}>
                 {index + 1}
               </span>
 
@@ -132,48 +135,6 @@ export function PseudoCodeViewer({ className }: PseudoCodeViewerProps) {
                   className={cn("text-(--od-fg-1)", {
                     "font-semibold text-(--od-fg-0)": isActive,
                   })}
-                >
-                  {line.text}
-                </span>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-
-  return (
-    <div
-      className={cn(
-        "h-full overflow-y-auto custom-scrollbar rounded-md border border-(--od-border) bg-(--od-bg-1)",
-        className,
-      )}
-    >
-      <div className="p-4 font-mono text-sm text-(--od-fg-1)">
-        {lines.length === 0 && (
-          <div className="py-8 text-center text-(--od-fg-2)">No pseudo code available.</div>
-        )}
-
-        {lines.map((line, index) => {
-          const isActive = currentHighlightedIds.includes(line.id);
-
-          return (
-            <div
-              key={String(line.id) + line.text}
-              className={cn("flex border border-transparent px-3 transition-colors duration-200", {
-                "bg-(--od-bg-3) ": isActive,
-              })}
-            >
-              <span className="mr-4 inline-block w-8 shrink-0 self-center select-none text-right text-(--od-fg-2)">
-                {index + 1}
-              </span>
-              <div className="" style={{ paddingLeft: String((line.indent - 1) * 24) + "px" }}>
-                <span
-                  className={cn("text-(--od-fg-1) border-l py-1", {
-                    "font-semibold text-(--od-fg-0)": isActive,
-                  })}
-                  style={{ paddingLeft: "24px" }}
                 >
                   {line.text}
                 </span>

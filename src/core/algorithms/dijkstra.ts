@@ -57,7 +57,7 @@ export class Dijkstra {
         `Initialized distances and previous nodes for all nodes.`,
         `Added start node ${this.graphUtils.getNode(startNodeId)?.label || startNodeId} to the priority queue.`,
       ],
-      highlightedPseudoCodeLineIds: [],
+      highlightedPseudoCodeLineIds: [1, [2, 3, 4], [5, 6]],
       ...snapshot(),
     });
 
@@ -77,6 +77,20 @@ export class Dijkstra {
       if (!currentNode) continue;
 
       if (visited.has(currentNode.id)) {
+        steps.push({
+          currentNode: {
+            type: "node",
+            id: currentNode.id,
+            label: currentNode.label || currentNode.id,
+            classes: ["visited"],
+          },
+          elements: [],
+          message: [
+            `Node ${currentNode.label || currentNode.id} has already been visited. Skipping...`,
+          ],
+          highlightedPseudoCodeLineIds: [7, 9],
+          ...snapshot(),
+        });
         continue;
       }
 
@@ -114,7 +128,7 @@ export class Dijkstra {
           message: [
             `Target node ${targetNode?.label || targetNode?.id} found. Dijkstra's algorithm completed.`,
           ],
-          highlightedPseudoCodeLineIds: [],
+          highlightedPseudoCodeLineIds: [7, [8, 10], 11, 12],
           ...snapshot(),
         });
         break;
@@ -161,7 +175,7 @@ export class Dijkstra {
           })),
         ].filter(Boolean) as Step["elements"],
         message: [`Processing node ${currentNode.label || currentNode.id}.`],
-        highlightedPseudoCodeLineIds: [],
+        highlightedPseudoCodeLineIds: [7, [8, 10]],
         ...snapshot(),
       });
 
@@ -213,7 +227,7 @@ export class Dijkstra {
             classes: ["-relaxed", "considering"],
           })),
           message: [`Considering node ${neighborNode.label || neighbor}.`],
-          highlightedPseudoCodeLineIds: [],
+          highlightedPseudoCodeLineIds: [13, 14],
           ...snapshot(),
         });
 
@@ -232,7 +246,7 @@ export class Dijkstra {
               `Updated distance for node ${neighborNode.label || neighbor} to ${newDistance}.`,
               `Previous node is now ${currentNode.label || currentNode.id}.`,
             ],
-            highlightedPseudoCodeLineIds: [],
+            highlightedPseudoCodeLineIds: [15, [16, 17], 18],
             ...snapshot(),
           });
         } else {
@@ -255,7 +269,7 @@ export class Dijkstra {
     steps.push({
       elements: shortestPathElements,
       message: [`Dijkstra's algorithm completed.`],
-      highlightedPseudoCodeLineIds: [],
+      highlightedPseudoCodeLineIds: [19],
       ...snapshot(),
     });
 
