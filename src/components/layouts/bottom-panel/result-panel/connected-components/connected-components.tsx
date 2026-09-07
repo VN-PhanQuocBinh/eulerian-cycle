@@ -24,7 +24,7 @@ export function ConnectedComponentsStepsTable({ steps }: Props) {
 
   if (steps.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-400 text-sm">
+      <div className="text-center py-8 text-(--gl-text-muted) text-sm">
         No steps to display. Run the algorithm first.
       </div>
     );
@@ -55,16 +55,16 @@ export function ConnectedComponentsStepsTable({ steps }: Props) {
   });
 
   return (
-    <div className="h-full overflow-y-auto custom-scrollbar bg-(--od-bg-0)">
-      <Table className="text-[#ABB2BF]">
+    <div className="h-full overflow-y-auto custom-scrollbar bg-(--gl-bg-base)">
+      <Table className="text-(--gl-text-main)">
         <TableHeader>
-          <TableRow className="border-b border-[#3E4451]">
-            <TableHead className="w-10 bg-[#282C34] text-[#61AFEF]">Step</TableHead>
-            <TableHead className="bg-[#282C34] text-[#61AFEF] text-center">Element</TableHead>
-            <TableHead className="bg-[#282C34] text-[#61AFEF]">Component</TableHead>
-            <TableHead className="bg-[#282C34] text-[#61AFEF]">Visited Nodes</TableHead>
-            <TableHead className="bg-[#282C34] text-[#61AFEF]">Queue</TableHead>
-            <TableHead className="bg-[#282C34] text-[#61AFEF]">Explain</TableHead>
+          <TableRow className="border-b border-(--gl-border)">
+            <TableHead className="w-10 bg-(--gl-bg-subtle) text-(--gl-blue-dark)">Step</TableHead>
+            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-blue-dark) text-center">Element</TableHead>
+            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-blue-dark)">Component</TableHead>
+            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-blue-dark)">Visited Nodes</TableHead>
+            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-blue-dark)">Queue</TableHead>
+            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-blue-dark)">Explain</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

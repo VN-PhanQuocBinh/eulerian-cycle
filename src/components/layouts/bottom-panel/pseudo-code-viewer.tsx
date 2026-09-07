@@ -99,13 +99,13 @@ export function PseudoCodeViewer({ className }: PseudoCodeViewerProps) {
   return (
     <div
       className={cn(
-        "h-full overflow-y-auto custom-scrollbar rounded-md border border-(--od-border) bg-(--od-bg-0)",
+        "h-full overflow-y-auto custom-scrollbar rounded-md border border-(--gl-border) bg-(--gl-bg-base)",
         className,
       )}
     >
-      <div className="p-3 font-mono text-sm text-(--od-fg-1)">
+      <div className="p-3 font-mono text-sm text-(--gl-text-main)">
         {lines.length === 0 && (
-          <div className="py-8 text-center text-(--od-fg-2)">No pseudo code available.</div>
+          <div className="py-8 text-center text-(--gl-text-muted)">No pseudo code available.</div>
         )}
 
         {lines.map((line, index) => {
@@ -117,23 +117,23 @@ export function PseudoCodeViewer({ className }: PseudoCodeViewerProps) {
               className={cn(
                 "flex items-stretch border border-transparent transition-colors duration-200",
                 {
-                  "bg-(--od-green)/15 ": isActive,
+                  "bg-(--gl-green-soft) ": isActive,
                 },
               )}
             >
-              <span className={cn("mr-4 inline-block w-8 shrink-0 self-center select-none text-right text-(--od-fg-2)", {
-                "text-(--od-green) font-semibold": isActive,
+              <span className={cn("mr-4 inline-block w-8 shrink-0 self-center select-none text-right text-(--gl-text-muted)", {
+                "text-(--gl-green-dark) font-semibold": isActive,
               })}>
                 {index + 1}
               </span>
 
               <div className="flex items-center flex-1">
                 {Array.from({ length: line.indent }).map((_, i) => (
-                  <div key={i} className="h-full border-l border-(--od-border) mr-6 py-1"></div>
+                  <div key={i} className="h-full border-l border-(--gl-border) mr-6 py-1"></div>
                 ))}
                 <span
-                  className={cn("text-(--od-fg-1)", {
-                    "font-semibold text-(--od-fg-0)": isActive,
+                  className={cn("text-(--gl-text-main)", {
+                    "font-semibold text-(--gl-text-main)": isActive,
                   })}
                 >
                   {line.text}

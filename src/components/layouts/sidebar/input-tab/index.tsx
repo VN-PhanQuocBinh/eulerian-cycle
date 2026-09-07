@@ -124,70 +124,74 @@ function InputTab({ className }: { className?: string }) {
   }, [isDirected, isWeighted, currentAlgorithm]);
 
   return (
-    <div className={cn("flex flex-col h-full gap-3 bg-(--od-bg-1)", className)}>
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold text-gray-300 uppercase tracking-wide">
-          Edge List
-        </span>
-      </div>
-
-      <div className="relative group flex-1 w-full">
-        <textarea
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          spellCheck={false}
-          placeholder={PLACEHOLDER_TEXT}
-          className={cn(
-            " w-full h-full resize-none rounded-md border border-gray-600 px-3 py-2 text-sm font-mono placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-transparent bg-(--od-bg-0) text-white",
-            {
-              "animate-suggest-flash": suggested,
-            },
-          )}
-        />
-        {text && (
-          <Button
-            variant="outline"
-            size="icon"
-            className="absolute top-2 right-2 opacity-0 bg-[#4d5565] group-hover:opacity-100 transition-opacity"
-            onClick={handleCopy}
-            disabled={copyStatus === "success"}
-          >
-            {copyStatus === "success" ? (
-              <Check strokeWidth={3} className="size-4" />
-            ) : (
-              <Copy className="size-4" />
-            )}
-          </Button>
-        )}
-      </div>
-
-      <Button
-        variant="secondary"
-        size="sm"
-        className="min-w-[120px]"
-        onClick={handleSuggest}
-        disabled={suggested}
+      <div
+        className={cn("flex flex-col h-full gap-3 bg-(--gl-bg-surface) ", className)}
       >
-        <WandSparkles className={cn("transition-transform", suggested && "animate-suggest-spin")} />
-        Suggest Graph
-      </Button>
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-semibold text-(--gl-text-main) uppercase tracking-wide">
+            Edge List
+          </span>
+        </div>
 
-      <div className=" flex flex-wrap gap-2 pt-4 border-t border-(--od-fg-2)">
+        <div className="relative group flex-1 w-full">
+          <textarea
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            spellCheck={false}
+            placeholder={PLACEHOLDER_TEXT}
+            className={cn(
+              " w-full h-full resize-none rounded-md border border-(--gl-border) px-3 py-2 text-sm font-mono placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-(--gl-blue-dark) focus:border-transparent bg-(--gl-bg-base) text-(--gl-text-main)",
+              {
+                "animate-suggest-flash": suggested,
+              },
+            )}
+          />
+          {text && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="absolute top-2 right-2 opacity-0 bg-(--gl-bg-subtle) group-hover:opacity-100 transition-opacity"
+              onClick={handleCopy}
+              disabled={copyStatus === "success"}
+            >
+              {copyStatus === "success" ? (
+                <Check strokeWidth={3} className="size-4" />
+              ) : (
+                <Copy className="size-4" />
+              )}
+            </Button>
+          )}
+        </div>
+
         <Button
           variant="secondary"
           size="sm"
-          className="flex-1 min-w-[120px]"
-          onClick={handleReset}
+          className="min-w-[120px]"
+          onClick={handleSuggest}
+          disabled={suggested}
         >
-          <RotateCcw />
-          Reset
+          <WandSparkles
+            className={cn("transition-transform", suggested && "animate-suggest-spin")}
+          />
+          Suggest Graph
         </Button>
-        <Button size="sm" className="flex-1 min-w-[120px]" onClick={handleSync}>
-          <RefreshCw />
-          Sync
-        </Button>
+
+        <div className=" flex flex-wrap gap-2 pt-4 border-t border-(--gl-text-muted)">
+          <Button
+            variant="secondary"
+            size="sm"
+            className="flex-1 min-w-[120px]"
+            onClick={handleReset}
+          >
+            <RotateCcw />
+            Reset
+          </Button>
+          <Button size="sm" className="flex-1 min-w-[120px]" onClick={handleSync}>
+            <RefreshCw />
+            Sync
+          </Button>
+        </div>
       </div>
-    </div>
   );
 }
 

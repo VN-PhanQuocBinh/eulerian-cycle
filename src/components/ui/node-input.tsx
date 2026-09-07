@@ -52,7 +52,7 @@ export const NodeInput = forwardRef<HTMLDivElement, NodeInputProps>(
     return (
       <div
         ref={internalRef}
-        className="absolute -translate-1/2 bg-[#3b82f6] text-white rounded-full size-10 flex justify-center"
+        className="absolute -translate-1/2 bg-(--gl-blue-dark) text-(--gl-text-main) rounded-full size-10 flex justify-center"
         id="node-input"
         style={{
           scale: zoomLevel,
@@ -62,7 +62,7 @@ export const NodeInput = forwardRef<HTMLDivElement, NodeInputProps>(
       >
         <div
           contentEditable
-          className="bg-white rounded-full drop-shadow-lg drop-shadow-black outline-none text-gray-800 w-max max-w-20 min-w-10 inline-flex items-center justify-center px-1"
+          className="bg-(--gl-bg-surface) rounded-full shadow-lg outline-none text-(--gl-text-main) w-max max-w-20 min-w-10 inline-flex items-center justify-center px-1"
           ref={ref}
         />
       </div>

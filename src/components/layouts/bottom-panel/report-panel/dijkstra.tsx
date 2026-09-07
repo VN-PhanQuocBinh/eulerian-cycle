@@ -47,7 +47,7 @@ function DijkstraReport() {
     <section>
       <SectionTitle>Dijkstra Report</SectionTitle>
       <div className="w-full flex flex-row gap-3">
-        <div className="flex-1 rounded-md border border-(--od-border) bg-(--od-bg-1) px-3 py-1">
+        <div className="flex-1 rounded-md border border-(--gl-border) bg-(--gl-bg-surface) px-3 py-1">
           <InfoRow
             label="Start Node"
             value={graphUtils.getNode(dijkstraResult?.startNodeId || "")?.label || "N/A"}
@@ -60,9 +60,9 @@ function DijkstraReport() {
             label="Path Found"
             value={
               found ? (
-                <span className="text-(--od-green)">Yes</span>
+                <span className="text-(--gl-green-dark)">Yes</span>
               ) : (
-                <span className="text-(--od-red)">No</span>
+                <span className="text-(--gl-red-dark)">No</span>
               )
             }
           />
@@ -86,10 +86,10 @@ function DijkstraReport() {
           )}
         </div>
 
-        <div className="min-w-0 flex-1 overflow-hidden rounded-md border border-(--od-border) bg-(--od-bg-1)">
+        <div className="min-w-0 flex-1 overflow-hidden rounded-md border border-(--gl-border) bg-(--gl-bg-surface)">
           <Table className="w-full text-sm">
             <TableHeader>
-              <TableRow className="border-b border-(--od-border)">
+              <TableRow className="border-b border-(--gl-border)">
                 <TableHead>Node</TableHead>
                 <TableHead>Distance</TableHead>
                 <TableHead>Previous Node</TableHead>

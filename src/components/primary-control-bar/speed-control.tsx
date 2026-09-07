@@ -25,9 +25,9 @@ function SpeedControl({ className, speed, disabled, setSpeed }: SpeedControlProp
     <Select.Root value={normalizedValue} onValueChange={(value) => setSpeed(Number(value))}>
       <Select.Trigger
         className={cn(
-          "h-[42px] min-w-[92px] px-3 rounded-lg border border-slate-200 bg-white text-slate-700",
+          "h-[42px] min-w-[92px] px-3 rounded-lg border border-(--gl-border) bg-(--gl-bg-surface) text-(--gl-text-main)",
           "flex items-center justify-between gap-2 text-sm font-medium transition-all",
-          "hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500",
+          "hover:bg-(--gl-bg-subtle) focus:outline-none focus:ring-2 focus:ring-(--gl-blue-dark)",
           "disabled:pointer-events-none disabled:opacity-50",
           className,
         )}
@@ -40,11 +40,11 @@ function SpeedControl({ className, speed, disabled, setSpeed }: SpeedControlProp
         </span>
 
         <Select.Icon>
-          <ChevronDown size={14} className="text-slate-400" />
+          <ChevronDown size={14} className="text-(--gl-text-muted)" />
         </Select.Icon>
       </Select.Trigger>
 
-      <SelectContent position="popper" side="top" sideOffset={8} align="center" className="bg-(--od-bg-0)">
+      <SelectContent position="popper" side="top" sideOffset={8} align="center" className="bg-(--gl-bg-base)">
         <Select.Viewport className="p-1">
           {SPEED_VALUES.map((value) => (
             <SelectItem key={String(value)} value={String(value)}>

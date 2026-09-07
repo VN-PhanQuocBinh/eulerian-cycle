@@ -62,8 +62,8 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
     <TableRow
       key={index}
       ref={rowRef}
-      className={cn("group border-b border-border hover:bg-(--od-bg-1)", {
-        "bg-(--od-bg-2)! border-l-4 border-l-(--od-blue)": isActive,
+      className={cn("group border-b border-border hover:bg-(--gl-bg-surface)", {
+        "bg-(--gl-bg-subtle)! border-l-4 border-l-(--gl-blue-dark)": isActive,
       })}
     >
       {/* Step Number */}
@@ -77,7 +77,7 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
       {/* Element */}
       <TableCell className="px-3 py-2 text-center text-nowrap">
         {element?.type === "node" ? (
-          <span className="px-2 py-0.5 rounded border border-border bg-(--od-bg-2) text-foreground">
+          <span className="px-2 py-0.5 rounded border border-border bg-(--gl-bg-subtle) text-foreground">
             {element.label}
           </span>
         ) : element?.type === "edge" ? (
@@ -85,7 +85,7 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
             {element.source.label} → {element.target.label}
           </span>
         ) : (
-          <span className="text-(--od-fg-1) italic">_</span>
+          <span className="text-(--gl-text-main) italic">_</span>
         )}
       </TableCell>
 
@@ -94,7 +94,7 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
         {componentIndex >= 0 && (
           <span
             className={cn(
-              "px-2 py-0.5 rounded border border-border bg-(--od-bg-1) font-medium text-nowrap",
+              "px-2 py-0.5 rounded border border-border bg-(--gl-bg-surface) font-medium text-nowrap",
             )}
             style={{ color: componentColor }}
           >
@@ -112,7 +112,7 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
                 {visitedNodes.map((nodeLabel, idx) => (
                   <span
                     key={nodeLabel + idx}
-                    className="px-1.5 py-0.5 rounded text-xs border border-border bg-(--od-bg-1) text-(--od-fg-1)"
+                    className="px-1.5 py-0.5 rounded text-xs border border-border bg-(--gl-bg-surface) text-(--gl-text-main)"
                   >
                     {nodeLabel}
                   </span>
@@ -121,7 +121,7 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
               <CopyButton text={arrayToString(visitedNodes)} />
             </>
           ) : (
-            <span className="text-(--od-fg-1) italic">No nodes visited</span>
+            <span className="text-(--gl-text-main) italic">No nodes visited</span>
           )}
         </div>
       </TableCell>
@@ -135,7 +135,7 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
                 {queueNodes.map((node) => (
                   <span
                     key={node.id + Math.random()}
-                    className="size-5 w-max px-1.5 py-0.5 rounded text-xs border border-(--od-border) bg-(--od-bg-1) text-(--od-fg-1)"
+                    className="size-5 w-max px-1.5 py-0.5 rounded text-xs border border-(--gl-border) bg-(--gl-bg-surface) text-(--gl-text-main)"
                   >
                     {node?.label}
                   </span>
@@ -144,13 +144,13 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
               <CopyButton text={arrayToString(queueNodes.map((node) => node?.label))} />
             </>
           ) : (
-            <span className="text-(--od-fg-1) italic">Empty Queue</span>
+            <span className="text-(--gl-text-main) italic">Empty Queue</span>
           )}
         </div>
       </TableCell>
 
       {/* Message */}
-      <TableCell className="px-3 py-2 text-[#ABB2BF] text-left">
+      <TableCell className="px-3 py-2 text-(--gl-text-main) text-left">
         {step.message?.map((msg, idx) => (
           <div key={idx}>- {msg}</div>
         ))}

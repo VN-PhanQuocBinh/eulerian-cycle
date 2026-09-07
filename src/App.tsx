@@ -44,7 +44,7 @@ function AppContent() {
   };
 
   return (
-    <div className="flex h-screen w-screen flex-col overflow-hidden bg-(--od-bg-0) text-(--od-fg-0)">
+    <div className="flex h-screen w-screen flex-col overflow-hidden bg-(--gl-bg-base) text-(--gl-text-main)">
       <TopMenuBar />
 
       <div className="flex-1 overflow-hidden">

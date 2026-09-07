@@ -8,15 +8,16 @@ import SpeedControl from "./speed-control";
 import { useToast } from "../ui/toast";
 import { useRegisterHotkey } from "@/hooks/use-register-hotkey";
 import { HOTKEYS_CONFIG } from "@/configs/hotkeys-config";
+import { cn } from "@/utils/cn";
 
 export const BASE_ANIMATION_SPEED = 2000; // in milliseconds
 
 function Separator() {
-  return <div className="w-px min-h-full bg-(--od-border)" />;
+  return <div className="w-px min-h-full bg-(--gl-border)" />;
 }
 
-function ButtonGroup({ children }: { children: ReactNode }) {
-  return <div className="flex items-center py-1 gap-1">{children}</div>;
+function ButtonGroup({ children, classNames }: { children: ReactNode; classNames?: string }) {
+  return <div className={cn("flex items-center py-1 gap-1", classNames)}>{children}</div>;
 }
 
 function FloatintPrimaryControl() {
@@ -108,20 +109,22 @@ function FloatintPrimaryControl() {
   };
 
   return (
-    <div className="flex items-center gap-1 rounded-md border-2 border-(--od-border) bg-(--od-bg-2) px-1 shadow-md">
-      <SpeedControl
-        speed={speed}
-        disabled={false}
-        setSpeed={setSpeed}
-        className="border-(--od-border) bg-(--od-bg-2) text-(--od-fg-1) hover:bg-(--od-bg-3) focus:ring-(--od-blue)"
-      />
+    <div className="flex items-center gap-1 rounded-md bg-(--gl-bg-surface) px-1 drop-shadow-md">
+      {/* <div className="py-1"> */}
+        <SpeedControl
+          speed={speed}
+          disabled={false}
+          setSpeed={setSpeed}
+          className=" border-(--gl-border) text-(--gl-text-main) hover:bg-(--gl-bg-subtle)/50 focus:ring-(--gl-blue-dark)"
+        />
+      {/* </div> */}
 
-      <ButtonGroup>
+      <ButtonGroup classNames="py-0">
         <FunctionButton
           tooltipContent="Backward"
           icon={SkipBack}
           side="top"
-          className="border border-(--od-border) text-(--od-fg-1) hover:bg-(--od-bg-3)"
+          className="bg-transparent border border-(--gl-border) text-(--gl-text-main) hover:bg-(--gl-bg-subtle)"
           onClick={backward}
           disabled={!canBackward}
         />
@@ -130,14 +133,14 @@ function FloatintPrimaryControl() {
           tooltipContent="Toggle Run"
           icon={isAnimating ? Pause : Play}
           side="top"
-          className="border border-(--od-blue) bg-(--od-blue) text-(--od-fg-0) not-disabled:hover:bg-(--od-blue)/50 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="border border-(--gl-blue-dark) bg-(--gl-blue-dark) text-(--gl-text-main) not-disabled:hover:bg-(--gl-blue-dark)/50 disabled:opacity-50 disabled:cursor-not-allowed"
         />
         <FunctionButton
           onClick={forward}
           tooltipContent="Forward"
           icon={SkipForward}
           side="top"
-          className="border border-(--od-border) text-(--od-fg-1) hover:bg-(--od-bg-3)"
+          className="bg-transparent border border-(--gl-border) text-(--gl-text-main) hover:bg-(--gl-bg-subtle)"
           disabled={!canForward}
         />
       </ButtonGroup>
@@ -149,7 +152,7 @@ function FloatintPrimaryControl() {
         icon={RotateCcw}
         side="top"
         onClick={handleReset}
-        className="border border-(--od-border) text-(--od-fg-1) hover:bg-(--od-bg-3)"
+        className="border border-(--gl-border) text-(--gl-text-main) hover:bg-(--gl-bg-subtle)"
       />
     </div>
   );

@@ -40,7 +40,7 @@ function CollapsedBottomPanel() {
   };
 
   return (
-    <div className="flex items-stretch gap-1 rounded-md border-2 border-(--od-border) bg-(--od-bg-2) px-1 shadow-md">
+    <div className="flex items-stretch gap-1 rounded-md bg-(--gl-bg-surface) px-1 drop-shadow-md">
       <div className="flex items-stretch gap-1 py-1">
         <div className="h-full min-w-52">
           <Select.Root
@@ -48,10 +48,10 @@ function CollapsedBottomPanel() {
             onValueChange={(value) => handleAlgorithmChange(value as GraphAlgorithm)}
             disabled={isAnimating}
           >
-            <Select.Trigger className="h-full w-full flex items-center gap-2 justify-between rounded-sm border border-(--od-border) outline-none hover:bg-(--od-bg-1) px-3 text-sm font-semibold text-(--od-yellow) hover:border-(--od-border-strong) disabled:opacity-60">
+            <Select.Trigger className="h-full w-full flex items-center gap-2 justify-between rounded-sm border border-(--gl-border) outline-none hover:bg-(--gl-bg-subtle) px-3 text-sm font-semibold text-(--gl-amber-dark) hover:border-(--gl-border) disabled:opacity-60">
               <Select.Value />
               <Select.Icon>
-                <ChevronDown size={14} strokeWidth={4} className="text-(--od-fg-2) " />
+                <ChevronDown size={14} strokeWidth={4} className="text-(--gl-text-muted) " />
               </Select.Icon>
             </Select.Trigger>
 
@@ -60,7 +60,7 @@ function CollapsedBottomPanel() {
               side="top"
               sideOffset={8}
               align="start"
-              className="w-52 border-(--od-border) bg-(--od-bg-1) p-1"
+              className="w-52 border-(--gl-border) bg-(--gl-bg-surface) p-1"
             >
               <Select.Viewport>
                 {algorithmOptions.map((option) => (
@@ -76,8 +76,8 @@ function CollapsedBottomPanel() {
         <Tooltip content="Current step" side="top">
           <div
             className={cn(
-              "h-full flex items-center rounded-sm border border-(--od-border) bg-(--od-bg-1) text-(--od-fg-1) px-3",
-              { "bg-(--od-fg-0) text-(--od-bg-1)": currentStepDisplay === steps.length },
+              "h-full flex items-center rounded-sm border border-(--gl-border) bg-(--gl-bg-surface) text-(--gl-text-main) px-3",
+              { "bg-(--gl-text-main) text-(--gl-bg-surface)": currentStepDisplay === steps.length },
             )}
           >
             <p className="text-xs font-semibold text-nowrap select-none">
@@ -101,18 +101,18 @@ function CollapsedBottomPanel() {
           </PopoverTrigger>
 
           <PopoverContent
-            className="w-56 border-(--od-border) bg-(--od-bg-0)"
+            className="w-56 border-(--gl-border) bg-(--gl-bg-base)"
             side="top"
             sideOffset={10}
           >
             <div className="flex flex-col gap-2">
-              <span className="text-sm font-semibold text-(--od-fg-0)">More Options</span>
+              <span className="text-sm font-semibold text-(--gl-text-main)">More Options</span>
 
               <label
                 htmlFor="toggle-show-stack"
-                className="flex cursor-pointer items-center justify-between rounded px-2 py-1.5 hover:bg-(--od-bg-2)"
+                className="flex cursor-pointer items-center justify-between rounded px-2 py-1.5 hover:bg-(--gl-bg-subtle)"
               >
-                <span className="text-sm text-(--od-fg-1)">Show Stack</span>
+                <span className="text-sm text-(--gl-text-main)">Show Stack</span>
                 <Checkbox
                   id="toggle-show-stack"
                   checked={showStack}
@@ -122,9 +122,9 @@ function CollapsedBottomPanel() {
 
               <label
                 htmlFor="toggle-show-queue"
-                className="flex cursor-pointer items-center justify-between rounded px-2 py-1.5 hover:bg-(--od-bg-2)"
+                className="flex cursor-pointer items-center justify-between rounded px-2 py-1.5 hover:bg-(--gl-bg-subtle)"
               >
-                <span className="text-sm text-(--od-fg-1)">Show Queue</span>
+                <span className="text-sm text-(--gl-text-main)">Show Queue</span>
                 <Checkbox
                   id="toggle-show-queue"
                   checked={showQueue}

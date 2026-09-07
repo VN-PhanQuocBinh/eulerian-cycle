@@ -44,14 +44,14 @@ function EulerianCycleReport() {
   return (
     <section>
       <SectionTitle>Eulerian Cycle</SectionTitle>
-      <div className="rounded-md border border-(--od-border) bg-(--od-bg-1) px-3 py-1">
+      <div className="rounded-md border border-(--gl-border) bg-(--gl-bg-surface) px-3 py-1">
         <InfoRow
           label="Odd-Degree Nodes"
           value={
             oddDegreeNodes.length === 0 ? (
-              <span className="text-(--od-green)">None</span>
+              <span className="text-(--gl-green-dark)">None</span>
             ) : (
-              <span className="text-(--od-yellow)">
+              <span className="text-(--gl-amber-dark)">
                 {oddDegreeNodes.map((n) => n.label).join(", ")}
               </span>
             )

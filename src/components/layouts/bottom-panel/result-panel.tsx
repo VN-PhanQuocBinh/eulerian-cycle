@@ -25,12 +25,12 @@ function ResultPanel() {
         ) : currentAlgorithm === "dijkstra" ? (
           <DijkstraResult steps={steps} />
         ) : (
-          <div className="p-8 text-center text-slate-400 text-sm">
+          <div className="p-8 text-center text-(--gl-text-muted) text-sm">
             Run an algorithm to see steps
           </div>
         )
       ) : (
-        <div className="p-8 text-center text-slate-400 text-sm">Run an algorithm to see steps</div>
+        <div className="p-8 text-center text-(--gl-text-muted) text-sm">Run an algorithm to see steps</div>
       )}
     </div>
   );

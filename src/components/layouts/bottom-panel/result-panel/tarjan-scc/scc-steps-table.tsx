@@ -25,22 +25,22 @@ export function SCCStepsTable({ steps }: Props) {
 
   if (steps.length === 0) {
     return (
-      <div className="grid h-full place-items-center py-8 text-sm text-(--od-fg-2)">
+      <div className="grid h-full place-items-center py-8 text-sm text-(--gl-text-muted)">
         No steps to display. Run the algorithm first.
       </div>
     );
   }
 
   return (
-    <div className="h-full overflow-y-auto custom-scrollbar rounded-md border border-(--od-border) bg-(--od-bg-1)">
-      <Table className="text-(--od-fg-1)">
+    <div className="h-full overflow-y-auto custom-scrollbar rounded-md border border-(--gl-border) bg-(--gl-bg-surface)">
+      <Table className="text-(--gl-text-main)">
         <TableHeader>
-          <TableRow className="border-b border-(--od-border) hover:bg-transparent">
-            <TableHead className="w-10 bg-(--od-bg-2) text-(--od-blue)">Step</TableHead>
-            <TableHead className="bg-(--od-bg-2) text-(--od-blue) text-center">Element</TableHead>
-            <TableHead className="bg-(--od-bg-2) text-(--od-blue)">Stack</TableHead>
-            <TableHead className="bg-(--od-bg-2) text-(--od-blue)">SCC</TableHead>
-            <TableHead className="bg-(--od-bg-2) text-(--od-blue)">Explain</TableHead>
+          <TableRow className="border-b border-(--gl-border) hover:bg-transparent">
+            <TableHead className="w-10 bg-(--gl-bg-subtle) text-(--gl-blue-dark)">Step</TableHead>
+            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-blue-dark) text-center">Element</TableHead>
+            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-blue-dark)">Stack</TableHead>
+            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-blue-dark)">SCC</TableHead>
+            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-blue-dark)">Explain</TableHead>
           </TableRow>
         </TableHeader>
 
