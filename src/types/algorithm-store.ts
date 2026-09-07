@@ -25,7 +25,9 @@ export type StepEdgeElement = {
 };
 
 export type Step = {
-  elements: Array<(StepNodeElement | StepEdgeElement) & { classes: string[] }>;
+  elements: Array<
+    (StepNodeElement | StepEdgeElement) & { classes: string[]; animations?: { pulse?: boolean } } // Default pulse = true
+  >;
   message: string[];
   stack?: string[];
   queue?: string[];
@@ -53,9 +55,12 @@ export type AlgorithmExecutionResult =
   | EulerianCycleResult
   | DijkstraResult;
 
-export type AlgorithmWithTarget = "dfs" | "bfs" | "dijkstra";
+type EnsureAlgorithms<T extends GraphAlgorithm> = T;
+export type AlgorithmWithTarget = EnsureAlgorithms<"dfs" | "bfs" | "dijkstra">;
+export type AlgorithmRequiresWeightedGraph = EnsureAlgorithms<"dijkstra">;
 
 export const ALGORITHMS_WITH_TARGET_NODE: AlgorithmWithTarget[] = ["dfs", "bfs", "dijkstra"];
+export const ALGORITHMS_REQUIRING_WEIGHTED_GRAPH: AlgorithmRequiresWeightedGraph[] = ["dijkstra"];
 
 export interface AlgorithmParamsMap {
   "eulerian-cycle": {

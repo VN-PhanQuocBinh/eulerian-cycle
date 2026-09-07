@@ -37,6 +37,8 @@ export class Dijkstra {
     const previousNodes = new Map<string, string | null>();
     const steps: Step[] = [];
     const shortestPath: string[] = [];
+    const visited = new Set<string>();
+    const previousHighlightedElements: Step["elements"] = [];
 
     for (const node of this.graphData.nodes) {
       distances.set(node.id, node.id === startNodeId ? 0 : Infinity);
@@ -51,17 +53,7 @@ export class Dijkstra {
     steps.push({
       elements: [],
       message: [
-        `Starting Dijkstra's algorithm from node ${startNode?.label || startNode?.id || startNodeId}${targetNodeId ? ` to find node ${targetNode?.label || targetNode?.id || targetNodeId}` : ""}.`,
-      ],
-      highlightedPseudoCodeLineIds: [],
-      ...snapshot(),
-    });
-
-    priorityQueue.push({ id: startNodeId, priority: 0 });
-
-    steps.push({
-      elements: [],
-      message: [
+        `Starting Dijkstra's algorithm from node ${startNode?.label || startNode?.id}${targetNodeId ? ` to find node ${targetNode?.label || targetNode?.id || targetNodeId}` : ""}.`,
         `Initialized distances and previous nodes for all nodes.`,
         `Added start node ${this.graphUtils.getNode(startNodeId)?.label || startNodeId} to the priority queue.`,
       ],
@@ -69,9 +61,12 @@ export class Dijkstra {
       ...snapshot(),
     });
 
+    priorityQueue.push({ id: startNodeId, priority: 0 });
+
     while (priorityQueue.size > 0) {
       const current = priorityQueue.pop();
       if (!current) break;
+
       const currentNode = this.graphUtils.getNode(current.id);
       const previousNode = this.graphUtils.getNode(previousNodes.get(current.id) || "");
       const visitedEdge = this.graphUtils.getEdges(
@@ -81,6 +76,13 @@ export class Dijkstra {
 
       if (!currentNode) continue;
 
+      if (visited.has(currentNode.id)) {
+        continue;
+      }
+
+      visited.add(currentNode.id);
+
+      // Found the target node, reconstruct the shortest path and break the loop
       if (currentNode.id === targetNodeId) {
         let currentPathId = targetNodeId;
         while (currentPathId) {
@@ -102,6 +104,12 @@ export class Dijkstra {
               label: currentNode.label || currentNode.id,
               classes: ["visited"],
             },
+
+            // Remove considering and relaxed classes from previously highlighted elements
+            ...previousHighlightedElements.map((ele) => ({
+              ...ele,
+              classes: ["-considering", "-relaxed"],
+            })),
           ],
           message: [
             `Target node ${targetNode?.label || targetNode?.id} found. Dijkstra's algorithm completed.`,
@@ -112,24 +120,7 @@ export class Dijkstra {
         break;
       }
 
-      if (current.priority > distances.get(currentNode.id)!) {
-        // steps.push({
-        //   currentNode: {
-        //     type: "node",
-        //     id: currentNode.id,
-        //     label: currentNode.label || currentNode.id,
-        //     classes: ["visited"],
-        //   },
-        //   elements: [],
-        //   message: [
-        //     `Skipping node ${currentNode.label || currentNode.id} as a shorter path has already been found.`,
-        //   ],
-        //   ...snapshot(),
-        // });
-
-        continue;
-      }
-
+      // Add a step for visiting the current node and highlighting the edge from the previous node to the current node
       steps.push({
         currentNode: {
           type: "node",
@@ -161,54 +152,96 @@ export class Dijkstra {
               },
               classes: ["visited"],
             } satisfies Step["elements"][number]),
+
+          // Remove considering and relaxed classes from previously highlighted elements
+          ...previousHighlightedElements.map((ele) => ({
+            ...ele,
+            animations: { pulse: false },
+            classes: ["-considering", "-relaxed"],
+          })),
         ].filter(Boolean) as Step["elements"],
         message: [`Processing node ${currentNode.label || currentNode.id}.`],
         highlightedPseudoCodeLineIds: [],
         ...snapshot(),
       });
 
+      // Clear the previous highlighted elements for the next iteration
+      previousHighlightedElements.length = 0;
+
+      // Get neighbors of the current node and process them
       const neighborIds = this.graphUtils.getNeighbors(currentNode.id);
       for (const neighbor of neighborIds) {
+        if (visited.has(neighbor)) {
+          continue;
+        }
+
         const [edge] = this.graphUtils.getEdges(currentNode.id, neighbor);
         if (!edge) continue;
 
+        const neighborNode = this.graphUtils.getNode(neighbor);
+        if (!neighborNode) continue;
+
+        const currentElements: Step["elements"] = [
+          {
+            type: "edge",
+            id: edge.id,
+            source: {
+              type: "node",
+              id: currentNode.id,
+              label: currentNode.label || currentNode.id,
+            },
+            target: {
+              type: "node",
+              id: neighbor,
+              label: neighborNode.label || neighbor,
+            },
+            classes: [],
+          },
+          {
+            type: "node",
+            id: neighbor,
+            label: neighborNode.label || neighbor,
+            classes: [],
+          },
+        ];
+
+        previousHighlightedElements.push(...currentElements);
+
+        steps.push({
+          elements: currentElements.map((ele) => ({
+            ...ele,
+            classes: ["-relaxed", "considering"],
+          })),
+          message: [`Considering node ${neighborNode.label || neighbor}.`],
+          highlightedPseudoCodeLineIds: [],
+          ...snapshot(),
+        });
+
         const newDistance = distances.get(currentNode.id)! + edge.weight;
         if (newDistance < distances.get(neighbor)!) {
-          const neighborNode = this.graphUtils.getNode(neighbor);
-          if (!neighborNode) continue;
-
           distances.set(neighbor, newDistance);
           previousNodes.set(neighbor, currentNode.id);
           priorityQueue.push({ id: neighbor, priority: newDistance });
 
           steps.push({
-            elements: [
-              {
-                type: "edge",
-                id: edge.id,
-                source: {
-                  type: "node",
-                  id: currentNode.id,
-                  label: currentNode.label || currentNode.id,
-                },
-                target: {
-                  type: "node",
-                  id: neighbor,
-                  label: neighborNode.label || neighbor,
-                },
-                classes: ["relaxed"],
-              },
-              {
-                type: "node",
-                id: neighbor,
-                label: neighborNode.label || neighbor,
-                classes: ["relaxed"],
-              },
-            ],
+            elements: currentElements.map((ele) => ({
+              ...ele,
+              classes: ["-considering", "relaxed"],
+            })),
             message: [
               `Updated distance for node ${neighborNode.label || neighbor} to ${newDistance}.`,
               `Previous node is now ${currentNode.label || currentNode.id}.`,
             ],
+            highlightedPseudoCodeLineIds: [],
+            ...snapshot(),
+          });
+        } else {
+          steps.push({
+            elements: currentElements.map((ele) => ({
+              ...ele,
+              classes: ["-considering"],
+            })),
+            message: [`Node ${neighborNode.label || neighbor} is not a better path.`],
             highlightedPseudoCodeLineIds: [],
             ...snapshot(),
           });
@@ -230,11 +263,11 @@ export class Dijkstra {
       result: {
         startNodeId,
         targetNodeId,
-        shortestPath: [],
-        shortestDistance: Infinity,
+        shortestPath,
+        shortestDistance: distances.get(targetNodeId || "") ?? Infinity,
         distances,
         previousNodes,
-        found: false,
+        found: shortestPath.length > 0,
       },
       steps,
       message: "Dijkstra's algorithm completed.",

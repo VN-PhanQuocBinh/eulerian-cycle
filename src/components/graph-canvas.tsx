@@ -14,6 +14,7 @@ import { useNodeInput } from "./ui/node-input";
 import { useAlgorithmOperations } from "@/hooks/use-algorithm-operations";
 import FullscreenButton from "./fullscreen-button";
 import { useCommandManager } from "@/hooks/use-command-manager";
+import { hasTargetNode } from "@/types/check-type";
 
 import {
   ContextMenu,
@@ -39,9 +40,6 @@ const GraphCanvas = () => {
   const isWeighted = useGraphDataStore((state) => state.isWeighted);
   const edges = useGraphDataStore((state) => state.edges);
   const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
-  const ALGORITHMS_WITH_TARGET_NODE = useAlgorithmStore(
-    (state) => state.ALGORITHMS_WITH_TARGET_NODE,
-  );
   const updateNode = useGraphDataStore((state) => state.updateNode);
   const containerRef = useRef<HTMLDivElement>(null);
   const [contextTarget, setContextTarget] = useState<ContextTarget>(null);
@@ -223,7 +221,7 @@ const GraphCanvas = () => {
                 >
                   Set as Start Node
                 </ContextMenuItem>
-                {ALGORITHMS_WITH_TARGET_NODE.includes(currentAlgorithm) && (
+                {hasTargetNode(currentAlgorithm) && (
                   <ContextMenuItem
                     onSelect={handleSetTargetNode}
                     className="focus:bg-(--od-bg-2) focus:text-(--od-fg-0)"

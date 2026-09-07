@@ -1,7 +1,6 @@
 import { useAlgorithmStore, useGraphDataStore } from "@/stores";
 import { useEffect } from "react";
 import { hasTargetNode } from "@/types/check-type";
-import { ALGORITHMS_WITH_TARGET_NODE } from "@/types/algorithm-store";
 
 export const useAlgorithmSync = () => {
   const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
@@ -27,22 +26,19 @@ export const useAlgorithmSync = () => {
       if (hasTargetNode(currentAlgorithm)) {
         const { targetNodeId } = algorithmParams[currentAlgorithm] || {};
 
-        if (
-          ALGORITHMS_WITH_TARGET_NODE.includes(currentAlgorithm) &&
-          (!targetNodeId || !isNodeExists(targetNodeId))
-        ) {
+        if (!targetNodeId || !isNodeExists(targetNodeId)) {
           setAlgorithmParams(currentAlgorithm, {
             targetNodeId: nodes[0].id,
           });
         }
       }
+
+      recalculateSteps(graphData);
     } else if (startNodeId !== "") {
       // Prevent unnecessary updates when startNodeId is already an empty string
       setAlgorithmParams(currentAlgorithm, {
         startNodeId: "",
       });
     }
-
-    recalculateSteps(graphData);
   }, [currentAlgorithm, nodes, edges, isDirected, algorithmParams, recalculateSteps]);
 };

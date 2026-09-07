@@ -3,8 +3,10 @@ import { devtools } from "zustand/middleware";
 
 import { GraphDataStore } from "@/types/graph-data-store";
 
-const buildNodeById = (nodes: GraphDataStore["nodes"]) => new Map(nodes.map((node) => [node.id, node]));
-const buildEdgeById = (edges: GraphDataStore["edges"]) => new Map(edges.map((edge) => [edge.id, edge]));
+const buildNodeById = (nodes: GraphDataStore["nodes"]) =>
+  new Map(nodes.map((node) => [node.id, node]));
+const buildEdgeById = (edges: GraphDataStore["edges"]) =>
+  new Map(edges.map((edge) => [edge.id, edge]));
 const buildNodeSet = (nodes: GraphDataStore["nodes"]) => new Set(nodes.map((node) => node.id));
 
 export const useGraphDataStore = create<GraphDataStore>()(
@@ -13,7 +15,7 @@ export const useGraphDataStore = create<GraphDataStore>()(
       nodes: [],
       edges: [],
       isDirected: false,
-      isWeighted: true,
+      isWeighted: false,
       nodeSet: new Set(),
       nodeById: new Map(),
       edgeById: new Map(),
@@ -24,7 +26,7 @@ export const useGraphDataStore = create<GraphDataStore>()(
         const { nodes } = get();
         return nodes;
       },
-      
+
       getCurrentEdgesData: () => {
         const { edges } = get();
         return edges;

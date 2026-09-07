@@ -43,6 +43,10 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
           startNodeId: "",
           targetNodeId: "",
         },
+        dijkstra: {
+          startNodeId: "",
+          targetNodeId: "",
+        },
       } as AlgorithmParamsMap,
       executionResult: null,
 
@@ -56,15 +60,27 @@ export const useAlgorithmStore = create<AlgorithmStore>()(
 
       // For further customization of algorithm parameters, we can use a generic setter
       setAlgorithmParams: (algo, params) => {
-        set((state) => ({
-          algorithmParams: {
-            ...state.algorithmParams,
-            [algo]: {
-              ...state.algorithmParams[algo],
-              ...params,
+        set((state) => {
+          const currentParams = state.algorithmParams[algo];
+
+          const hasChanged = Object.entries(params).some(
+            ([key, value]) => currentParams[key as keyof typeof currentParams] !== value,
+          );
+
+          if (!hasChanged) {
+            return state;
+          }
+
+          return {
+            algorithmParams: {
+              ...state.algorithmParams,
+              [algo]: {
+                ...currentParams,
+                ...params,
+              },
             },
-          },
-        }));
+          };
+        });
       },
       setExecutionResult: (result) => set({ executionResult: result }),
 

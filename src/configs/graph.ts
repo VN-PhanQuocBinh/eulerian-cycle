@@ -218,6 +218,13 @@ export const graphStyles: cytoscape.StylesheetJson = [
 
   // ========= STYLES FOR DIJKSTRA ANIMATION ==========
   {
+    selector: "node.considering",
+    style: {
+      "background-color": "#e5c07b",
+      "border-color": "#e5c07b",
+    },
+  },
+  {
     selector: "node.relaxed",
     style: {
       "background-color": "#98c379",
@@ -229,6 +236,13 @@ export const graphStyles: cytoscape.StylesheetJson = [
     style: {
       "background-color": "#61afef",
       "border-color": "#61afef",
+    },
+  },
+  {
+    selector: "edge.considering",
+    style: {
+      "line-color": "#e5c07b",
+      "target-arrow-color": "#e5c07b",
     },
   },
   {

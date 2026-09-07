@@ -1,10 +1,11 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useAlgorithmStore, useGraphDataStore } from "@/stores";
 import { GraphAlgorithm } from "@/types/algorithm-store";
 import { graphService } from "@/services/graph-service";
 import { useCallback } from "react";
 import { useToast } from "@/components/ui/toast";
 import { createGraphUtils } from "@/core/helpers/graph-utils";
+import { isAlgorithmRequiresWeightedGraph } from "@/types/check-type";
 
 export const useAlgorithmOperations = () => {
   const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
@@ -29,11 +30,26 @@ export const useAlgorithmOperations = () => {
     [nodes, edges, isDirected],
   );
 
-  const handleAlgorithmChange = useCallback((algorithm: GraphAlgorithm) => {
-    handleReset();
-    setSteps([]);
-    setCurrentAlgorithm(algorithm);
-  }, []);
+  const updateWeightedStatus = useCallback(() => {
+    if (isAlgorithmRequiresWeightedGraph(currentAlgorithm)) {
+      setIsWeighted(true);
+    }
+  }, [currentAlgorithm, setIsWeighted]);
+
+  useEffect(() => {
+    updateWeightedStatus();
+  }, [updateWeightedStatus]);
+
+  const handleAlgorithmChange = useCallback(
+    (algorithm: GraphAlgorithm) => {
+      handleReset();
+      setSteps([]);
+      setCurrentAlgorithm(algorithm);
+
+      updateWeightedStatus();
+    },
+    [updateWeightedStatus],
+  );
 
   const handleReset = useCallback(() => {
     graphService.resetGraph();
