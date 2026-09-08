@@ -40,9 +40,9 @@ const GraphCanvas = () => {
   const isWeighted = useGraphDataStore((state) => state.isWeighted);
   const edges = useGraphDataStore((state) => state.edges);
   const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
-  const updateNode = useGraphDataStore((state) => state.updateNode);
   const containerRef = useRef<HTMLDivElement>(null);
   const [contextTarget, setContextTarget] = useState<ContextTarget>(null);
+  const updateNode = useGraphDataStore((state) => state.updateNode);
   const { openNodeInputAt } = useNodeInput();
   const { handleStartNodeChange, handleTargetNodeChange } = useAlgorithmOperations();
 

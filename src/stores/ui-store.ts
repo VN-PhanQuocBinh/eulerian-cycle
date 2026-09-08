@@ -11,6 +11,7 @@ export const useUIStore = create<UIStore>()(
       bottomPanelTab: "steps",
       isBottomPanelOpen: true,
       isSidebarOpen: true,
+      isRightSidebarOpen: true,
       showStack: false,
       showQueue: false,
 
@@ -19,6 +20,7 @@ export const useUIStore = create<UIStore>()(
       setBottomPanelTab: (tab) => set({ bottomPanelTab: tab }),
       toggleBottomPanel: (isOpen) => set({ isBottomPanelOpen: isOpen }),
       toggleSidebar: (isOpen) => set({ isSidebarOpen: isOpen }),
+      toggleRightSidebar: (isOpen) => set({ isRightSidebarOpen: isOpen }),
       toggleShowStack: (show) => set({ showStack: show }),
       toggleShowQueue: (show) => set({ showQueue: show }),
     }),

@@ -46,7 +46,7 @@ function DijkstraReport() {
   return (
     <section>
       <SectionTitle>Dijkstra Report</SectionTitle>
-      <div className="w-full flex flex-row gap-3">
+      <div className="w-full flex flex-col gap-3">
         <div className="flex-1 rounded-md border border-(--gl-border) bg-(--gl-bg-surface) px-3 py-1">
           <InfoRow
             label="Start Node"
@@ -106,12 +106,8 @@ function DijkstraReport() {
                 return (
                   <TableRow key={node.id}>
                     <TableCell>{node.label}</TableCell>
-                    <TableCell>
-                      {Number.isFinite(distance) ? distance : "-"}
-                    </TableCell>
-                    <TableCell>
-                      {previousNode?.label || previousNodeId || "-"}
-                    </TableCell>
+                    <TableCell>{Number.isFinite(distance) ? distance : "-"}</TableCell>
+                    <TableCell>{previousNode?.label || previousNodeId || "-"}</TableCell>
                   </TableRow>
                 );
               })}

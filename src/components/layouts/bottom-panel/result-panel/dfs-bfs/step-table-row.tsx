@@ -30,7 +30,7 @@ function StackOrQueueNodes({ nodes }: { nodes: { id: string; label: string }[] }
 }
 
 function StepTableRow({ step, index, isActive, graphUtils }: Props) {
-  const rowRef = useSmartScroll(isActive);
+  const rowRef = useSmartScroll<HTMLTableRowElement>(isActive);
 
   const stackNodes = useMemo(() => {
     return (
