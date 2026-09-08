@@ -7,6 +7,7 @@ import { Step, StepNodeElement } from "@/types/algorithm-store";
 import { cn } from "@/utils/cn";
 import { arrayToString } from "@/utils";
 import { useSmartScroll } from "@/hooks/use-smart-scroll";
+import GraphElement from "../../graph-element";
 
 interface Props {
   step: Step;
@@ -51,31 +52,30 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
     <TableRow
       key={index}
       ref={rowRef}
-      className={cn("group border-b border-(--od-border) hover:bg-(--od-bg-2)", {
-        "bg-(--od-bg-2) border-l-4 border-l-(--od-blue)": isActive,
-      })}
+      className={cn(
+        "group border-b border-(--gl-border) bg-(--gl-bg-surface) hover:bg-(--gl-bg-base)",
+        {
+          "bg-(--gl-bg-base) border-l-4 border-l-(--gl-blue-dark)": isActive,
+        },
+      )}
     >
-      <TableCell className="text-(--od-fg-1)">
+      <TableCell className="text-(--gl-text-main)">
         <JumpButton index={index} />
       </TableCell>
 
       <TableCell className="px-3 py-2 text-center">
         {currentNode ? (
-          <span className="inline-flex rounded border border-(--od-border) bg-(--od-bg-2) px-2 py-0.5 text-(--od-fg-0)">
-            {currentNode.label}
-          </span>
+          <GraphElement label={currentNode.label} />
         ) : (
-          <span className="italic text-(--od-fg-2)">_</span>
+          <span className="italic text-(--gl-text-muted)">_</span>
         )}
       </TableCell>
 
       <TableCell className="px-3 py-2 text-center">
         {nextNode ? (
-          <span className="inline-flex rounded border border-(--od-border) bg-(--od-bg-2) px-2 py-0.5 text-(--od-fg-0)">
-            {nextNode.label}
-          </span>
+          <GraphElement label={nextNode.label} />
         ) : (
-          <span className="italic text-(--od-fg-2)">_</span>
+          <span className="italic text-(--gl-text-muted)">_</span>
         )}
       </TableCell>
 
@@ -85,18 +85,13 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
             <>
               <div className="flex flex-1 flex-wrap items-center gap-2">
                 {stackNodes.map((node, idx) => (
-                  <span
-                    key={node.id + "-" + idx}
-                    className="w-max rounded border border-(--od-border-strong) bg-(--od-bg-2) px-1.5 py-0.5 text-xs text-(--od-purple)"
-                  >
-                    {node.label}
-                  </span>
+                  <GraphElement key={node.id + "-" + idx} label={node.label} />
                 ))}
               </div>
               <CopyButton text={arrayToString(stackNodes.map((node) => node.label))} />
             </>
           ) : (
-            <span className="italic text-(--od-fg-2)">Empty stack</span>
+            <span className="italic text-(--gl-text-muted)">Empty stack</span>
           )}
         </div>
       </TableCell>
@@ -107,23 +102,18 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
             <>
               <div className="flex flex-1 flex-wrap items-center gap-2">
                 {circuitNodes.map((node, idx) => (
-                  <span
-                    key={node.id + "-" + idx}
-                    className="w-max rounded border border-(--od-border-strong) bg-(--od-bg-2) px-1.5 py-0.5 text-xs text-(--od-yellow)"
-                  >
-                    {node.label}
-                  </span>
+                  <GraphElement key={node.id + "-" + idx} label={node.label} className="text-(--gl-amber-dark) bg-(--gl-amber-soft)" />
                 ))}
               </div>
               <CopyButton text={arrayToString(circuitNodes.map((node) => node.label))} />
             </>
           ) : (
-            <span className="italic text-(--od-fg-2)">Empty circuit</span>
+            <span className="italic text-(--gl-text-muted)">Empty circuit</span>
           )}
         </div>
       </TableCell>
 
-      <TableCell className="px-3 py-2 text-left text-(--od-fg-1)">
+      <TableCell className="px-3 py-2 text-left text-(--gl-text-main)">
         {step.message.map((msg, idx) => (
           <div key={idx}>- {msg}</div>
         ))}

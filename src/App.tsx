@@ -10,6 +10,9 @@ import { useAlgorithmSync } from "./hooks/use-algorithm-sync";
 import { useUIStore } from "./stores";
 import TopMenuBar from "@/components/layouts/top-menu-bar";
 import { useAppHotkeys } from "./hooks/use-app-hotkeys";
+import LayoutContainer from "./components/layouts/layout-container";
+import AppFooter from "@/components/app-footer";
+import { cn } from "./utils/cn";
 
 function AppContent() {
   const isSidebarOpen = useUIStore((state) => state.isSidebarOpen);
@@ -44,7 +47,7 @@ function AppContent() {
   };
 
   return (
-    <div className="flex h-screen w-screen flex-col overflow-hidden bg-(--od-bg-0) text-(--od-fg-0)">
+    <div className="flex h-screen w-screen flex-col overflow-hidden bg-(--gl-bg-base) text-(--gl-text-main)">
       <TopMenuBar />
 
       <div className="flex-1 overflow-hidden">
@@ -68,11 +71,13 @@ function AppContent() {
               <ResizablePanelGroup orientation="vertical">
                 <ResizablePanel defaultSize="75%" minSize="25%">
                   <NodeInputProvider>
-                    <GraphCanvas />
+                    <LayoutContainer className="pb-0">
+                      <GraphCanvas />
+                    </LayoutContainer>
                   </NodeInputProvider>
                 </ResizablePanel>
 
-                <ResizableHandle withHandle />
+                <ResizableHandle withHandle className={cn({ "my-1": isBottomPanelOpen })} />
 
                 <ResizablePanel
                   panelRef={bottomPanelRef}
@@ -82,13 +87,16 @@ function AppContent() {
                   minSize="25%"
                   onResize={handleBottomPanelResize}
                 >
-                  <BottomPanel />
+                  <LayoutContainer className="pt-0">
+                    <BottomPanel />
+                  </LayoutContainer>
                 </ResizablePanel>
               </ResizablePanelGroup>
             </main>
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>
+      <AppFooter />
     </div>
   );
 }

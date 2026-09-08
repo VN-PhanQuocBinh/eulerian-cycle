@@ -12,7 +12,7 @@ interface RunModeSelectProps {
 function RunModeSelect({ className, currentRunMode, isAnimating, onSelect }: RunModeSelectProps) {
   return (
     <section className={cn("", className)}>
-      <h3 className="text-base font-semibold text-slate-700 mb-2 flex items-center gap-2">
+      <h3 className="text-base font-semibold text-(--gl-text-main) mb-2 flex items-center gap-2">
         Run Mode
       </h3>
       <div className="space-y-2 pl-2">
@@ -24,13 +24,13 @@ function RunModeSelect({ className, currentRunMode, isAnimating, onSelect }: Run
             checked={currentRunMode === "continuous"}
             onChange={(e) => onSelect(e.target.value as RunMode)}
             disabled={isAnimating}
-            className="w-4 h-4 text-blue-600 disabled:cursor-not-allowed"
+            className="w-4 h-4 text-(--gl-blue-dark) disabled:cursor-not-allowed"
           />
           <div className="flex-1">
-            <span className="text-sm text-slate-700 group-hover:text-blue-600 font-medium">
+            <span className="text-sm text-(--gl-text-main) group-hover:text-(--gl-blue-dark) font-medium">
               Continuous
             </span>
-            <p className="text-xs text-slate-500">Auto-play animation</p>
+            <p className="text-xs text-(--gl-text-muted)">Auto-play animation</p>
           </div>
         </label>
         <label className="flex items-center gap-2 cursor-pointer group">
@@ -41,13 +41,13 @@ function RunModeSelect({ className, currentRunMode, isAnimating, onSelect }: Run
             checked={currentRunMode === "step-by-step"}
             onChange={(e) => onSelect(e.target.value as RunMode)}
             disabled={isAnimating}
-            className="w-4 h-4 text-blue-600 disabled:cursor-not-allowed"
+            className="w-4 h-4 text-(--gl-blue-dark) disabled:cursor-not-allowed"
           />
           <div className="flex-1">
-            <span className="text-sm text-slate-700 group-hover:text-blue-600 font-medium">
+            <span className="text-sm text-(--gl-text-main) group-hover:text-(--gl-blue-dark) font-medium">
               Step-by-Step
             </span>
-            <p className="text-xs text-slate-500">Manual control each step</p>
+            <p className="text-xs text-(--gl-text-muted)">Manual control each step</p>
           </div>
         </label>
       </div>

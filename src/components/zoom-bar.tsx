@@ -17,14 +17,14 @@ function ZoomBar() {
         onClick={handleZoomIn}
         tooltipContent="Zoom In"
         icon={ZoomIn}
-        className="bg-white shadow"
+        className="bg-(--gl-bg-surface) shadow"
         side="left"
       />
       <FunctionButton
         onClick={handleZoomOut}
         tooltipContent="Zoom Out"
         icon={ZoomOut}
-        className="bg-white shadow"
+        className="bg-(--gl-bg-surface) shadow"
         side="left"
       />
     </div>

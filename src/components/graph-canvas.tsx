@@ -193,17 +193,17 @@ const GraphCanvas = () => {
   };
 
   return (
-    <div className="relative flex-1 h-full overflow-hidden bg-(--od-bg-0)">
+    <div className="relative flex-1 h-full overflow-hidden bg-(--gl-bg-surface) rounded-md">
       <ContextMenu>
         <ContextMenuTrigger asChild>
           <div ref={triggerRef} className="h-full w-full">
-            <div ref={containerRef} className="h-full w-full" />
+            <div ref={containerRef} id="cytoscape-container" className="h-full w-full" />
           </div>
         </ContextMenuTrigger>
 
         {contextTarget && (
-          <ContextMenuContent className="w-52 border-(--od-border) bg-(--od-bg-0) p-1 text-(--od-fg-1)">
-            <ContextMenuLabel className="text-(--od-fg-0)">
+          <ContextMenuContent className="w-52 border-(--gl-border) bg-(--gl-bg-base) p-1 text-(--gl-text-main)">
+            <ContextMenuLabel className="text-(--gl-text-main)">
               {contextTarget?.kind === "node" ? "Node Actions" : "Edge Actions"}
             </ContextMenuLabel>
 
@@ -211,28 +211,28 @@ const GraphCanvas = () => {
               <>
                 <ContextMenuItem
                   onSelect={handleEditNode}
-                  className="focus:bg-(--od-bg-2) focus:text-(--od-fg-0)"
+                  className="focus:bg-(--gl-bg-subtle) focus:text-(--gl-text-main)"
                 >
                   Edit
                 </ContextMenuItem>
                 <ContextMenuItem
                   onSelect={handleSetStartNode}
-                  className="focus:bg-(--od-bg-2) focus:text-(--od-fg-0)"
+                  className="focus:bg-(--gl-bg-subtle) focus:text-(--gl-text-main)"
                 >
                   Set as Start Node
                 </ContextMenuItem>
                 {hasTargetNode(currentAlgorithm) && (
                   <ContextMenuItem
                     onSelect={handleSetTargetNode}
-                    className="focus:bg-(--od-bg-2) focus:text-(--od-fg-0)"
+                    className="focus:bg-(--gl-bg-subtle) focus:text-(--gl-text-main)"
                   >
                     Set as Target Node
                   </ContextMenuItem>
                 )}
-                <ContextMenuSeparator className="bg-(--od-border)" />
+                <ContextMenuSeparator className="bg-(--gl-border)" />
                 <ContextMenuItem
                   onSelect={handleDeleteTarget}
-                  className="text-(--od-red) focus:bg-(--od-bg-2) focus:text-(--od-red)"
+                  className="text-(--gl-red-dark) focus:bg-(--gl-bg-subtle) focus:text-(--gl-red-dark)"
                 >
                   Delete
                 </ContextMenuItem>
@@ -242,7 +242,7 @@ const GraphCanvas = () => {
             {contextTarget?.kind === "edge" && (
               <ContextMenuItem
                 onSelect={handleDeleteTarget}
-                className="text-(--od-red) focus:bg-(--od-bg-2) focus:text-(--od-red)"
+                className="text-(--gl-red-dark) focus:bg-(--gl-bg-subtle) focus:text-(--gl-red-dark)"
               >
                 Delete
               </ContextMenuItem>

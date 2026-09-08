@@ -21,12 +21,12 @@ const FunctionButton = forwardRef<HTMLButtonElement, FunctionButtonProps>(
           ref={ref}
           {...props}
           className={cn(
-            "flex items-center justify-center p-2 rounded-lg text-sm",
-            "border border-(--od-border) bg-(--od-bg-2) text-(--od-fg-1)",
-            "hover:bg-(--od-bg-3) transition-all",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--od-blue)",
+            "flex items-center justify-center p-2 rounded-md text-sm",
+            "border border-(--gl-border) text-(--gl-text-main)",
+            "hover:bg-(--gl-bg-subtle) transition-all",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--gl-blue-dark)",
             "disabled:pointer-events-none disabled:opacity-50",
-            { "bg-(--od-blue)! border-(--od-blue)! text-(--primary-foreground)": active },
+            { "bg-(--gl-blue-dark)! border-(--gl-blue-dark)! text-(--primary-foreground)": active },
             props.className,
           )}
         >

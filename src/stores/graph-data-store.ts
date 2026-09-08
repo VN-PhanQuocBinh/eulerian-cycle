@@ -20,7 +20,9 @@ export const useGraphDataStore = create<GraphDataStore>()(
       nodeById: new Map(),
       edgeById: new Map(),
 
-      setIsDirected: (isDirected) => set({ isDirected }),
+      setIsDirected: (isDirected) => {
+        set({ isDirected });
+      },
       setIsWeighted: (isWeighted) => set({ isWeighted }),
       getCurrentNodesData: () => {
         const { nodes } = get();

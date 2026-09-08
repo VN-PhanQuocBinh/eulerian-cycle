@@ -7,6 +7,7 @@ import { Step } from "@/types/algorithm-store";
 import { cn } from "@/utils/cn";
 import { arrayToString } from "@/utils";
 import { useSmartScroll } from "@/hooks/use-smart-scroll";
+import GraphElement from "../../graph-element";
 
 interface Props {
   step: Step;
@@ -20,12 +21,7 @@ function StackOrQueueNodes({ nodes }: { nodes: { id: string; label: string }[] }
     <>
       <div className="flex flex-1 flex-wrap items-center gap-2">
         {nodes.map((node, idx) => (
-          <span
-            key={node.id + "-" + idx}
-            className="w-max rounded border border-(--od-border-strong) bg-(--od-bg-2) px-1.5 py-0.5 text-xs text-(--od-purple)"
-          >
-            {node.label}
-          </span>
+          <GraphElement key={node.id + "-" + idx} label={node.label} />
         ))}
       </div>
       <CopyButton text={arrayToString(nodes.map((node) => node.label))} />
@@ -67,21 +63,22 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
     <TableRow
       key={index}
       ref={rowRef}
-      className={cn("group border-b border-(--od-border) hover:bg-(--od-bg-2)", {
-        "bg-(--od-bg-2) border-l-4 border-l-(--od-blue)": isActive,
-      })}
+      className={cn(
+        "group border-b border-(--gl-border) bg-(--gl-bg-surface) hover:bg-(--gl-bg-base)",
+        {
+          "bg-(--gl-bg-subtle) border-l-4 border-l-(--gl-blue-dark)": isActive,
+        },
+      )}
     >
-      <TableCell className="text-(--od-fg-1)">
+      <TableCell className="text-(--gl-text-main)">
         <JumpButton index={index} />
       </TableCell>
 
       <TableCell className="px-3 py-2 text-center">
         {step.currentNode ? (
-          <span className="inline-flex rounded border border-(--od-border) bg-(--od-bg-2) px-2 py-0.5 text-(--od-fg-0)">
-            {step.currentNode.label}
-          </span>
+          <GraphElement label={step.currentNode.label} />
         ) : (
-          <span className="italic text-(--od-fg-2)">_</span>
+          <span className="italic text-(--gl-text-muted)">_</span>
         )}
       </TableCell>
 
@@ -92,7 +89,7 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
           ) : queueNodes.length > 0 ? (
             <StackOrQueueNodes nodes={queueNodes} />
           ) : (
-            <span className="italic text-(--od-fg-2)">Empty</span>
+            <span className="italic text-(--gl-text-muted)">Empty</span>
           )}
         </div>
       </TableCell>
@@ -103,23 +100,18 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
             <>
               <div className="flex flex-1 flex-wrap items-center gap-2">
                 {visitedNodes.map((node, idx) => (
-                  <span
-                    key={node.id + "-" + idx}
-                    className="w-max rounded border border-(--od-border-strong) bg-(--od-bg-2) px-1.5 py-0.5 text-xs text-(--od-yellow)"
-                  >
-                    {node.label}
-                  </span>
+                  <GraphElement key={node.id + "-" + idx} label={node.label} />
                 ))}
               </div>
               <CopyButton text={arrayToString(visitedNodes.map((node) => node.label))} />
             </>
           ) : (
-            <span className="italic text-(--od-fg-2)">Empty</span>
+            <span className="italic text-(--gl-text-muted)">Empty</span>
           )}
         </div>
       </TableCell>
 
-      <TableCell className="px-3 py-2 text-left text-(--od-fg-1)">
+      <TableCell className="px-3 py-2 text-left text-(--gl-text-main)">
         {step.message.map((msg, idx) => (
           <div key={idx}>- {msg}</div>
         ))}

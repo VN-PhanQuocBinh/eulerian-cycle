@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { useAlgorithmStore, useGraphDataStore } from "@/stores";
-import { BASE_ANIMATION_SPEED } from "@/components/layouts/sidebar/control-tab";
-import { useEffect, useState } from "react";
+import { BASE_ANIMATION_SPEED } from "@/constant/graph-constants";
+import { ReactNode, useEffect, useState } from "react";
 import {
   HIERHOLZER_PSEUDOCODE,
   CONNECTED_COMPONENTS_PSEUDOCODE,
@@ -25,6 +25,52 @@ const pseudoCodeMap: Record<GraphAlgorithm | "strongly-connected-components", Ps
   bfs: BFS_PSEUDOCODE,
   dijkstra: DIJKSTRA_PSEUDOCODE,
 };
+
+const TOKEN_PATTERN =
+  /(\/\/.*$|\b(?:procedure|if|else|while|for|each|return|continue|until|in|is|and|or|not)\b|\b(?:create|initialize|set|push|pop|add|remove|reverse|select|mark|enqueue|dequeue|calculate|reconstruct|weight|end)\b|\b[A-Za-z_]\w*(?=\s*\()|==|<=|>=|=|<|>|\+|-|\*|\/)/g;
+
+function renderPseudoCodeText(text: string): ReactNode[] {
+  const tokens: ReactNode[] = [];
+  let lastIndex = 0;
+
+  for (const match of text.matchAll(TOKEN_PATTERN)) {
+    const token = match[0];
+    const index = match.index ?? 0;
+
+    if (index > lastIndex) {
+      tokens.push(text.slice(lastIndex, index));
+    }
+
+    let tokenClass = "";
+    if (token.startsWith("//")) {
+      tokenClass = "token-comment";
+    } else if (/^[=<>+*/-]|^==|^<=|^>=/.test(token)) {
+      tokenClass = "token-operator";
+    } else if (
+      /^(?:create|initialize|set|push|pop|add|remove|reverse|select|mark|enqueue|dequeue|calculate|reconstruct|weight|end)$/.test(
+        token,
+      ) ||
+      /\w(?=\s*\()/.test(token)
+    ) {
+      tokenClass = "token-function";
+    } else {
+      tokenClass = "token-keyword";
+    }
+
+    tokens.push(
+      <span key={`${index}-${token}`} className={tokenClass}>
+        {token}
+      </span>,
+    );
+    lastIndex = index + token.length;
+  }
+
+  if (lastIndex < text.length) {
+    tokens.push(text.slice(lastIndex));
+  }
+
+  return tokens;
+}
 
 export function PseudoCodeViewer({ className }: PseudoCodeViewerProps) {
   const currentStepIndex = useAlgorithmStore((state) => state.currentStepIndex);
@@ -99,13 +145,13 @@ export function PseudoCodeViewer({ className }: PseudoCodeViewerProps) {
   return (
     <div
       className={cn(
-        "h-full overflow-y-auto custom-scrollbar rounded-md border border-(--od-border) bg-(--od-bg-0)",
+        "h-full overflow-y-auto custom-scrollbar rounded-md border border-(--gl-border) bg-(--gl-bg-surface)",
         className,
       )}
     >
-      <div className="p-3 font-mono text-sm text-(--od-fg-1)">
+      <div className="p-3 font-mono text-sm text-(--gl-text-main)">
         {lines.length === 0 && (
-          <div className="py-8 text-center text-(--od-fg-2)">No pseudo code available.</div>
+          <div className="py-8 text-center text-(--gl-text-muted)">No pseudo code available.</div>
         )}
 
         {lines.map((line, index) => {
@@ -117,26 +163,31 @@ export function PseudoCodeViewer({ className }: PseudoCodeViewerProps) {
               className={cn(
                 "flex items-stretch border border-transparent transition-colors duration-200",
                 {
-                  "bg-(--od-green)/15 ": isActive,
+                  "bg-(--gl-green-soft) ": isActive,
                 },
               )}
             >
-              <span className={cn("mr-4 inline-block w-8 shrink-0 self-center select-none text-right text-(--od-fg-2)", {
-                "text-(--od-green) font-semibold": isActive,
-              })}>
+              <span
+                className={cn(
+                  "mr-4 inline-block w-8 shrink-0 self-center select-none text-right text-(--gl-text-muted)",
+                  {
+                    "text-(--gl-green-dark) font-semibold": isActive,
+                  },
+                )}
+              >
                 {index + 1}
               </span>
 
               <div className="flex items-center flex-1">
                 {Array.from({ length: line.indent }).map((_, i) => (
-                  <div key={i} className="h-full border-l border-(--od-border) mr-6 py-1"></div>
+                  <div key={i} className="h-full border-l border-(--gl-border) mr-6 py-1"></div>
                 ))}
                 <span
-                  className={cn("text-(--od-fg-1)", {
-                    "font-semibold text-(--od-fg-0)": isActive,
+                  className={cn("text-(--gl-text-main)", {
+                    "font-semibold text-(--gl-text-main)": isActive,
                   })}
                 >
-                  {line.text}
+                  {renderPseudoCodeText(line.text)}
                 </span>
               </div>
             </div>

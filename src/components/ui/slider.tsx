@@ -38,11 +38,11 @@ function Slider({
     >
       <SliderTrack
         data-slot="slider-track"
-        className="bg-muted rounded-full bg-gray-200 data-[orientation=horizontal]:h-1 data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-1 bg-muted relative grow overflow-hidden"
+        className="bg-muted rounded-full data-[orientation=horizontal]:h-1 data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-1 relative grow overflow-hidden"
       >
         <SliderRange
           data-slot="slider-range"
-          className="bg-blue-800 absolute select-none data-[orientation=horizontal]:h-full data-[orientation=vertical]:w-full"
+          className="bg-(--gl-blue-dark) absolute select-none data-[orientation=horizontal]:h-full data-[orientation=vertical]:w-full"
         />
       </SliderTrack>
       {Array.from({ length: _values.length }, (_, index) => (
@@ -50,7 +50,7 @@ function Slider({
           data-slot="slider-thumb"
           key={index}
           className={cn(
-            "border-ring ring-blue-800 ring-ring/50 relative size-3 rounded-full border bg-white transition-[color,box-shadow] after:absolute after:-inset-2 focus-visible:ring-[3px] focus-visible:outline-hidden active:ring-[3px] block shrink-0 select-none disabled:pointer-events-none disabled:opacity-50",
+            "border-ring ring-(--gl-blue-dark) ring-ring/50 relative size-3 rounded-full border bg-(--gl-bg-surface) transition-[color,box-shadow] after:absolute after:-inset-2 focus-visible:ring-[3px] focus-visible:outline-hidden active:ring-[3px] block shrink-0 select-none disabled:pointer-events-none disabled:opacity-50",
             {
               "hover:ring-[3px]": !props.disabled,
             },

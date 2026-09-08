@@ -6,6 +6,7 @@ import { FileCode2, Play } from "lucide-react";
 import { Tooltip } from "@/components/ui/tooltip";
 import { useRegisterHotkey } from "@/hooks/use-register-hotkey";
 import { HOTKEYS_CONFIG } from "@/configs/hotkeys-config";
+import LayoutContainer from "./layout-container";
 
 interface NewSidebarProps {
   isOpen: boolean;
@@ -40,10 +41,13 @@ export function NewSidebar({ isOpen, onOpenChange }: NewSidebarProps) {
       orientation="vertical"
       className="h-full tabs-bar gap-0"
     >
-      <TabsList variant="line" className="flex flex-col justify-start p-0 py-2 bg-(--od-bg-1) ">
+      <TabsList
+        variant="line"
+        className="flex flex-col justify-start p-1.5 py-1.5 bg-(--gl-bg-base) "
+      >
         <TabsTrigger
           value="input-tab"
-          className="w-12! h-12! flex-none justify-center! group-data-[orientation=vertical]/tabs:after:left-0"
+          className="w-10! h-10! flex-none justify-center! items-center"
           onPointerDown={() => handlePointerDown("input-tab")}
           onClick={handleClick}
         >
@@ -56,7 +60,7 @@ export function NewSidebar({ isOpen, onOpenChange }: NewSidebarProps) {
         </TabsTrigger>
         <TabsTrigger
           value="control-tab"
-          className="w-12! h-12! flex-none justify-center! group-data-[orientation=vertical]/tabs:after:left-0"
+          className="w-10! h-10! flex-none justify-center!"
           onPointerDown={() => handlePointerDown("control-tab")}
           onClick={handleClick}
         >
@@ -71,10 +75,14 @@ export function NewSidebar({ isOpen, onOpenChange }: NewSidebarProps) {
       {isOpen && (
         <>
           <TabsContent value="input-tab" className="overflow-hidden">
-            <InputTab className="p-3 pl-1" />
+            <LayoutContainer>
+              <InputTab className="p-3 rounded-md" />
+            </LayoutContainer>
           </TabsContent>
           <TabsContent value="control-tab" className="overflow-hidden">
-            <ControlTab className="p-3 pl-0" />
+            <LayoutContainer>
+              <ControlTab className="p-3 rounded-md" />
+            </LayoutContainer>
           </TabsContent>
         </>
       )}

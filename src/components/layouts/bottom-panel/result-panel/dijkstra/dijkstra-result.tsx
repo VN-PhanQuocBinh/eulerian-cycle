@@ -3,6 +3,16 @@ import { useAlgorithmStore, useGraphDataStore } from "@/stores";
 import { Step } from "@/types/algorithm-store";
 import { createGraphUtils } from "@/core/helpers/graph-utils";
 import { DijkstraStepsTable } from "./dijkstra-steps-table";
+import GraphElement from "../../graph-element";
+import { cn } from "@/utils/cn";
+import {
+  Table,
+  TableBody,
+  TableHead,
+  TableHeader,
+  TableRow,
+  TableCell,
+} from "@/components/ui/table";
 
 export function DijkstraResult({ steps }: { steps: Step[] }) {
   const currentStepIndex = useAlgorithmStore((state) => state.currentStepIndex);
@@ -10,22 +20,25 @@ export function DijkstraResult({ steps }: { steps: Step[] }) {
 
   if (steps.length === 0) {
     return (
-      <div className="grid h-full place-items-center text-sm text-(--od-fg-2)">
+      <div className="grid h-full place-items-center text-sm text-(--gl-text-muted)">
         No steps to display. Run the algorithm first.
       </div>
     );
   }
 
   return (
-    <div className="flex h-full gap-4 bg-(--od-bg-0) text-(--od-fg-1)">
-      <div className="min-w-0 flex-1 max-h-full overflow-y-auto rounded-md border border-(--od-border) bg-(--od-bg-1) custom-scrollbar">
+    <div className="flex h-full gap-2 text-(--gl-text-main)">
+      <div className="min-w-0 flex-1 max-h-full overflow-y-auto rounded-md bg-(--gl-bg-surface) custom-scrollbar">
         <DijkstraStepsTable steps={steps} />
       </div>
-      <div className="top-0 w-72 basis-[280px] overflow-y-auto rounded-md border border-(--od-border) bg-(--od-bg-1) p-3 custom-scrollbar">
-        <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-(--od-fg-2)">
+      <div className="top-0 w-72 basis-[280px] overflow-y-auto rounded-md border border-(--gl-border) bg-(--gl-bg-surface) p-3 custom-scrollbar">
+        <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-(--gl-text-muted)">
           distance / previous
         </div>
-        <DistanceTable distances={currentStep?.distances} previousNodes={currentStep?.previousNodes} />
+        <DistanceTable
+          distances={currentStep?.distances}
+          previousNodes={currentStep?.previousNodes}
+        />
       </div>
     </div>
   );
@@ -47,40 +60,56 @@ function DistanceTable({
   );
 
   if (!distances || distances.size === 0) {
-    return <span className="text-xs italic text-(--od-fg-2)">-</span>;
+    return <span className="text-xs italic text-(--gl-text-muted)">-</span>;
   }
 
   return (
-    <div className="space-y-1">
-      <div className="flex border-b border-(--od-border) pb-1 text-xs font-medium text-(--od-fg-2)">
-        <span className="flex-1">Node</span>
-        <span className="w-16 text-center">Distance</span>
-        <span className="w-20 text-center">Previous</span>
-      </div>
-      {nodes.map((node) => {
-        const distance = distances.get(node.id);
-        const previousNode = previousNodes?.get(node.id);
-        const previousLabel = previousNode
-          ? graphUtils.getNode(previousNode)?.label || previousNode
-          : "-";
+    <div className="rounded-md border border-(--gl-border) bg-(--gl-bg-base)">
+      <Table className="space-y-1 border-collapse">
+        <TableHeader className="">
+          <TableRow className=" pb-1 text-xs font-medium text-(--gl-text-muted) )">
+            <TableHead className="border-r border-(--gl-border) font-semibold bg-(--gl-bg-base)">Node</TableHead>
+            <TableHead className=" text-center border-r border-(--gl-border) font-semibold bg-(--gl-bg-base)">
+              Distance
+            </TableHead>
+            <TableHead className=" text-center font-semibold bg-(--gl-bg-base)">
+              Previous
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {nodes.map((node) => {
+            const distance = distances.get(node.id);
+            const previousNode = previousNodes?.get(node.id);
+            const previousLabel = previousNode
+              ? graphUtils.getNode(previousNode)?.label || previousNode
+              : "-";
 
-        return (
-          <div
-            key={node.id}
-            className="flex items-center rounded px-1 py-1 text-xs transition-colors hover:bg-(--od-bg-2)"
-          >
-            <span className="flex-1 truncate text-(--od-fg-0)" title={node.label}>
-              {node.label}
-            </span>
-            <span className="w-16 text-center font-mono text-(--od-blue)">
-              {distance === undefined || distance === Infinity ? "-" : distance}
-            </span>
-            <span className="w-20 truncate text-center font-mono text-(--od-purple)" title={previousLabel}>
-              {previousLabel}
-            </span>
-          </div>
-        );
-      })}
+            return (
+              <TableRow
+                key={node.id}
+                className={cn(
+                  " rounded px-1 py-1 text-base transition-colors hover:bg-(--gl-bg-subtle)",
+                )}
+              >
+                <TableCell className="border-r border-(--gl-border)">
+                  <GraphElement label={node.label} className="m-auto" />
+                </TableCell>
+                <TableCell className="border-r border-(--gl-border) text-center font-semibold text-(--gl-blue-dark)">
+                  {distance === undefined || distance === Infinity ? "-" : distance}
+                </TableCell>
+                <TableCell className="text-center">
+                  {previousLabel === "-" ? (
+                    <span className=" italic text-(--gl-text-muted)">-</span>
+                  ) : (
+                    <GraphElement label={previousLabel} className="m-auto" />
+                  )}
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
     </div>
   );
 }

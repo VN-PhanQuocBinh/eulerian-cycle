@@ -19,7 +19,7 @@ function ConnectedComponentReport() {
   return (
     <section>
       <SectionTitle>Connected Components</SectionTitle>
-      <div className="mb-2 rounded-md border border-(--od-border) bg-(--od-bg-1) px-3 py-1">
+      <div className="mb-2 rounded-md border border-(--gl-border) bg-(--gl-bg-surface) px-3 py-1">
         <InfoRow label="Number of Connected Components" value={components.length} />
       </div>
       <div className="space-y-1.5">
@@ -34,12 +34,12 @@ function ConnectedComponentReport() {
           return (
             <div
               key={i}
-              className="flex items-center gap-2 rounded-md border border-(--od-border) bg-(--od-bg-1) px-3 py-1.5"
+              className="flex items-center gap-2 rounded-md border border-(--gl-border) bg-(--gl-bg-surface) px-3 py-1.5"
             >
-              <span className="shrink-0 text-xs font-bold text-(--od-fg-0)">
+              <span className="shrink-0 text-xs font-bold text-(--gl-text-main)">
                 Component {i + 1} ({comp.length} nodes):
               </span>
-              <span className="text-(--od-fg-1)">{Array.from(labels).join(", ")}</span>
+              <span className="text-(--gl-text-main)">{Array.from(labels).join(", ")}</span>
             </div>
           );
         })}
