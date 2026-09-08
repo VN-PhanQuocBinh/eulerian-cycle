@@ -25,9 +25,9 @@ function SpeedControl({ className, speed, disabled, setSpeed }: SpeedControlProp
     <Select.Root value={normalizedValue} onValueChange={(value) => setSpeed(Number(value))}>
       <Select.Trigger
         className={cn(
-          "h-[42px] min-w-[92px] px-3 rounded-lg border border-(--gl-border) bg-(--gl-bg-surface) text-(--gl-text-main)",
+          "h-10 min-w-[92px] px-3 rounded-lg border border-(--gl-border)/50 bg-(--gl-bg-surface) text-(--gl-text-main)",
           "flex items-center justify-between gap-2 text-sm font-medium transition-all",
-          "hover:bg-(--gl-bg-subtle) focus:outline-none focus:ring-2 focus:ring-(--gl-blue-dark)",
+          "hover:bg-(--gl-bg-subtle) focus:outline-none",
           "disabled:pointer-events-none disabled:opacity-50",
           className,
         )}
@@ -44,7 +44,7 @@ function SpeedControl({ className, speed, disabled, setSpeed }: SpeedControlProp
         </Select.Icon>
       </Select.Trigger>
 
-      <SelectContent position="popper" side="top" sideOffset={8} align="center" className="bg-(--gl-bg-base)">
+      <SelectContent position="popper" side="top" sideOffset={8} align="center" className="bg-(--gl-bg-surface)">
         <Select.Viewport className="p-1">
           {SPEED_VALUES.map((value) => (
             <SelectItem key={String(value)} value={String(value)}>

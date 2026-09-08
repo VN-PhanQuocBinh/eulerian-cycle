@@ -124,7 +124,7 @@ function InputTab({ className }: { className?: string }) {
   }, [isDirected, isWeighted, currentAlgorithm]);
 
   return (
-    <div className={cn("flex flex-col h-full gap-3 bg-(--gl-bg-surface) ", className)}>
+    <div className={cn("flex flex-col h-full gap-3 bg-(--gl-bg-surface)", className)}>
       <div className="flex items-center justify-between">
         <span className="text-xs font-semibold text-(--gl-text-main) uppercase tracking-wide">
           Edge List
@@ -148,7 +148,7 @@ function InputTab({ className }: { className?: string }) {
           <Button
             variant="outline"
             size="icon"
-            className="absolute top-2 right-2 opacity-0 bg-(--gl-bg-subtle) group-hover:opacity-100 transition-opacity"
+            className="absolute top-2 right-2 opacity-0 bg-(--gl-bg-surface) group-hover:opacity-100 transition-opacity"
             onClick={handleCopy}
             disabled={copyStatus === "success"}
           >

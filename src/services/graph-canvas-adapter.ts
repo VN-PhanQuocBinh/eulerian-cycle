@@ -122,6 +122,24 @@ export class GraphCanvasAdapter {
       },
     );
 
+    // Handle pan and zoom events to adjust the background grid
+    this.cy.on("pan zoom", () => {
+      if (!this.cy) return;
+
+      const pan = this.cy.pan();
+      const zoom = this.cy.zoom();
+      const container = this.cy.container();
+
+      if (container) {
+        // 1. Update the background position to reflect the current pan
+        container.style.backgroundPosition = `${pan.x}px ${pan.y}px`;
+
+        // 2. Update the grid size according to the zoom level
+        const baseGridSize = 14;
+        container.style.backgroundSize = `${baseGridSize * zoom}px ${baseGridSize * zoom}px`;
+      }
+    });
+
     {
       const initialPositions = new Map<string, Position>();
       const pendingChangedNodes = new Map<string, Position>();

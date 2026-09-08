@@ -1,6 +1,7 @@
 import { GraphAlgorithm } from "@/types/algorithm-store";
 
 export const DEFAULT_EDGE_WEIGHT = 1;
+export const BASE_ANIMATION_SPEED = 2000;
 
 export const ALGORITHM_OPTIONS: Array<{ label: string; value: GraphAlgorithm }> = [
   { label: "Eulerian Cycle", value: "eulerian-cycle" },

@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { useAlgorithmStore, useGraphDataStore } from "@/stores";
-import { BASE_ANIMATION_SPEED } from "@/components/layouts/sidebar/control-tab";
+import { BASE_ANIMATION_SPEED } from "@/constant/graph-constants";
 import { ReactNode, useEffect, useState } from "react";
 import {
   HIERHOLZER_PSEUDOCODE,
@@ -26,7 +26,8 @@ const pseudoCodeMap: Record<GraphAlgorithm | "strongly-connected-components", Ps
   dijkstra: DIJKSTRA_PSEUDOCODE,
 };
 
-const TOKEN_PATTERN = /(\/\/.*$|\b(?:procedure|if|else|while|for|each|return|continue|until|in|is|and|or|not)\b|\b(?:create|initialize|set|push|pop|add|remove|reverse|select|mark|enqueue|dequeue|calculate|reconstruct|weight|end)\b|\b[A-Za-z_]\w*(?=\s*\()|==|<=|>=|=|<|>|\+|-|\*|\/)/g;
+const TOKEN_PATTERN =
+  /(\/\/.*$|\b(?:procedure|if|else|while|for|each|return|continue|until|in|is|and|or|not)\b|\b(?:create|initialize|set|push|pop|add|remove|reverse|select|mark|enqueue|dequeue|calculate|reconstruct|weight|end)\b|\b[A-Za-z_]\w*(?=\s*\()|==|<=|>=|=|<|>|\+|-|\*|\/)/g;
 
 function renderPseudoCodeText(text: string): ReactNode[] {
   const tokens: ReactNode[] = [];
@@ -45,7 +46,12 @@ function renderPseudoCodeText(text: string): ReactNode[] {
       tokenClass = "token-comment";
     } else if (/^[=<>+*/-]|^==|^<=|^>=/.test(token)) {
       tokenClass = "token-operator";
-    } else if (/^(?:create|initialize|set|push|pop|add|remove|reverse|select|mark|enqueue|dequeue|calculate|reconstruct|weight|end)$/.test(token) || /\w(?=\s*\()/.test(token)) {
+    } else if (
+      /^(?:create|initialize|set|push|pop|add|remove|reverse|select|mark|enqueue|dequeue|calculate|reconstruct|weight|end)$/.test(
+        token,
+      ) ||
+      /\w(?=\s*\()/.test(token)
+    ) {
       tokenClass = "token-function";
     } else {
       tokenClass = "token-keyword";
@@ -161,9 +167,14 @@ export function PseudoCodeViewer({ className }: PseudoCodeViewerProps) {
                 },
               )}
             >
-              <span className={cn("mr-4 inline-block w-8 shrink-0 self-center select-none text-right text-(--gl-text-muted)", {
-                "text-(--gl-green-dark) font-semibold": isActive,
-              })}>
+              <span
+                className={cn(
+                  "mr-4 inline-block w-8 shrink-0 self-center select-none text-right text-(--gl-text-muted)",
+                  {
+                    "text-(--gl-green-dark) font-semibold": isActive,
+                  },
+                )}
+              >
                 {index + 1}
               </span>
 

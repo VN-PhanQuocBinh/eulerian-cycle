@@ -12,6 +12,7 @@ import TopMenuBar from "@/components/layouts/top-menu-bar";
 import { useAppHotkeys } from "./hooks/use-app-hotkeys";
 import LayoutContainer from "./components/layouts/layout-container";
 import AppFooter from "@/components/app-footer";
+import { cn } from "./utils/cn";
 
 function AppContent() {
   const isSidebarOpen = useUIStore((state) => state.isSidebarOpen);
@@ -70,13 +71,13 @@ function AppContent() {
               <ResizablePanelGroup orientation="vertical">
                 <ResizablePanel defaultSize="75%" minSize="25%">
                   <NodeInputProvider>
-                    <LayoutContainer>
+                    <LayoutContainer className="pb-0">
                       <GraphCanvas />
                     </LayoutContainer>
                   </NodeInputProvider>
                 </ResizablePanel>
 
-                <ResizableHandle withHandle />
+                <ResizableHandle withHandle className={cn({ "my-1": isBottomPanelOpen })} />
 
                 <ResizablePanel
                   panelRef={bottomPanelRef}
@@ -86,7 +87,7 @@ function AppContent() {
                   minSize="25%"
                   onResize={handleBottomPanelResize}
                 >
-                  <LayoutContainer>
+                  <LayoutContainer className="pt-0">
                     <BottomPanel />
                   </LayoutContainer>
                 </ResizablePanel>

@@ -101,7 +101,7 @@ function FunctionalBar() {
   };
 
   return (
-    <div className="absolute top-4 right-4 z-10 flex gap-1 rounded-md bg-(--gl-bg-surface) px-1 shadow-md">
+    <div className="absolute top-4 right-4 z-10 flex gap-1 rounded-md bg-(--gl-bg-surface) px-1 shadow-md border border-(--gl-border)/50">
       <ButtonGroup>
         <ToggleGroup
           type="single"
@@ -168,7 +168,7 @@ function FunctionalBar() {
 }
 
 function Separator() {
-  return <div className="w-px min-h-full bg-(--gl-border)" />;
+  return <div className="w-px min-h-full bg-(--gl-border)/30" />;
 }
 
 function ButtonGroup({ children }: { children: React.ReactNode }) {

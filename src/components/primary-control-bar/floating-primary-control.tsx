@@ -1,5 +1,5 @@
 import { ReactNode, useEffect } from "react";
-import { SkipForward, SkipBack, Play, Pause, RotateCcw } from "lucide-react";
+import { Ellipsis, SkipForward, SkipBack, Play, Pause, RotateCcw } from "lucide-react";
 import FunctionButton from "@/components/ui/function-button";
 import { useAlgorithmStore } from "@/stores";
 import { graphService } from "@/services/graph-service";
@@ -9,11 +9,14 @@ import { useToast } from "../ui/toast";
 import { useRegisterHotkey } from "@/hooks/use-register-hotkey";
 import { HOTKEYS_CONFIG } from "@/configs/hotkeys-config";
 import { cn } from "@/utils/cn";
+import { Tooltip } from "@/components/ui/tooltip";
+import AlgorithmSelect from "./algorithm-select";
+import MoreOptionsButton from "./more-options-button";
 
 export const BASE_ANIMATION_SPEED = 2000; // in milliseconds
 
 function Separator() {
-  return <div className="w-px min-h-full bg-(--gl-border)" />;
+  return <div className="h-8 w-px self-center bg-(--gl-border)/30" />;
 }
 
 function ButtonGroup({ children, classNames }: { children: ReactNode; classNames?: string }) {
@@ -24,6 +27,7 @@ function FloatintPrimaryControl() {
   const steps = useAlgorithmStore((state) => state.steps);
   const speed = useAlgorithmStore((state) => state.speed);
   const isAnimating = useAlgorithmStore((state) => state.isAnimating);
+  const currentStepIndex = useAlgorithmStore((state) => state.currentStepIndex);
   const setIsAnimating = useAlgorithmStore((state) => state.setIsAnimating);
   const setCurrentStepIndex = useAlgorithmStore((state) => state.setCurrentStepIndex);
   const setSpeed = useAlgorithmStore((state) => state.setSpeed);
@@ -37,6 +41,9 @@ function FloatintPrimaryControl() {
     canForward,
     canBackward,
   } = useStepControl();
+
+  const currentStepDisplay =
+    steps.length === 0 ? 0 : Math.min(Math.max(currentStepIndex + 1, 0), steps.length);
 
   useEffect(() => {
     if (steps.length === 0 || !isAnimating) {
@@ -109,15 +116,17 @@ function FloatintPrimaryControl() {
   };
 
   return (
-    <div className="flex items-center gap-1 rounded-md bg-(--gl-bg-surface) px-1 drop-shadow-md">
-      {/* <div className="py-1"> */}
-        <SpeedControl
-          speed={speed}
-          disabled={false}
-          setSpeed={setSpeed}
-          className=" border-(--gl-border) text-(--gl-text-main) hover:bg-(--gl-bg-subtle)/50 focus:ring-(--gl-blue-dark)"
-        />
-      {/* </div> */}
+    <div className="min-h-12 flex items-center gap-1 rounded-md bg-(--gl-bg-surface) px-1 drop-shadow-md border border-(--gl-border)/50">
+      <AlgorithmSelect />
+
+      <SpeedControl
+        speed={speed}
+        disabled={false}
+        setSpeed={setSpeed}
+        className=" border-(--gl-border) text-(--gl-text-main) hover:bg-(--gl-bg-subtle)/50 focus:ring-(--gl-blue-dark)"
+      />
+
+      <Separator />
 
       <ButtonGroup classNames="py-0">
         <FunctionButton
@@ -154,6 +163,21 @@ function FloatintPrimaryControl() {
         onClick={handleReset}
         className="border border-(--gl-border) text-(--gl-text-main) hover:bg-(--gl-bg-subtle)"
       />
+
+      <Tooltip content="Current step" side="top">
+        <div
+          className={cn(
+            "flex items-center rounded-sm border border-(--gl-border) bg-(--gl-bg-surface) text-(--gl-text-main) px-3 py-2",
+            { "bg-(--gl-text-main) text-(--gl-bg-surface)": currentStepDisplay === steps.length },
+          )}
+        >
+          <p className="text-xs font-semibold text-nowrap select-none">
+            {currentStepDisplay} / {steps.length}
+          </p>
+        </div>
+      </Tooltip>
+
+      <MoreOptionsButton />
     </div>
   );
 }

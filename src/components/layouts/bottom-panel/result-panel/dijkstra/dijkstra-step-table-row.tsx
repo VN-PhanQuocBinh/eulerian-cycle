@@ -30,7 +30,7 @@ function DijkstraStepTableRow({
         },
       )}
     >
-      <TableCell className="border-l-4 text-(--gl-text-main)">
+      <TableCell className=" text-(--gl-text-main)">
         <JumpButton index={index} />
       </TableCell>
       <TableCell className="px-3 py-2 text-center">
