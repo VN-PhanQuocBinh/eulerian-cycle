@@ -37,12 +37,12 @@ export function EulerianCycleStepsTable({ steps }: Props) {
       <Table className="text-(--gl-text-main)">
         <TableHeader>
           <TableRow className="top-0 border-b border-(--gl-border) hover:bg-transparent">
-            <TableHead className="w-10 bg-(--gl-bg-subtle) text-(--gl-blue-dark)">Step</TableHead>
-            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-blue-dark) text-center">Current</TableHead>
-            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-blue-dark) text-center">Next</TableHead>
-            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-blue-dark)">Stack</TableHead>
-            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-blue-dark)">Circuit</TableHead>
-            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-blue-dark)">Explain</TableHead>
+            <TableHead className="w-10 bg-(--gl-bg-subtle) text-(--gl-text-main)">Step</TableHead>
+            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-text-main) text-center">Current</TableHead>
+            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-text-main) text-center">Next</TableHead>
+            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-text-main)">Stack</TableHead>
+            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-text-main)">Circuit</TableHead>
+            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-text-main)">Explain</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

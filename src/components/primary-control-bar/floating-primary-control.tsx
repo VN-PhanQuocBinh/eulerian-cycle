@@ -133,7 +133,7 @@ function FloatintPrimaryControl() {
           tooltipContent="Toggle Run"
           icon={isAnimating ? Pause : Play}
           side="top"
-          className="border border-(--gl-blue-dark) bg-(--gl-blue-dark) text-(--gl-text-main) not-disabled:hover:bg-(--gl-blue-dark)/50 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="border border-(--gl-blue-dark) bg-(--gl-blue-dark) text-(--gl-bg-surface) not-disabled:hover:bg-(--gl-blue-dark)/50 disabled:opacity-50 disabled:cursor-not-allowed"
         />
         <FunctionButton
           onClick={forward}

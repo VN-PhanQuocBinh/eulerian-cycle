@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { useAlgorithmStore, useGraphDataStore } from "@/stores";
 import { BASE_ANIMATION_SPEED } from "@/components/layouts/sidebar/control-tab";
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import {
   HIERHOLZER_PSEUDOCODE,
   CONNECTED_COMPONENTS_PSEUDOCODE,
@@ -25,6 +25,46 @@ const pseudoCodeMap: Record<GraphAlgorithm | "strongly-connected-components", Ps
   bfs: BFS_PSEUDOCODE,
   dijkstra: DIJKSTRA_PSEUDOCODE,
 };
+
+const TOKEN_PATTERN = /(\/\/.*$|\b(?:procedure|if|else|while|for|each|return|continue|until|in|is|and|or|not)\b|\b(?:create|initialize|set|push|pop|add|remove|reverse|select|mark|enqueue|dequeue|calculate|reconstruct|weight|end)\b|\b[A-Za-z_]\w*(?=\s*\()|==|<=|>=|=|<|>|\+|-|\*|\/)/g;
+
+function renderPseudoCodeText(text: string): ReactNode[] {
+  const tokens: ReactNode[] = [];
+  let lastIndex = 0;
+
+  for (const match of text.matchAll(TOKEN_PATTERN)) {
+    const token = match[0];
+    const index = match.index ?? 0;
+
+    if (index > lastIndex) {
+      tokens.push(text.slice(lastIndex, index));
+    }
+
+    let tokenClass = "";
+    if (token.startsWith("//")) {
+      tokenClass = "token-comment";
+    } else if (/^[=<>+*/-]|^==|^<=|^>=/.test(token)) {
+      tokenClass = "token-operator";
+    } else if (/^(?:create|initialize|set|push|pop|add|remove|reverse|select|mark|enqueue|dequeue|calculate|reconstruct|weight|end)$/.test(token) || /\w(?=\s*\()/.test(token)) {
+      tokenClass = "token-function";
+    } else {
+      tokenClass = "token-keyword";
+    }
+
+    tokens.push(
+      <span key={`${index}-${token}`} className={tokenClass}>
+        {token}
+      </span>,
+    );
+    lastIndex = index + token.length;
+  }
+
+  if (lastIndex < text.length) {
+    tokens.push(text.slice(lastIndex));
+  }
+
+  return tokens;
+}
 
 export function PseudoCodeViewer({ className }: PseudoCodeViewerProps) {
   const currentStepIndex = useAlgorithmStore((state) => state.currentStepIndex);
@@ -99,7 +139,7 @@ export function PseudoCodeViewer({ className }: PseudoCodeViewerProps) {
   return (
     <div
       className={cn(
-        "h-full overflow-y-auto custom-scrollbar rounded-md border border-(--gl-border) bg-(--gl-bg-base)",
+        "h-full overflow-y-auto custom-scrollbar rounded-md border border-(--gl-border) bg-(--gl-bg-surface)",
         className,
       )}
     >
@@ -136,7 +176,7 @@ export function PseudoCodeViewer({ className }: PseudoCodeViewerProps) {
                     "font-semibold text-(--gl-text-main)": isActive,
                   })}
                 >
-                  {line.text}
+                  {renderPseudoCodeText(line.text)}
                 </span>
               </div>
             </div>

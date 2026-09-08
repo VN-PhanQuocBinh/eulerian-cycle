@@ -24,6 +24,7 @@ export interface GraphCanvasCallbacks {
 export class GraphCanvasAdapter {
   public cy: cytoscape.Core | null = null;
   private eh: EdgeHandlesInstance | null = null;
+  private isDirected = false;
 
   init(container: HTMLDivElement) {
     const graphInstance = cytoscape({
@@ -335,6 +336,7 @@ export class GraphCanvasAdapter {
   }
 
   drawGraphFromData(graphData: { nodes: GraphNode[]; edges: GraphEdge[]; isDirected: boolean }) {
+    this.isDirected = graphData.isDirected;
     if (!this.cy) return;
 
     const { nodes, edges } = graphData;
@@ -352,7 +354,7 @@ export class GraphCanvasAdapter {
       edges.forEach((edge) => {
         this.cy?.add({
           group: "edges",
-          data: edge,
+          data: { ...edge, isDirected: graphData.isDirected },
         });
       });
     });
@@ -401,7 +403,7 @@ export class GraphCanvasAdapter {
   }
 
   getGraphSnapshot() {
-    if (!this.cy) return { nodes: [], edges: [], isDirected: false };
+    if (!this.cy) return { nodes: [], edges: [], isDirected: this.isDirected };
 
     const nodes: GraphNode[] = this.cy.nodes().map((node) => ({
       id: node.id(),
@@ -420,7 +422,7 @@ export class GraphCanvasAdapter {
     return {
       nodes,
       edges,
-      isDirected: this.cy.edges().some((edge) => edge.data("isDirected")),
+      isDirected: this.isDirected,
     };
   }
 
@@ -430,6 +432,7 @@ export class GraphCanvasAdapter {
   }
 
   toggleDirected(isDirected: boolean) {
+    this.isDirected = isDirected;
     if (!this.cy) return;
     this.cy.edges().data("isDirected", isDirected);
   }

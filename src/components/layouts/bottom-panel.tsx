@@ -35,7 +35,6 @@ export function BottomPanel() {
   });
 
   return (
-    <div className="h-full p-1 pb-2 bg-(--gl-bg-base)">
       <Tabs
         ref={tabsRootRef}
         defaultValue="steps"
@@ -45,7 +44,7 @@ export function BottomPanel() {
         <div className="flex items-center mb-2 py-1">
           <TabsList variant="line" className="">
             {tabs.map((tab) => (
-              <TabsTrigger key={tab.value} value={tab.value} className="text-[12px] font-semibold group-data-[variant=line]/tabs-list:data-[state=active]:bg-(--gl-text-main)/5 rounded-sm px-3">
+              <TabsTrigger key={tab.value} value={tab.value} className="text-[12px] font-semibold rounded-sm px-3">
                 {tab.label}
               </TabsTrigger>
             ))}
@@ -54,7 +53,7 @@ export function BottomPanel() {
             {bottomPanelTab === "steps" && (
               <>
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
                   onClick={toggleSmartScroll}
                   className="text-[12px]"
@@ -100,6 +99,5 @@ export function BottomPanel() {
           <GraphReport />
         </TabsContent>
       </Tabs>
-    </div>
   );
 }

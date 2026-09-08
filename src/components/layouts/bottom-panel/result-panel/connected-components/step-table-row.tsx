@@ -9,6 +9,7 @@ import { cn } from "@/utils/cn";
 import { useSmartScroll } from "@/hooks/use-smart-scroll";
 import JumpButton from "@/components/layouts/bottom-panel/jump-button";
 import { arrayToString } from "@/utils";
+import GraphElement from "../../graph-element";
 
 interface Props {
   step: Step;
@@ -62,7 +63,7 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
     <TableRow
       key={index}
       ref={rowRef}
-      className={cn("group border-b border-border hover:bg-(--gl-bg-surface)", {
+      className={cn("group border-b border-border not-hover:bg-(--gl-bg-surface)", {
         "bg-(--gl-bg-subtle)! border-l-4 border-l-(--gl-blue-dark)": isActive,
       })}
     >
@@ -77,13 +78,9 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
       {/* Element */}
       <TableCell className="px-3 py-2 text-center text-nowrap">
         {element?.type === "node" ? (
-          <span className="px-2 py-0.5 rounded border border-border bg-(--gl-bg-subtle) text-foreground">
-            {element.label}
-          </span>
+          <GraphElement label={element.label} />
         ) : element?.type === "edge" ? (
-          <span className="text-foreground">
-            {element.source.label} → {element.target.label}
-          </span>
+          <GraphElement label={`${element.source.label} → ${element.target.label}`} />
         ) : (
           <span className="text-(--gl-text-main) italic">_</span>
         )}
@@ -110,12 +107,7 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
             <>
               <div className="flex-1 flex items-center gap-2 flex-wrap">
                 {visitedNodes.map((nodeLabel, idx) => (
-                  <span
-                    key={nodeLabel + idx}
-                    className="px-1.5 py-0.5 rounded text-xs border border-border bg-(--gl-bg-surface) text-(--gl-text-main)"
-                  >
-                    {nodeLabel}
-                  </span>
+                  <GraphElement key={nodeLabel + idx} label={nodeLabel} />
                 ))}
               </div>
               <CopyButton text={arrayToString(visitedNodes)} />
@@ -133,12 +125,7 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
             <>
               <div className="flex-1 flex items-center gap-2 flex-wrap">
                 {queueNodes.map((node) => (
-                  <span
-                    key={node.id + Math.random()}
-                    className="size-5 w-max px-1.5 py-0.5 rounded text-xs border border-(--gl-border) bg-(--gl-bg-surface) text-(--gl-text-main)"
-                  >
-                    {node?.label}
-                  </span>
+                  <GraphElement key={node.id + Math.random()} label={node?.label || node.id} />
                 ))}
               </div>
               <CopyButton text={arrayToString(queueNodes.map((node) => node?.label))} />

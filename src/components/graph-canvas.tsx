@@ -193,70 +193,68 @@ const GraphCanvas = () => {
   };
 
   return (
-    <div className="h-full p-1 pt-1 bg-(--gl-bg-base)">
-      <div className="relative flex-1 h-full overflow-hidden bg-(--gl-bg-surface) rounded-md">
-        <ContextMenu>
-          <ContextMenuTrigger asChild>
-            <div ref={triggerRef} className="h-full w-full">
-              <div ref={containerRef} className="h-full w-full" />
-            </div>
-          </ContextMenuTrigger>
+    <div className="relative flex-1 h-full overflow-hidden bg-(--gl-bg-surface) rounded-md">
+      <ContextMenu>
+        <ContextMenuTrigger asChild>
+          <div ref={triggerRef} className="h-full w-full">
+            <div ref={containerRef} id="cytoscape-container" className="h-full w-full" />
+          </div>
+        </ContextMenuTrigger>
 
-          {contextTarget && (
-            <ContextMenuContent className="w-52 border-(--gl-border) bg-(--gl-bg-base) p-1 text-(--gl-text-main)">
-              <ContextMenuLabel className="text-(--gl-text-main)">
-                {contextTarget?.kind === "node" ? "Node Actions" : "Edge Actions"}
-              </ContextMenuLabel>
+        {contextTarget && (
+          <ContextMenuContent className="w-52 border-(--gl-border) bg-(--gl-bg-base) p-1 text-(--gl-text-main)">
+            <ContextMenuLabel className="text-(--gl-text-main)">
+              {contextTarget?.kind === "node" ? "Node Actions" : "Edge Actions"}
+            </ContextMenuLabel>
 
-              {contextTarget?.kind === "node" && (
-                <>
+            {contextTarget?.kind === "node" && (
+              <>
+                <ContextMenuItem
+                  onSelect={handleEditNode}
+                  className="focus:bg-(--gl-bg-subtle) focus:text-(--gl-text-main)"
+                >
+                  Edit
+                </ContextMenuItem>
+                <ContextMenuItem
+                  onSelect={handleSetStartNode}
+                  className="focus:bg-(--gl-bg-subtle) focus:text-(--gl-text-main)"
+                >
+                  Set as Start Node
+                </ContextMenuItem>
+                {hasTargetNode(currentAlgorithm) && (
                   <ContextMenuItem
-                    onSelect={handleEditNode}
+                    onSelect={handleSetTargetNode}
                     className="focus:bg-(--gl-bg-subtle) focus:text-(--gl-text-main)"
                   >
-                    Edit
+                    Set as Target Node
                   </ContextMenuItem>
-                  <ContextMenuItem
-                    onSelect={handleSetStartNode}
-                    className="focus:bg-(--gl-bg-subtle) focus:text-(--gl-text-main)"
-                  >
-                    Set as Start Node
-                  </ContextMenuItem>
-                  {hasTargetNode(currentAlgorithm) && (
-                    <ContextMenuItem
-                      onSelect={handleSetTargetNode}
-                      className="focus:bg-(--gl-bg-subtle) focus:text-(--gl-text-main)"
-                    >
-                      Set as Target Node
-                    </ContextMenuItem>
-                  )}
-                  <ContextMenuSeparator className="bg-(--gl-border)" />
-                  <ContextMenuItem
-                    onSelect={handleDeleteTarget}
-                    className="text-(--gl-red-dark) focus:bg-(--gl-bg-subtle) focus:text-(--gl-red-dark)"
-                  >
-                    Delete
-                  </ContextMenuItem>
-                </>
-              )}
-
-              {contextTarget?.kind === "edge" && (
+                )}
+                <ContextMenuSeparator className="bg-(--gl-border)" />
                 <ContextMenuItem
                   onSelect={handleDeleteTarget}
                   className="text-(--gl-red-dark) focus:bg-(--gl-bg-subtle) focus:text-(--gl-red-dark)"
                 >
                   Delete
                 </ContextMenuItem>
-              )}
-            </ContextMenuContent>
-          )}
-        </ContextMenu>
+              </>
+            )}
 
-        <FunctionalBar />
-        <BottomToolbar />
-        <FloatingStackQueuePanel />
-        <FullscreenButton />
-      </div>
+            {contextTarget?.kind === "edge" && (
+              <ContextMenuItem
+                onSelect={handleDeleteTarget}
+                className="text-(--gl-red-dark) focus:bg-(--gl-bg-subtle) focus:text-(--gl-red-dark)"
+              >
+                Delete
+              </ContextMenuItem>
+            )}
+          </ContextMenuContent>
+        )}
+      </ContextMenu>
+
+      <FunctionalBar />
+      <BottomToolbar />
+      <FloatingStackQueuePanel />
+      <FullscreenButton />
     </div>
   );
 };

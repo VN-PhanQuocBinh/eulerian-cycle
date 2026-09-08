@@ -7,6 +7,7 @@ import { TableRow, TableCell } from "@/components/ui/table";
 import { CopyButton } from "@/components/copy-button";
 import JumpButton from "../../jump-button";
 import { useSmartScroll } from "@/hooks/use-smart-scroll";
+import GraphElement from "../../graph-element";
 
 interface Props {
   step: Step;
@@ -58,7 +59,7 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
     <TableRow
       key={index}
       ref={rowRef}
-      className={cn("group border-b border-(--gl-border) hover:bg-(--gl-bg-subtle)", {
+      className={cn("group border-b border-(--gl-border) hover:bg-(--gl-bg-base)", {
         "bg-(--gl-bg-subtle)": isActive,
       })}
     >
@@ -73,13 +74,9 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
       {/* Element */}
       <TableCell className="px-3 py-2 text-center">
         {element?.type === "node" ? (
-          <span className="px-2 py-0.5 rounded font-medium text-(--gl-text-main) bg-(--gl-bg-subtle) border border-(--gl-border)">
-            {element.label}
-          </span>
+          <GraphElement label={element.label} />
         ) : element?.type === "edge" && step.elements.length > 1 ? (
-          <span className="text-(--gl-text-main)">
-            {element.source.label} → {element.target.label}
-          </span>
+          <GraphElement label={`${element.source.label} → ${element.target.label}`} />
         ) : (
           <span className="text-(--gl-text-muted) italic">_</span>
         )}
@@ -92,12 +89,7 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
             <>
               <div className="flex-1 flex items-center gap-1 flex-wrap">
                 {stackNodes.map((node) => (
-                  <span
-                    key={node.id}
-                    className="px-1.5 py-0.5 rounded text-xs text-(--gl-blue-dark) bg-(--gl-bg-subtle) border border-(--gl-border)"
-                  >
-                    {node.label}
-                  </span>
+                  <GraphElement key={node.id} label={node.label} />
                 ))}
               </div>
               <CopyButton text={`[${stackNodes.map((n) => n.label).join(", ")}]`} />

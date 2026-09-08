@@ -3,6 +3,7 @@ import { useAlgorithmStore, useGraphDataStore } from "@/stores";
 import { SCCStepsTable } from "./scc-steps-table";
 import { Step } from "@/types/algorithm-store";
 import { createGraphUtils } from "@/core/helpers/graph-utils";
+import GraphElement from "../../graph-element";
 
 export function SCCResult({ steps }: { steps: Step[] }) {
   const currentStepIndex = useAlgorithmStore((state) => state.currentStepIndex);
@@ -17,8 +18,8 @@ export function SCCResult({ steps }: { steps: Step[] }) {
   }
 
   return (
-    <div className="flex h-full gap-4 bg-(--gl-bg-base) text-(--gl-text-main)">
-      <div className="min-w-0 flex-1 max-h-full overflow-y-auto rounded-md border border-(--gl-border) bg-(--gl-bg-surface) custom-scrollbar">
+    <div className="flex h-full gap-2 text-(--gl-text-main)">
+      <div className="min-w-0 flex-1 max-h-full overflow-y-auto rounded-md bg-(--gl-bg-surface) custom-scrollbar">
         <SCCStepsTable steps={steps} />
       </div>
 
@@ -70,13 +71,13 @@ function DiscLowLinkTable({
             key={nodeId}
             className="flex items-center rounded px-1 py-1 text-xs transition-colors hover:bg-(--gl-bg-subtle)"
           >
-            <span className="flex-1 truncate text-(--gl-text-main)">
-              {graphUtils.getNode(nodeId)?.label || nodeId}
-            </span>
-            <span className="w-10 text-center font-mono text-(--gl-blue-dark)">
+            <div className="flex-1">
+              <GraphElement label={graphUtils.getNode(nodeId)?.label || nodeId} />
+            </div>
+            <span className="w-10 text-base text-center font-mono text-(--gl-blue-dark)">
               {discValue === -1 ? "—" : discValue}
             </span>
-            <span className="w-10 text-center font-mono text-(--gl-blue-dark)">
+            <span className="w-10 text-base text-center font-mono text-(--gl-blue-dark)">
               {lowValue === -1 || lowValue === undefined ? "—" : lowValue}
             </span>
           </div>

@@ -30,7 +30,7 @@ function FullscreenButton() {
 
   return (
     <FunctionButton
-      className="absolute bottom-4 left-4 z-20"
+      className="absolute bottom-4 left-4 z-20 bg-(--gl-bg-subtle) hover:bg-(--gl-bg-base) transition-colors"
       icon={icon}
       onClick={handleToggleFullscreen}
       tooltipContent={isSidebarOpen || isBottomPanelOpen ? "Enter Fullscreen" : "Exit Fullscreen"}

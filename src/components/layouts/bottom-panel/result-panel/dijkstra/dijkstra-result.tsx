@@ -3,6 +3,7 @@ import { useAlgorithmStore, useGraphDataStore } from "@/stores";
 import { Step } from "@/types/algorithm-store";
 import { createGraphUtils } from "@/core/helpers/graph-utils";
 import { DijkstraStepsTable } from "./dijkstra-steps-table";
+import GraphElement from "../../graph-element";
 
 export function DijkstraResult({ steps }: { steps: Step[] }) {
   const currentStepIndex = useAlgorithmStore((state) => state.currentStepIndex);
@@ -17,7 +18,7 @@ export function DijkstraResult({ steps }: { steps: Step[] }) {
   }
 
   return (
-    <div className="flex h-full gap-4 bg-(--gl-bg-base) text-(--gl-text-main)">
+    <div className="flex h-full gap-2 text-(--gl-text-main)">
       <div className="min-w-0 flex-1 max-h-full overflow-y-auto rounded-md border border-(--gl-border) bg-(--gl-bg-surface) custom-scrollbar">
         <DijkstraStepsTable steps={steps} />
       </div>
@@ -25,7 +26,10 @@ export function DijkstraResult({ steps }: { steps: Step[] }) {
         <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-(--gl-text-muted)">
           distance / previous
         </div>
-        <DistanceTable distances={currentStep?.distances} previousNodes={currentStep?.previousNodes} />
+        <DistanceTable
+          distances={currentStep?.distances}
+          previousNodes={currentStep?.previousNodes}
+        />
       </div>
     </div>
   );
@@ -69,15 +73,22 @@ function DistanceTable({
             key={node.id}
             className="flex items-center rounded px-1 py-1 text-xs transition-colors hover:bg-(--gl-bg-subtle)"
           >
-            <span className="flex-1 truncate text-(--gl-text-main)" title={node.label}>
+            {/* <span className="flex-1 truncate text-(--gl-text-main)" title={node.label}>
               {node.label}
-            </span>
-            <span className="w-16 text-center font-mono text-(--gl-blue-dark)">
+            </span> */}
+            <div className="flex-1">
+              <GraphElement label={node.label} />
+            </div>
+            <span className="w-16 text-base text-center font-mono text-(--gl-blue-dark)">
               {distance === undefined || distance === Infinity ? "-" : distance}
             </span>
-            <span className="w-20 truncate text-center font-mono text-(--gl-blue-dark)" title={previousLabel}>
-              {previousLabel}
-            </span>
+            <div className="w-20 text-center">
+              {previousLabel === "-" ? (
+                <span className="text-xs italic text-(--gl-text-muted)">-</span>
+              ) : (
+                <GraphElement label={previousLabel} />
+              )}
+            </div>
           </div>
         );
       })}

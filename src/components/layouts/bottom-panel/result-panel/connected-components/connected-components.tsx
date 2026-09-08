@@ -59,12 +59,12 @@ export function ConnectedComponentsStepsTable({ steps }: Props) {
       <Table className="text-(--gl-text-main)">
         <TableHeader>
           <TableRow className="border-b border-(--gl-border)">
-            <TableHead className="w-10 bg-(--gl-bg-subtle) text-(--gl-blue-dark)">Step</TableHead>
-            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-blue-dark) text-center">Element</TableHead>
-            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-blue-dark)">Component</TableHead>
-            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-blue-dark)">Visited Nodes</TableHead>
-            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-blue-dark)">Queue</TableHead>
-            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-blue-dark)">Explain</TableHead>
+            <TableHead className="w-10 bg-(--gl-bg-subtle) text-(--gl-text-main)">Step</TableHead>
+            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-text-main) text-center">Element</TableHead>
+            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-text-main)">Component</TableHead>
+            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-text-main)">Visited Nodes</TableHead>
+            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-text-main)">Queue</TableHead>
+            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-text-main)">Explain</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

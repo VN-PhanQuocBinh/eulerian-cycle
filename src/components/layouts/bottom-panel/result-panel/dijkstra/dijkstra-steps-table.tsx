@@ -20,9 +20,9 @@ export function DijkstraStepsTable({ steps }: { steps: Step[] }) {
       <Table className="text-(--gl-text-main)">
         <TableHeader>
           <TableRow className="border-b border-(--gl-border) hover:bg-transparent">
-            <TableHead className="w-10 bg-(--gl-bg-subtle) text-(--gl-blue-dark)">Step</TableHead>
-            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-blue-dark) text-center">Processing</TableHead>
-            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-blue-dark)">Explain</TableHead>
+            <TableHead className="w-10 bg-(--gl-bg-subtle) text-(--gl-text-main)">Step</TableHead>
+            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-text-main) text-center">Processing</TableHead>
+            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-text-main)">Explain</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

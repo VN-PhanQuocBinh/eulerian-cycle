@@ -8,14 +8,8 @@ import { cn } from "@/lib/utils";
 import { ListChevronsDownUp, ListChevronsUpDown, Ellipsis, ChevronDown } from "lucide-react";
 import { Select, SelectContent, SelectItem } from "@/components/ui/select";
 import { useAlgorithmOperations } from "@/hooks/use-algorithm-operations";
+import { ALGORITHM_OPTIONS } from "@/constant/graph-constants";
 
-const algorithmOptions: Array<{ label: string; value: GraphAlgorithm }> = [
-  { label: "Eulerian Cycle", value: "eulerian-cycle" },
-  { label: "Connected Components", value: "connected-components" },
-  { label: "Depth-First Search (DFS)", value: "dfs" },
-  { label: "Breadth-First Search (BFS)", value: "bfs" },
-  { label: "Dijkstra's Algorithm", value: "dijkstra" },
-];
 
 function CollapsedBottomPanel() {
   const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
@@ -49,7 +43,7 @@ function CollapsedBottomPanel() {
             disabled={isAnimating}
           >
             <Select.Trigger className="h-full w-full flex items-center gap-2 justify-between rounded-sm border border-(--gl-border) outline-none hover:bg-(--gl-bg-subtle) px-3 text-sm font-semibold text-(--gl-amber-dark) hover:border-(--gl-border) disabled:opacity-60">
-              <Select.Value />
+              <Select.Value className="select-none" />
               <Select.Icon>
                 <ChevronDown size={14} strokeWidth={4} className="text-(--gl-text-muted) " />
               </Select.Icon>
@@ -63,7 +57,7 @@ function CollapsedBottomPanel() {
               className="w-52 border-(--gl-border) bg-(--gl-bg-surface) p-1"
             >
               <Select.Viewport>
-                {algorithmOptions.map((option) => (
+                {ALGORITHM_OPTIONS.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
                     <p className="w-max">{option.label}</p>
                   </SelectItem>
@@ -101,7 +95,7 @@ function CollapsedBottomPanel() {
           </PopoverTrigger>
 
           <PopoverContent
-            className="w-56 border-(--gl-border) bg-(--gl-bg-base)"
+            className="w-56 border-(--gl-border) bg-(--gl-bg-surface)"
             side="top"
             sideOffset={10}
           >

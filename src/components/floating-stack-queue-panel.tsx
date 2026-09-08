@@ -2,6 +2,7 @@ import { useMemo, useRef } from "react";
 import { Layers3, ListOrdered } from "lucide-react";
 import { useAlgorithmStore, useGraphDataStore } from "@/stores";
 import { useUIStore } from "@/stores";
+import { cn } from "@/utils/cn";
 
 const MAX_STACK_VISIBLE = 5;
 
@@ -10,7 +11,7 @@ function StackDeck({ values }: { values: string[] }) {
   const hiddenCount = Math.max(0, values.length - MAX_STACK_VISIBLE);
 
   return (
-    <div className="min-w-[200px] max-w-[200px] rounded-lg border border-(--gl-border) bg-(--gl-bg-subtle) p-1 px-3 py-2 shadow-md">
+    <div className="min-w-[200px] max-w-[200px] rounded-lg border border-(--gl-border) bg-(--gl-bg-base) p-1 px-3 py-2 shadow-md">
       <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-(--gl-text-main)">
         <Layers3 size={14} />
         <span>Stack</span>
@@ -24,9 +25,14 @@ function StackDeck({ values }: { values: string[] }) {
               return (
                 <div
                   key={String(value) + "-" + String(index)}
-                  className="left-0 right-0 origin-top rounded-md border border-(--gl-border) bg-(--gl-bg-subtle) px-2 py-1.5 shadow-sm"
+                  className={cn(
+                    "left-0 right-0 origin-top rounded-md border border-(--gl-border) bg-(--gl-bg-subtle)  px-2 py-1.5 shadow-sm",
+                    {
+                      "bg-(--gl-blue-dark) text-(--gl-bg-surface)": index === 0,
+                    },
+                  )}
                 >
-                  <span className="block truncate text-center text-xs font-medium text-(--gl-blue-dark)">
+                  <span className={cn("block truncate text-center text-xs font-medium", {})}>
                     {value}
                   </span>
                 </div>
@@ -59,7 +65,7 @@ function QueueRail({ values }: { values: string[] }) {
   };
 
   return (
-    <div className="min-w-[200px] max-w-[360px] rounded-lg border border-(--gl-border) bg-(--gl-bg-subtle) p-1 px-3 py-2 shadow-md">
+    <div className="min-w-[200px] max-w-[360px] rounded-lg border border-(--gl-border) bg-(--gl-bg-base) p-1 px-3 py-2 shadow-md">
       <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-(--gl-text-main)">
         <ListOrdered size={14} />
         <span>Queue</span>
@@ -79,7 +85,7 @@ function QueueRail({ values }: { values: string[] }) {
                   key={String(value) + "-" + String(index)}
                   className={
                     index === 0
-                      ? "rounded-sm border border-(--gl-green-dark) bg-(--gl-green-dark) px-2.5 py-1 text-xs font-semibold text-(--primary-foreground)"
+                      ? "rounded-sm border border-(--gl-green-dark) bg-(--gl-green-dark) text-(--gl-bg-surface) px-2.5 py-1 text-xs font-semibold"
                       : "rounded-sm border border-(--gl-border) bg-(--gl-bg-subtle) px-2.5 py-1 text-xs font-medium text-(--gl-text-main)"
                   }
                 >

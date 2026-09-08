@@ -10,6 +10,8 @@ import { useAlgorithmSync } from "./hooks/use-algorithm-sync";
 import { useUIStore } from "./stores";
 import TopMenuBar from "@/components/layouts/top-menu-bar";
 import { useAppHotkeys } from "./hooks/use-app-hotkeys";
+import LayoutContainer from "./components/layouts/layout-container";
+import AppFooter from "@/components/app-footer";
 
 function AppContent() {
   const isSidebarOpen = useUIStore((state) => state.isSidebarOpen);
@@ -68,7 +70,9 @@ function AppContent() {
               <ResizablePanelGroup orientation="vertical">
                 <ResizablePanel defaultSize="75%" minSize="25%">
                   <NodeInputProvider>
-                    <GraphCanvas />
+                    <LayoutContainer>
+                      <GraphCanvas />
+                    </LayoutContainer>
                   </NodeInputProvider>
                 </ResizablePanel>
 
@@ -82,13 +86,16 @@ function AppContent() {
                   minSize="25%"
                   onResize={handleBottomPanelResize}
                 >
-                  <BottomPanel />
+                  <LayoutContainer>
+                    <BottomPanel />
+                  </LayoutContainer>
                 </ResizablePanel>
               </ResizablePanelGroup>
             </main>
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>
+      <AppFooter />
     </div>
   );
 }

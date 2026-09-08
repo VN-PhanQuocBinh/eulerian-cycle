@@ -101,11 +101,11 @@ function FunctionalBar() {
   };
 
   return (
-    <div className="absolute top-4 right-4 z-10 flex gap-1 rounded-md border-2 border-(--gl-border) bg-(--gl-bg-subtle) px-1 shadow-md">
+    <div className="absolute top-4 right-4 z-10 flex gap-1 rounded-md bg-(--gl-bg-surface) px-1 shadow-md">
       <ButtonGroup>
         <ToggleGroup
           type="single"
-          className="h-full gap-0 rounded-sm bg-(--gl-bg-surface) px-1"
+          className="h-full gap-0 rounded-sm bg-(--gl-bg-base) px-1"
           onValueChange={handleValueChange}
           value={interactionMode}
         >
@@ -117,7 +117,7 @@ function FunctionalBar() {
             >
               <ToggleGroupItem
                 value={value}
-                className="text-(--gl-text-main) hover:bg-(--gl-bg-subtle) data-[state=on]:bg-(--gl-blue-dark) data-[state=on]:text-(--primary-foreground) outline-none"
+                className="text-(--gl-text-main) hover:bg-(--gl-bg-subtle) data-[state=on]:bg-(--gl-blue-soft) data-[state=on]:text-(--gl-blue-dark) outline-none"
                 asChild
                 size="sm"
               >

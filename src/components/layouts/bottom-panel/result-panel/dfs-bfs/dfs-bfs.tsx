@@ -4,6 +4,7 @@ import { useAlgorithmStore, useGraphDataStore } from "@/stores";
 import { createGraphUtils } from "@/core/helpers/graph-utils";
 import { useMemo } from "react";
 import StepTableRow from "./step-table-row";
+import GraphElement from "../../graph-element";
 
 interface Props {
   steps: Step[];
@@ -38,13 +39,13 @@ export function DfsBfsStepsTable({ steps }: Props) {
       <Table className="text-(--gl-text-main)">
         <TableHeader>
           <TableRow className="top-0 border-b border-(--gl-border) hover:bg-transparent">
-            <TableHead className="w-10 bg-(--gl-bg-subtle) text-(--gl-blue-dark)">Step</TableHead>
-            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-blue-dark) text-center">Current</TableHead>
-            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-blue-dark)">
+            <TableHead className="w-10 bg-(--gl-bg-subtle) text-(--gl-text-main)">Step</TableHead>
+            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-text-main) text-center">Current</TableHead>
+            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-text-main)">
               {currentAlgorithm === "dfs" ? "Stack" : "Queue"}
             </TableHead>
-            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-blue-dark)">Visited</TableHead>
-            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-blue-dark)">Explain</TableHead>
+            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-text-main)">Visited</TableHead>
+            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-text-main)">Explain</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

@@ -30,17 +30,19 @@ export function SCCStepsTable({ steps }: Props) {
       </div>
     );
   }
-
+  
+  
   return (
     <div className="h-full overflow-y-auto custom-scrollbar rounded-md border border-(--gl-border) bg-(--gl-bg-surface)">
       <Table className="text-(--gl-text-main)">
         <TableHeader>
           <TableRow className="border-b border-(--gl-border) hover:bg-transparent">
-            <TableHead className="w-10 bg-(--gl-bg-subtle) text-(--gl-blue-dark)">Step</TableHead>
-            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-blue-dark) text-center">Element</TableHead>
-            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-blue-dark)">Stack</TableHead>
-            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-blue-dark)">SCC</TableHead>
-            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-blue-dark)">Explain</TableHead>
+            <TableHead className="w-10 bg-(--gl-bg-subtle) text-(--gl-text-main)">Step</TableHead>
+            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-text-main) text-center">Element</TableHead>
+            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-text-main)">Component</TableHead>
+            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-text-main)">Stack</TableHead>
+            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-text-main)">SCC</TableHead>
+            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-text-main)">Explain</TableHead>
           </TableRow>
         </TableHeader>
 

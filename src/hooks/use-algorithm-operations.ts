@@ -99,6 +99,7 @@ export const useAlgorithmOperations = () => {
   const handleWeightedChange = useCallback((weighted: boolean) => {
     handleReset();
     setIsWeighted(weighted);
+    console.log("change")
   }, []);
 
   return {

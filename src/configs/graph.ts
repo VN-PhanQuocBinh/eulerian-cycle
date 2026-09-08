@@ -1,25 +1,33 @@
 import { COMPONENT_COLORS } from "@/types/styles";
+import { GraphAlgorithm } from "@/types/algorithm-store";
 
 const BASE_GRAPH_COLORS = {
   nodeBackground: "#FFFFFF",
-  nodeBorder: "#CFD8DC",
+  nodeBorder: "#607D8B",
   label: "#263238",
+  highlightedLabel: "#FFFFFF",
   edge: "#607D8B",
   selected: "#ECEFF1",
   highlightedBackground: "#FFEBEE",
   highlightedBorder: "#E53935",
 } as const;
 
-export const ALGORITHM_GRAPH_COLORS = {
-  eulerianCycle: {
+export const ALGORITHM_GRAPH_COLORS: Record<GraphAlgorithm, Record<string, string>> = {
+  "eulerian-cycle": {
     exploring: "#FFA000",
     inCycle: "#43A047",
   },
-  tarjanScc: {
+  "connected-components": {
     visiting: "#FFA000",
     inStack: "#039BE5",
+    processingNeighbor: "#607D8B",
   },
-  traversal: {
+  dfs: {
+    processingNeighbor: "#607D8B",
+    visitingNeighbor: "#039BE5",
+    inPath: "#43A047",
+  },
+  bfs: {
     processingNeighbor: "#607D8B",
     visitingNeighbor: "#039BE5",
     inPath: "#43A047",
@@ -30,7 +38,7 @@ export const ALGORITHM_GRAPH_COLORS = {
     visited: "#039BE5",
     shortestPath: "#FFA000",
   },
-} as const;
+} satisfies Record<GraphAlgorithm, Record<string, string>>;
 
 export const NODE_STYLES: cytoscape.Css.Node = {
   "background-color": BASE_GRAPH_COLORS.nodeBackground,
@@ -131,12 +139,14 @@ export const graphStyles: cytoscape.StylesheetJson = [
       "border-width": "4px",
       "border-color": BASE_GRAPH_COLORS.highlightedBorder,
       "z-index": 999,
+      color: BASE_GRAPH_COLORS.highlightedLabel,
     },
   },
   {
     selector: "node.dimmed",
     style: {
       opacity: 0.3,
+      color: BASE_GRAPH_COLORS.highlightedLabel,
     },
   },
   {
@@ -156,32 +166,34 @@ export const graphStyles: cytoscape.StylesheetJson = [
   {
     selector: "node.exploring",
     style: {
-      "background-color": ALGORITHM_GRAPH_COLORS.eulerianCycle.exploring,
-      "border-color": ALGORITHM_GRAPH_COLORS.eulerianCycle.exploring,
+      "background-color": ALGORITHM_GRAPH_COLORS["eulerian-cycle"].exploring,
+      "border-color": ALGORITHM_GRAPH_COLORS["eulerian-cycle"].exploring,
       "border-width": "4px",
+      color: BASE_GRAPH_COLORS.highlightedLabel,
     },
   },
   {
     selector: "node.in-cycle",
     style: {
-      "background-color": ALGORITHM_GRAPH_COLORS.eulerianCycle.inCycle,
-      "border-color": ALGORITHM_GRAPH_COLORS.eulerianCycle.inCycle,
+      "background-color": ALGORITHM_GRAPH_COLORS["eulerian-cycle"].inCycle,
+      "border-color": ALGORITHM_GRAPH_COLORS["eulerian-cycle"].inCycle,
       "border-width": "4px",
+      color: BASE_GRAPH_COLORS.highlightedLabel,
     },
   },
   {
     selector: "edge.exploring",
     style: {
-      "line-color": ALGORITHM_GRAPH_COLORS.eulerianCycle.exploring,
-      "target-arrow-color": ALGORITHM_GRAPH_COLORS.eulerianCycle.exploring,
+      "line-color": ALGORITHM_GRAPH_COLORS["eulerian-cycle"].exploring,
+      "target-arrow-color": ALGORITHM_GRAPH_COLORS["eulerian-cycle"].exploring,
       width: 4,
     } as cytoscape.Css.Edge,
   },
   {
     selector: "edge.in-cycle",
     style: {
-      "line-color": ALGORITHM_GRAPH_COLORS.eulerianCycle.inCycle,
-      "target-arrow-color": ALGORITHM_GRAPH_COLORS.eulerianCycle.inCycle,
+      "line-color": ALGORITHM_GRAPH_COLORS["eulerian-cycle"].inCycle,
+      "target-arrow-color": ALGORITHM_GRAPH_COLORS["eulerian-cycle"].inCycle,
       width: 4,
     } as cytoscape.Css.Edge,
   },
@@ -190,20 +202,22 @@ export const graphStyles: cytoscape.StylesheetJson = [
   {
     selector: "node.scc-visiting",
     style: {
-      "background-color": ALGORITHM_GRAPH_COLORS.tarjanScc.visiting,
+      "background-color": ALGORITHM_GRAPH_COLORS["connected-components"].visiting,
+      color: BASE_GRAPH_COLORS.highlightedLabel,
     },
   },
   {
     selector: "node.scc-in-stack",
     style: {
-      "background-color": ALGORITHM_GRAPH_COLORS.tarjanScc.inStack,
+      "background-color": ALGORITHM_GRAPH_COLORS["connected-components"].inStack,
+      color: BASE_GRAPH_COLORS.highlightedLabel,
     },
   },
   {
     selector: "edge.scc-visiting",
     style: {
-      "line-color": ALGORITHM_GRAPH_COLORS.tarjanScc.visiting,
-      "target-arrow-color": ALGORITHM_GRAPH_COLORS.tarjanScc.visiting,
+      "line-color": ALGORITHM_GRAPH_COLORS["connected-components"].visiting,
+      "target-arrow-color": ALGORITHM_GRAPH_COLORS["connected-components"].visiting,
     },
   },
 
@@ -211,40 +225,43 @@ export const graphStyles: cytoscape.StylesheetJson = [
   {
     selector: "node.processing-neighbor",
     style: {
-      "background-color": ALGORITHM_GRAPH_COLORS.traversal.processingNeighbor,
+      "background-color": ALGORITHM_GRAPH_COLORS.dfs.processingNeighbor,
+      color: BASE_GRAPH_COLORS.highlightedLabel,
     },
   },
   {
     selector: "node.visiting-neighbor",
     style: {
-      "background-color": ALGORITHM_GRAPH_COLORS.traversal.visitingNeighbor,
+      "background-color": ALGORITHM_GRAPH_COLORS.dfs.visitingNeighbor,
+      color: BASE_GRAPH_COLORS.highlightedLabel,
     },
   },
   {
     selector: "edge.processing-neighbor",
     style: {
-      "line-color": ALGORITHM_GRAPH_COLORS.traversal.processingNeighbor,
-      "target-arrow-color": ALGORITHM_GRAPH_COLORS.traversal.processingNeighbor,
+      "line-color": ALGORITHM_GRAPH_COLORS.dfs.processingNeighbor,
+      "target-arrow-color": ALGORITHM_GRAPH_COLORS.dfs.processingNeighbor,
     },
   },
   {
     selector: "edge.visiting-neighbor",
     style: {
-      "line-color": ALGORITHM_GRAPH_COLORS.traversal.visitingNeighbor,
-      "target-arrow-color": ALGORITHM_GRAPH_COLORS.traversal.visitingNeighbor,
+      "line-color": ALGORITHM_GRAPH_COLORS.dfs.visitingNeighbor,
+      "target-arrow-color": ALGORITHM_GRAPH_COLORS.dfs.visitingNeighbor,
     },
   },
   {
     selector: "node.in-path",
     style: {
-      "background-color": ALGORITHM_GRAPH_COLORS.traversal.inPath,
+      "background-color": ALGORITHM_GRAPH_COLORS.dfs.inPath,
+      color: BASE_GRAPH_COLORS.highlightedLabel,
     },
   },
   {
     selector: "edge.in-path",
     style: {
-      "line-color": ALGORITHM_GRAPH_COLORS.traversal.inPath,
-      "target-arrow-color": ALGORITHM_GRAPH_COLORS.traversal.inPath,
+      "line-color": ALGORITHM_GRAPH_COLORS.dfs.inPath,
+      "target-arrow-color": ALGORITHM_GRAPH_COLORS.dfs.inPath,
     },
   },
 
@@ -254,6 +271,7 @@ export const graphStyles: cytoscape.StylesheetJson = [
     style: {
       "background-color": ALGORITHM_GRAPH_COLORS.dijkstra.considering,
       "border-color": ALGORITHM_GRAPH_COLORS.dijkstra.considering,
+      color: BASE_GRAPH_COLORS.highlightedLabel,
     },
   },
   {
@@ -261,6 +279,7 @@ export const graphStyles: cytoscape.StylesheetJson = [
     style: {
       "background-color": ALGORITHM_GRAPH_COLORS.dijkstra.relaxed,
       "border-color": ALGORITHM_GRAPH_COLORS.dijkstra.relaxed,
+      color: BASE_GRAPH_COLORS.highlightedLabel,
     },
   },
   {
@@ -268,6 +287,7 @@ export const graphStyles: cytoscape.StylesheetJson = [
     style: {
       "background-color": ALGORITHM_GRAPH_COLORS.dijkstra.visited,
       "border-color": ALGORITHM_GRAPH_COLORS.dijkstra.visited,
+      color: BASE_GRAPH_COLORS.highlightedLabel,
     },
   },
   {
@@ -296,6 +316,7 @@ export const graphStyles: cytoscape.StylesheetJson = [
     style: {
       "background-color": ALGORITHM_GRAPH_COLORS.dijkstra.shortestPath,
       "border-color": ALGORITHM_GRAPH_COLORS.dijkstra.shortestPath,
+      color: BASE_GRAPH_COLORS.highlightedLabel,
     },
   },
   {

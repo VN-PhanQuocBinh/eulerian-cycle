@@ -5,7 +5,7 @@ import { createGraphUtils } from "@/core/helpers/graph-utils";
 import { cn } from "@/utils/cn";
 import { useSmartScroll } from "@/hooks/use-smart-scroll";
 import JumpButton from "../../jump-button";
-import NodeElement from "../../node-element";
+import GraphElement from "../../graph-element";
 
 function DijkstraStepTableRow({
   step,
@@ -23,21 +23,24 @@ function DijkstraStepTableRow({
   return (
     <TableRow
       ref={rowRef}
-      className={cn("group border-b border-(--gl-border) hover:bg-(--gl-bg-subtle)", {
-        "bg-(--gl-bg-subtle)": isActive,
-      })}
+      className={cn(
+        "group border-b border-(--gl-border) bg-(--gl-bg-surface) hover:bg-(--gl-bg-base)",
+        {
+          "bg-(--gl-bg-subtle)": isActive,
+        },
+      )}
     >
       <TableCell className="border-l-4 text-(--gl-text-main)">
         <JumpButton index={index} />
       </TableCell>
       <TableCell className="px-3 py-2 text-center">
         {step.currentNode ? (
-          <NodeElement label={step.currentNode.label} />
+          <GraphElement label={step.currentNode.label} />
         ) : element?.type === "edge" ? (
           <div className="flex items-center justify-center gap-1">
-            <NodeElement label={element.source.label} />
+            <GraphElement label={element.source.label} />
             <span className="text-(--gl-text-muted)">→</span>
-            <NodeElement label={element.target.label} />
+            <GraphElement label={element.target.label} />
           </div>
         ) : (
           <span className="text-(--gl-text-muted) italic">-</span>

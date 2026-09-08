@@ -6,6 +6,7 @@ import { FileCode2, Play } from "lucide-react";
 import { Tooltip } from "@/components/ui/tooltip";
 import { useRegisterHotkey } from "@/hooks/use-register-hotkey";
 import { HOTKEYS_CONFIG } from "@/configs/hotkeys-config";
+import LayoutContainer from "./layout-container";
 
 interface NewSidebarProps {
   isOpen: boolean;
@@ -74,14 +75,14 @@ export function NewSidebar({ isOpen, onOpenChange }: NewSidebarProps) {
       {isOpen && (
         <>
           <TabsContent value="input-tab" className="overflow-hidden">
-            <div className="h-full pr-1 pb-2 pt-1 bg-(--gl-bg-base)">
+            <LayoutContainer>
               <InputTab className="p-3 rounded-md" />
-            </div>
+            </LayoutContainer>
           </TabsContent>
           <TabsContent value="control-tab" className="overflow-hidden">
-            <div className="h-full pr-1 pb-2 pt-1 bg-(--gl-bg-base)">
+            <LayoutContainer>
               <ControlTab className="p-3 rounded-md" />
-            </div>
+            </LayoutContainer>
           </TabsContent>
         </>
       )}
