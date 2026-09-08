@@ -1,5 +1,5 @@
 import { ReactNode, useEffect } from "react";
-import { Ellipsis, SkipForward, SkipBack, Play, Pause, RotateCcw } from "lucide-react";
+import { SkipForward, SkipBack, Play, Pause, RotateCcw } from "lucide-react";
 import FunctionButton from "@/components/ui/function-button";
 import { useAlgorithmStore } from "@/stores";
 import { graphService } from "@/services/graph-service";

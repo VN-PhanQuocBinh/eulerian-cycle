@@ -4,7 +4,6 @@ import { useAlgorithmStore, useGraphDataStore } from "@/stores";
 import { createGraphUtils } from "@/core/helpers/graph-utils";
 import { useMemo } from "react";
 import StepTableRow from "./step-table-row";
-import GraphElement from "../../graph-element";
 
 interface Props {
   steps: Step[];

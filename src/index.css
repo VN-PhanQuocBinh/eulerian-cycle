@@ -236,7 +236,7 @@ button {
 
   /* Option B: Dot Pattern (Nếu muốn đổi sang dạng chấm, comment Option A và mở Option B) */
   background-image: radial-gradient(var(--color-border) 1.2px, transparent 1.2px);
-  background-size: 20px 20px;
+  background-size: 14px 14px;
   background-position: center center;
  
 }

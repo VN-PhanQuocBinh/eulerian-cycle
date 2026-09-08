@@ -78,7 +78,7 @@ function DistanceTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {nodes.map((node, idx) => {
+          {nodes.map((node) => {
             const distance = distances.get(node.id);
             const previousNode = previousNodes?.get(node.id);
             const previousLabel = previousNode
