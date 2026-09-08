@@ -16,13 +16,13 @@ export function DijkstraStepsTable({ steps }: { steps: Step[] }) {
   );
 
   return (
-    <div className="h-full overflow-y-auto custom-scrollbar rounded-md border border-(--od-border) bg-(--od-bg-1)">
-      <Table className="text-(--od-fg-1)">
+    <div className="h-full overflow-y-auto custom-scrollbar rounded-md  bg-(--gl-bg-surface)">
+      <Table className="text-(--gl-text-main)">
         <TableHeader>
-          <TableRow className="border-b border-(--od-border) hover:bg-transparent">
-            <TableHead className="w-10 bg-(--od-bg-2) text-(--od-blue)">Step</TableHead>
-            <TableHead className="bg-(--od-bg-2) text-(--od-blue) text-center">Processing</TableHead>
-            <TableHead className="bg-(--od-bg-2) text-(--od-blue)">Explain</TableHead>
+          <TableRow className="border-b border-(--gl-border) hover:bg-transparent">
+            <TableHead className="w-10 bg-(--gl-bg-subtle) text-(--gl-text-main)">Step</TableHead>
+            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-text-main) text-center">Processing</TableHead>
+            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-text-main)">Explain</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

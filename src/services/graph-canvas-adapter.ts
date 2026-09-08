@@ -24,6 +24,7 @@ export interface GraphCanvasCallbacks {
 export class GraphCanvasAdapter {
   public cy: cytoscape.Core | null = null;
   private eh: EdgeHandlesInstance | null = null;
+  private isDirected = false;
 
   init(container: HTMLDivElement) {
     const graphInstance = cytoscape({
@@ -120,6 +121,24 @@ export class GraphCanvasAdapter {
         });
       },
     );
+
+    // Handle pan and zoom events to adjust the background grid
+    this.cy.on("pan zoom", () => {
+      if (!this.cy) return;
+
+      const pan = this.cy.pan();
+      const zoom = this.cy.zoom();
+      const container = this.cy.container();
+
+      if (container) {
+        // 1. Update the background position to reflect the current pan
+        container.style.backgroundPosition = `${pan.x}px ${pan.y}px`;
+
+        // 2. Update the grid size according to the zoom level
+        const baseGridSize = 14;
+        container.style.backgroundSize = `${baseGridSize * zoom}px ${baseGridSize * zoom}px`;
+      }
+    });
 
     {
       const initialPositions = new Map<string, Position>();
@@ -335,6 +354,7 @@ export class GraphCanvasAdapter {
   }
 
   drawGraphFromData(graphData: { nodes: GraphNode[]; edges: GraphEdge[]; isDirected: boolean }) {
+    this.isDirected = graphData.isDirected;
     if (!this.cy) return;
 
     const { nodes, edges } = graphData;
@@ -352,7 +372,7 @@ export class GraphCanvasAdapter {
       edges.forEach((edge) => {
         this.cy?.add({
           group: "edges",
-          data: edge,
+          data: { ...edge, isDirected: graphData.isDirected },
         });
       });
     });
@@ -401,7 +421,7 @@ export class GraphCanvasAdapter {
   }
 
   getGraphSnapshot() {
-    if (!this.cy) return { nodes: [], edges: [], isDirected: false };
+    if (!this.cy) return { nodes: [], edges: [], isDirected: this.isDirected };
 
     const nodes: GraphNode[] = this.cy.nodes().map((node) => ({
       id: node.id(),
@@ -420,7 +440,7 @@ export class GraphCanvasAdapter {
     return {
       nodes,
       edges,
-      isDirected: this.cy.edges().some((edge) => edge.data("isDirected")),
+      isDirected: this.isDirected,
     };
   }
 
@@ -430,6 +450,7 @@ export class GraphCanvasAdapter {
   }
 
   toggleDirected(isDirected: boolean) {
+    this.isDirected = isDirected;
     if (!this.cy) return;
     this.cy.edges().data("isDirected", isDirected);
   }

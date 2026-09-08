@@ -11,8 +11,8 @@ function SpeedControl({ speed, disabled, setSpeed }: SpeedControlProps) {
   return (
     <section>
       <div className={cn("flex items-center justify-between mb-2", disabled ? "opacity-50" : "")}>
-        <h3 className="text-base font-semibold text-slate-700">Speed</h3>
-        <span className="text-xs text-slate-500">{speed}x</span>
+        <h3 className="text-base font-semibold text-(--gl-text-main)">Speed</h3>
+        <span className="text-xs text-(--gl-text-muted)">{speed}x</span>
       </div>
       <Slider
         disabled={disabled}
@@ -22,7 +22,7 @@ function SpeedControl({ speed, disabled, setSpeed }: SpeedControlProps) {
         max={3}
         step={0.25}
       />
-      <div className="flex justify-between text-xs text-slate-400 mt-1">
+      <div className="flex justify-between text-xs text-(--gl-text-muted) mt-1">
         <span>Slow</span>
         <span>Fast</span>
       </div>

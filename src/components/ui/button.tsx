@@ -5,22 +5,22 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md border border-transparent text-sm font-medium transition-[background-color,border-color,color,box-shadow] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#61AFEF]/60 focus-visible:ring-offset-1 focus-visible:ring-offset-[#21252B] disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-sm border border-transparent text-sm font-medium transition-[background-color,border-color,color,box-shadow] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--gl-blue-dark)/60 focus-visible:ring-offset-1 focus-visible:ring-offset-(--gl-bg-base) disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-[#61AFEF] text-[#1F2430] shadow-sm hover:bg-[#74B9F1] active:bg-[#529FDB]",
-        destructive: "bg-[#E06C75] text-[#1F2430] shadow-sm hover:bg-[#EB7B83] active:bg-[#CF5F69]",
+        default: "bg-(--gl-blue-dark) text-(--gl-text-main) shadow-sm hover:brightness-105 active:brightness-95",
+        destructive: "bg-(--gl-red-dark) text-(--gl-text-main) shadow-sm hover:brightness-105 active:brightness-95",
         outline:
-          "border-[#4B5263] bg-[#282C34] text-[#ABB2BF] shadow-sm hover:bg-[#2C313C] hover:text-[#D7DAE0]",
-        secondary: "bg-[#3B4048] text-[#ABB2BF] shadow-sm hover:bg-[#454B55] hover:text-[#D7DAE0]",
-        ghost: "text-[#ABB2BF] hover:bg-[#2C313C] hover:text-[#D7DAE0]",
-        link: "text-[#61AFEF] underline-offset-4 hover:text-[#7ABAF2] hover:underline",
+          "border-(--gl-border) bg-(--gl-bg-surface) text-(--gl-text-main) shadow-sm hover:bg-(--gl-bg-subtle)",
+        secondary: "bg-(--gl-bg-subtle) text-(--gl-text-main) shadow-sm hover:brightness-95",
+        ghost: "text-(--gl-text-main) hover:bg-(--gl-bg-subtle)",
+        link: "text-(--gl-blue-dark) underline-offset-4 hover:text-(--gl-text-main) hover:underline",
       },
       size: {
         default: "h-9 px-4 py-2",
-        sm: "h-8 rounded-md px-3 text-xs",
-        lg: "h-10 rounded-md px-8",
+        sm: "h-8 rounded-sm px-3 text-xs",
+        lg: "h-10 rounded-sm px-8",
         icon: "h-9 w-9",
       },
     },

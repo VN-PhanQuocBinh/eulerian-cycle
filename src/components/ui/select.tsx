@@ -12,12 +12,12 @@ const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(
   ({ children, value, ...props }, forwardedRef) => {
     return (
       <Select.Item
-        className="relative flex items-center px-8 py-2 text-sm text-(--od-fg-1) cursor-pointer select-none hover:bg-(--od-fg-1) hover:text-(--od-fg-0) outline-none data-highlighted:bg-(--od-bg-2) data-highlighted:text-(--od-fg-0) transition-colors"
+        className="relative flex items-center px-8 py-2 text-sm text-(--gl-text-main) cursor-pointer select-none hover:bg-(--gl-text-main) hover:text-(--gl-text-main) outline-none data-highlighted:bg-(--gl-bg-subtle) data-highlighted:text-(--gl-text-main) transition-colors"
         value={value}
         {...props}
         ref={forwardedRef}
       >
-        <Select.ItemIndicator className="absolute left-2 inline-flex items-center text-(--od-blue)">
+        <Select.ItemIndicator className="absolute left-2 inline-flex items-center text-(--gl-blue-dark)">
           <Check size={16} />
         </Select.ItemIndicator>
         <Select.ItemText>{children}</Select.ItemText>
@@ -38,7 +38,7 @@ const SelectContent = forwardRef<
         {...props}
         ref={forwardedRef}
         className={cn(
-          "bg-(--od-bg-1) border border-(--od-border) rounded-lg shadow-lg overflow-hidden z-50 animate-select-in",
+          "bg-(--gl-bg-surface) border border-(--gl-border) rounded-lg shadow-lg overflow-hidden z-50 animate-select-in",
           className,
         )}
       >

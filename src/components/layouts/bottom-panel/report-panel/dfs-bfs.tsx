@@ -49,16 +49,16 @@ function DfsBfsReport() {
   return (
     <section>
       <SectionTitle>{currentAlgorithm.toUpperCase()} Report</SectionTitle>
-      <div className="rounded-md border border-(--od-border) bg-(--od-bg-1) px-3 py-1">
+      <div className="rounded-md border border-(--gl-border) bg-(--gl-bg-surface) px-3 py-1">
         <InfoRow label="Start Node" value={startNodeLabel || "N/A"} />
         <InfoRow label="Target Node" value={targetNodeLabel || "N/A"} />
         <InfoRow
           label="Path Found"
           value={
             found ? (
-              <span className="text-(--od-green)">Yes</span>
+              <span className="text-(--gl-green-dark)">Yes</span>
             ) : (
-              <span className="text-(--od-red)">No</span>
+              <span className="text-(--gl-red-dark)">No</span>
             )
           }
         />

@@ -9,6 +9,7 @@ import { cn } from "@/utils/cn";
 import { useSmartScroll } from "@/hooks/use-smart-scroll";
 import JumpButton from "@/components/layouts/bottom-panel/jump-button";
 import { arrayToString } from "@/utils";
+import GraphElement from "../../graph-element";
 
 interface Props {
   step: Step;
@@ -62,8 +63,8 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
     <TableRow
       key={index}
       ref={rowRef}
-      className={cn("group border-b border-border hover:bg-(--od-bg-1)", {
-        "bg-(--od-bg-2)! border-l-4 border-l-(--od-blue)": isActive,
+      className={cn("group border-b border-border not-hover:bg-(--gl-bg-surface)", {
+        "bg-(--gl-bg-subtle)! border-l-4 border-l-(--gl-blue-dark)": isActive,
       })}
     >
       {/* Step Number */}
@@ -77,15 +78,11 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
       {/* Element */}
       <TableCell className="px-3 py-2 text-center text-nowrap">
         {element?.type === "node" ? (
-          <span className="px-2 py-0.5 rounded border border-border bg-(--od-bg-2) text-foreground">
-            {element.label}
-          </span>
+          <GraphElement label={element.label} />
         ) : element?.type === "edge" ? (
-          <span className="text-foreground">
-            {element.source.label} → {element.target.label}
-          </span>
+          <GraphElement label={`${element.source.label} → ${element.target.label}`} />
         ) : (
-          <span className="text-(--od-fg-1) italic">_</span>
+          <span className="text-(--gl-text-main) italic">_</span>
         )}
       </TableCell>
 
@@ -94,7 +91,7 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
         {componentIndex >= 0 && (
           <span
             className={cn(
-              "px-2 py-0.5 rounded border border-border bg-(--od-bg-1) font-medium text-nowrap",
+              "px-2 py-0.5 rounded border border-border bg-(--gl-bg-surface) font-medium text-nowrap",
             )}
             style={{ color: componentColor }}
           >
@@ -110,18 +107,13 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
             <>
               <div className="flex-1 flex items-center gap-2 flex-wrap">
                 {visitedNodes.map((nodeLabel, idx) => (
-                  <span
-                    key={nodeLabel + idx}
-                    className="px-1.5 py-0.5 rounded text-xs border border-border bg-(--od-bg-1) text-(--od-fg-1)"
-                  >
-                    {nodeLabel}
-                  </span>
+                  <GraphElement key={nodeLabel + idx} label={nodeLabel} />
                 ))}
               </div>
               <CopyButton text={arrayToString(visitedNodes)} />
             </>
           ) : (
-            <span className="text-(--od-fg-1) italic">No nodes visited</span>
+            <span className="text-(--gl-text-main) italic">No nodes visited</span>
           )}
         </div>
       </TableCell>
@@ -133,24 +125,19 @@ function StepTableRow({ step, index, isActive, graphUtils }: Props) {
             <>
               <div className="flex-1 flex items-center gap-2 flex-wrap">
                 {queueNodes.map((node) => (
-                  <span
-                    key={node.id + Math.random()}
-                    className="size-5 w-max px-1.5 py-0.5 rounded text-xs border border-(--od-border) bg-(--od-bg-1) text-(--od-fg-1)"
-                  >
-                    {node?.label}
-                  </span>
+                  <GraphElement key={node.id + Math.random()} label={node?.label || node.id} />
                 ))}
               </div>
               <CopyButton text={arrayToString(queueNodes.map((node) => node?.label))} />
             </>
           ) : (
-            <span className="text-(--od-fg-1) italic">Empty Queue</span>
+            <span className="text-(--gl-text-main) italic">Empty Queue</span>
           )}
         </div>
       </TableCell>
 
       {/* Message */}
-      <TableCell className="px-3 py-2 text-[#ABB2BF] text-left">
+      <TableCell className="px-3 py-2 text-(--gl-text-main) text-left">
         {step.message?.map((msg, idx) => (
           <div key={idx}>- {msg}</div>
         ))}

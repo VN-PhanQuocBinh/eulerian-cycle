@@ -124,9 +124,9 @@ function InputTab({ className }: { className?: string }) {
   }, [isDirected, isWeighted, currentAlgorithm]);
 
   return (
-    <div className={cn("flex flex-col h-full gap-3 bg-(--od-bg-1)", className)}>
+    <div className={cn("flex flex-col h-full gap-3 bg-(--gl-bg-surface)", className)}>
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold text-gray-300 uppercase tracking-wide">
+        <span className="text-xs font-semibold text-(--gl-text-main) uppercase tracking-wide">
           Edge List
         </span>
       </div>
@@ -138,7 +138,7 @@ function InputTab({ className }: { className?: string }) {
           spellCheck={false}
           placeholder={PLACEHOLDER_TEXT}
           className={cn(
-            " w-full h-full resize-none rounded-md border border-gray-600 px-3 py-2 text-sm font-mono placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-transparent bg-(--od-bg-0) text-white",
+            " w-full h-full resize-none rounded-md border border-(--gl-border) px-3 py-2 text-sm font-mono placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-(--gl-blue-dark) focus:border-transparent bg-(--gl-bg-base) text-(--gl-text-main)",
             {
               "animate-suggest-flash": suggested,
             },
@@ -148,7 +148,7 @@ function InputTab({ className }: { className?: string }) {
           <Button
             variant="outline"
             size="icon"
-            className="absolute top-2 right-2 opacity-0 bg-[#4d5565] group-hover:opacity-100 transition-opacity"
+            className="absolute top-2 right-2 opacity-0 bg-(--gl-bg-surface) group-hover:opacity-100 transition-opacity"
             onClick={handleCopy}
             disabled={copyStatus === "success"}
           >
@@ -164,7 +164,7 @@ function InputTab({ className }: { className?: string }) {
       <Button
         variant="secondary"
         size="sm"
-        className="min-w-[120px]"
+        className="min-w-[120px] bg-(--gl-amber-soft) text-(--gl-amber-dark) hover:bg-(--gl-amber-soft)/80"
         onClick={handleSuggest}
         disabled={suggested}
       >
@@ -172,7 +172,7 @@ function InputTab({ className }: { className?: string }) {
         Suggest Graph
       </Button>
 
-      <div className=" flex flex-wrap gap-2 pt-4 border-t border-(--od-fg-2)">
+      <div className=" flex flex-wrap gap-2 pt-4 border-t border-(--gl-border)">
         <Button
           variant="secondary"
           size="sm"
@@ -182,7 +182,11 @@ function InputTab({ className }: { className?: string }) {
           <RotateCcw />
           Reset
         </Button>
-        <Button size="sm" className="flex-1 min-w-[120px]" onClick={handleSync}>
+        <Button
+          size="sm"
+          className="flex-1 min-w-[120px] bg-(--gl-text-muted) text-(--gl-bg-surface) hover:bg-(--gl-text-muted)/80"
+          onClick={handleSync}
+        >
           <RefreshCw />
           Sync
         </Button>

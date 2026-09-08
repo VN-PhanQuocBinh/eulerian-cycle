@@ -2,6 +2,7 @@ import { useMemo, useRef } from "react";
 import { Layers3, ListOrdered } from "lucide-react";
 import { useAlgorithmStore, useGraphDataStore } from "@/stores";
 import { useUIStore } from "@/stores";
+import { cn } from "@/utils/cn";
 
 const MAX_STACK_VISIBLE = 5;
 
@@ -10,11 +11,11 @@ function StackDeck({ values }: { values: string[] }) {
   const hiddenCount = Math.max(0, values.length - MAX_STACK_VISIBLE);
 
   return (
-    <div className="min-w-[200px] max-w-[200px] rounded-lg border border-(--od-border) bg-(--od-bg-2) p-1 px-3 py-2 shadow-md">
-      <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-(--od-fg-1)">
+    <div className="min-w-[200px] max-w-[200px] rounded-lg border border-(--gl-border) bg-(--gl-bg-base) p-1 px-3 py-2 shadow-md">
+      <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-(--gl-text-main)">
         <Layers3 size={14} />
         <span>Stack</span>
-        <span className="flex-1 text-right text-(--od-fg-2)">{values.length} items</span>
+        <span className="flex-1 text-right text-(--gl-text-muted)">{values.length} items</span>
       </div>
 
       <div className="relative h-[200px]">
@@ -24,16 +25,21 @@ function StackDeck({ values }: { values: string[] }) {
               return (
                 <div
                   key={String(value) + "-" + String(index)}
-                  className="left-0 right-0 origin-top rounded-md border border-(--od-border-strong) bg-(--od-bg-2) px-2 py-1.5 shadow-sm"
+                  className={cn(
+                    "left-0 right-0 origin-top rounded-md border border-(--gl-border) bg-(--gl-bg-subtle)  px-2 py-1.5 shadow-sm",
+                    {
+                      "bg-(--gl-blue-dark) text-(--gl-bg-surface)": index === 0,
+                    },
+                  )}
                 >
-                  <span className="block truncate text-center text-xs font-medium text-(--od-purple)">
+                  <span className={cn("block truncate text-center text-xs font-medium", {})}>
                     {value}
                   </span>
                 </div>
               );
             })
           ) : (
-            <div className="grid h-full place-items-center text-xs italic text-(--od-fg-2)">
+            <div className="grid h-full place-items-center text-xs italic text-(--gl-text-muted)">
               Empty stack
             </div>
           )}
@@ -41,7 +47,7 @@ function StackDeck({ values }: { values: string[] }) {
       </div>
 
       {hiddenCount > 0 && (
-        <p className="text-[11px] font-medium text-(--od-purple)">+{hiddenCount} more</p>
+        <p className="text-[11px] font-medium text-(--gl-blue-dark)">+{hiddenCount} more</p>
       )}
     </div>
   );
@@ -59,11 +65,11 @@ function QueueRail({ values }: { values: string[] }) {
   };
 
   return (
-    <div className="min-w-[200px] max-w-[360px] rounded-lg border border-(--od-border) bg-(--od-bg-2) p-1 px-3 py-2 shadow-md">
-      <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-(--od-fg-1)">
+    <div className="min-w-[200px] max-w-[360px] rounded-lg border border-(--gl-border) bg-(--gl-bg-base) p-1 px-3 py-2 shadow-md">
+      <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-(--gl-text-main)">
         <ListOrdered size={14} />
         <span>Queue</span>
-        <span className="flex-1 text-right text-(--od-fg-2)">{values.length} items</span>
+        <span className="flex-1 text-right text-(--gl-text-muted)">{values.length} items</span>
       </div>
 
       <div
@@ -79,8 +85,8 @@ function QueueRail({ values }: { values: string[] }) {
                   key={String(value) + "-" + String(index)}
                   className={
                     index === 0
-                      ? "rounded-sm border border-(--od-green) bg-(--od-green) px-2.5 py-1 text-xs font-semibold text-(--primary-foreground)"
-                      : "rounded-sm border border-(--od-border-strong) bg-(--od-bg-2) px-2.5 py-1 text-xs font-medium text-(--od-fg-1)"
+                      ? "rounded-sm border border-(--gl-green-dark) bg-(--gl-green-dark) text-(--gl-bg-surface) px-2.5 py-1 text-xs font-semibold"
+                      : "rounded-sm border border-(--gl-border) bg-(--gl-bg-subtle) px-2.5 py-1 text-xs font-medium text-(--gl-text-main)"
                   }
                 >
                   {value}
@@ -89,11 +95,11 @@ function QueueRail({ values }: { values: string[] }) {
             })}
           </div>
         ) : (
-          <div className="py-1 text-xs italic text-(--od-fg-2)">Empty queue</div>
+          <div className="py-1 text-xs italic text-(--gl-text-muted)">Empty queue</div>
         )}
       </div>
 
-      <div className="mt-1 flex items-center justify-between text-[10px] uppercase tracking-wide text-(--od-fg-2)">
+      <div className="mt-1 flex items-center justify-between text-[10px] uppercase tracking-wide text-(--gl-text-muted)">
         <span>Front</span>
         <span>Rear</span>
       </div>
