@@ -53,7 +53,7 @@ export function GraphReport() {
   }
 
   return (
-    <div className="h-full space-y-4 overflow-y-auto rounded-md p-3 text-sm text-(--gl-text-main)">
+    <div className="small-scrollbar h-full space-y-4 overflow-y-auto rounded-md p-3 text-sm text-(--gl-text-main)">
       {/* General */}
       <section>
         <SectionTitle>General</SectionTitle>
