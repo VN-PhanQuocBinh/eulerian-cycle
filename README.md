@@ -1,33 +1,31 @@
-## Yêu cầu môi trường
+## Environment Requirements
 
-Trước khi bắt đầu, hãy đảm bảo bạn đã cài đặt các công cụ sau:
+Before you begin, please ensure that you have installed the following tools:
 
-- [Node.js](https://nodejs.org/) (phiên bản 18.x trở lên)
-- [npm](https://www.npmjs.com/) (thường được cài đặt sẵn cùng với Node.js)
+- [Node.js](https://nodejs.org/) (version 18.x or higher)
+- [npm](https://www.npmjs.com/) (usually pre-installed with Node.js)
 
-## Hướng dẫn khởi chạy
+## Getting Started / Launch Instructions
 
-1.  **Cài đặt Dependencies**
+1.  **Install Dependencies**
 
-    Mở terminal tại thư mục gốc của dự án và chạy lệnh sau:
+    Open your terminal at the root directory of the project and run the following command:
 
     ```
     npm install
     ```
 
-2.  **Khởi động ứng dụng**
+2.  **Start the Application**
 
-    Sau khi cài đặt hoàn tất, sử dụng lệnh sau để chạy ứng dụng ở chế độ phát triển (development):
+    Once the installation is complete, use the following command to run the application in development mode:
 
     ```
     npm run dev
     ```
 
-    Ứng dụng sẽ tự động mở và sẵn sàng để sử dụng.
+    The application will automatically open and be ready for use.
 
-## Đóng gói ứng dụng (Tùy chọn)
+## Build / Package the Application (Optional)
 
-Nếu bạn muốn tạo file cài đặt cho ứng dụng, hãy chạy lệnh:
+If you want to create an installation file for the application, run the command:
 
-```
-npm run build
