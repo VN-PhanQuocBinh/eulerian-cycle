@@ -1,7 +1,7 @@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import FunctionButton from "@/components/ui/function-button";
 import { Ellipsis } from "lucide-react";
-import { GraphTypeSelect } from "../layouts/sidebar";
+import { GraphTypeSelect } from "../layouts/left-sidebar";
 import { useGraphDataStore } from "@/stores/graph-data-store";
 import { useUIStore } from "@/stores/ui-store";
 import { useAlgorithmOperations } from "@/hooks/use-algorithm-operations";

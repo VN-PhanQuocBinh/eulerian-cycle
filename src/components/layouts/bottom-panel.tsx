@@ -1,7 +1,7 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import ResultPanel from "./bottom-panel/result-panel";
 import { PseudoCodeViewer } from "./bottom-panel/pseudo-code-viewer";
-import { GraphReport } from "./bottom-panel/graph-report";
+import { GraphReport } from "./right-sidebar/graph-report";
 import { useUIStore } from "@/stores";
 import { Button } from "@/components/ui/button";
 import { ScanEye, EyeClosed, X } from "lucide-react";

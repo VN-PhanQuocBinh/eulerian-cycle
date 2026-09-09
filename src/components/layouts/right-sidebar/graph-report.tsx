@@ -10,13 +10,13 @@ import {
 import { createGraphUtils } from "@/core/helpers/graph-utils";
 import { useAlgorithmStore, useGraphDataStore } from "@/stores";
 
-import { SectionTitle } from "./report-panel/components/section-title";
-import { InfoRow } from "./report-panel/components/info-row";
+import { SectionTitle } from "../bottom-panel/report-panel/components/section-title";
+import { InfoRow } from "../bottom-panel/report-panel/components/info-row";
 
-import ConnectedComponentReport from "./report-panel/connected-components";
-import EulerianCycleReport from "./report-panel/eulerian-cycle";
-import DfsBfsReport from "./report-panel/dfs-bfs";
-import DijkstraReport from "./report-panel/dijkstra";
+import ConnectedComponentReport from "../bottom-panel/report-panel/connected-components";
+import EulerianCycleReport from "../bottom-panel/report-panel/eulerian-cycle";
+import DfsBfsReport from "../bottom-panel/report-panel/dfs-bfs";
+import DijkstraReport from "../bottom-panel/report-panel/dijkstra";
 
 export function GraphReport() {
   const nodes = useGraphDataStore((state) => state.nodes);

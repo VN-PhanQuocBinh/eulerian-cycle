@@ -64,6 +64,15 @@
   --sidebar-accent-foreground: var(--gl-text-main);
   --sidebar-border: var(--gl-border);
   --sidebar-ring: var(--gl-blue-dark);
+  --destructive-foreground: var(--color-red-800);
+  --success: var(--color-emerald-500);
+  --success-foreground: var(--color-emerald-900);
+  --info: var(--color-violet-500);
+  --info-foreground: var(--color-violet-900);
+  --warning: var(--color-yellow-500);
+  --warning-foreground: var(--color-yellow-900);
+  --invert: var(--color-zinc-900);
+  --invert-foreground: var(--color-zinc-50);
 }
 
 a { color: var(--gl-blue-dark); text-decoration: inherit; }
@@ -115,7 +124,6 @@ button {
 *::-webkit-scrollbar-thumb:hover {
   background: var(--gl-text-muted);
 }
-
 
 @keyframes toast-in {
   0% {
@@ -202,8 +210,16 @@ button {
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-invert-foreground: var(--invert-foreground);
+  --color-invert: var(--invert);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-warning: var(--warning);
+  --color-info-foreground: var(--info-foreground);
+  --color-info: var(--info);
+  --color-success-foreground: var(--success-foreground);
+  --color-success: var(--success);
+  --color-destructive-foreground: var(--destructive-foreground);
 }
-
 
 @layer base {
   * {
@@ -238,7 +254,7 @@ button {
   background-image: radial-gradient(var(--color-border) 1.2px, transparent 1.2px);
   background-size: 14px 14px;
   background-position: center center;
- 
+
 }
 
 .menu-item {
@@ -305,4 +321,16 @@ button {
 
 .animate-suggest-flash {
   animation: suggest-flash 0.6s ease-out;
+}
+
+.dark {
+  --destructive-foreground: var(--color-red-600);
+  --success: var(--color-emerald-500);
+  --success-foreground: var(--color-emerald-600);
+  --info: var(--color-violet-500);
+  --info-foreground: var(--color-violet-600);
+  --warning: var(--color-yellow-500);
+  --warning-foreground: var(--color-yellow-600);
+  --invert: var(--color-zinc-700);
+  --invert-foreground: var(--color-zinc-50);
 }
