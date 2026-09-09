@@ -14,7 +14,7 @@ export const useGraphDataStore = create<GraphDataStore>()(
     (set, get) => ({
       nodes: [],
       edges: [],
-      isDirected: false,
+      isDirected: true,
       isWeighted: false,
       nodeSet: new Set(),
       nodeById: new Map(),

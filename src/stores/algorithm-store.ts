@@ -12,7 +12,7 @@ import { BFS } from "@/core/algorithms/bfs";
 import { Dijkstra } from "@/core/algorithms/dijkstra";
 import { findConnectedComponents as findConnectedComponentsAlgorithm } from "@/core/algorithms/connected-components";
 
-const INITIAL_ALGORITHM: GraphAlgorithm = "dijkstra";
+const INITIAL_ALGORITHM: GraphAlgorithm = "connected-components";
 
 export const useAlgorithmStore = create<AlgorithmStore>()(
   devtools(

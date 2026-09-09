@@ -46,7 +46,7 @@ export function GraphReport() {
 
   if (nodes.length === 0) {
     return (
-      <div className="py-8 text-center text-sm italic text-(--gl-text-muted)">
+      <div className="grid place-items-center py-8 h-full text-center text-sm italic text-(--gl-text-muted)">
         No graph data available. Add nodes and edges to view reports.
       </div>
     );

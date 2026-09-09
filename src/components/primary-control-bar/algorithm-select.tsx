@@ -1,3 +1,4 @@
+import { ComponentProps } from "react";
 import { ChevronDown } from "lucide-react";
 import { Select, SelectContent, SelectItem } from "@/components/ui/select";
 import { ALGORITHM_OPTIONS } from "@/constant/graph-constants";
@@ -5,7 +6,9 @@ import { GraphAlgorithm } from "@/types/algorithm-store";
 import { useAlgorithmStore } from "@/stores";
 import { useAlgorithmOperations } from "@/hooks/use-algorithm-operations";
 
-function AlgorithmSelect() {
+type AlgorithmProps = {} & ComponentProps<typeof SelectContent>;
+
+function AlgorithmSelect(props: AlgorithmProps) {
   const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
   const isAnimating = useAlgorithmStore((state) => state.isAnimating);
   const { handleAlgorithmChange } = useAlgorithmOperations();
@@ -28,10 +31,10 @@ function AlgorithmSelect() {
         </Select.Trigger>
 
         <SelectContent
-          position="popper"
-          side="top"
-          sideOffset={8}
-          align="start"
+          position={props.position || "popper"}
+          side={props.side}
+          sideOffset={props.sideOffset || 8}
+          align={props.align}
           className="w-52 bg-(--gl-bg-surface) p-1"
         >
           <Select.Viewport>

@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import cytoscape from "cytoscape";
 import edgehandles from "cytoscape-edgehandles";
-import FunctionalBar from "./functional-bar";
 import dagre from "cytoscape-dagre";
+import FunctionalBar from "./functional-bar";
 import { useGraphDataStore, useAlgorithmStore } from "@/stores";
 import { graphService } from "@/services/graph-service";
 import { useGraphInteractions } from "@/hooks/use-graph-interactions";
@@ -35,6 +35,7 @@ const GraphCanvas = () => {
   const { commands } = useCommandManager();
 
   const interactionMode = useUIStore((s) => s.mode);
+  const togglePrimaryControlCollapse = useUIStore((s) => s.togglePrimaryControlCollapse);
   const isDirected = useGraphDataStore((state) => state.isDirected);
   const isWeighted = useGraphDataStore((state) => state.isWeighted);
   const edges = useGraphDataStore((state) => state.edges);
@@ -99,8 +100,19 @@ const GraphCanvas = () => {
     graphService.init(containerRef.current);
     initCoreListeners();
 
+    const handleCanvasResize = (entries: ResizeObserverEntry[]) => {
+      const currentWidth = entries[0]?.contentRect.width;
+      if (currentWidth === undefined) return;
+
+      togglePrimaryControlCollapse(currentWidth < 700);
+    };
+
+    const resizeObserver = new ResizeObserver(handleCanvasResize);
+    resizeObserver.observe(containerRef.current);
+
     return () => {
       graphService.destroy();
+      resizeObserver.disconnect();
     };
   }, []);
 

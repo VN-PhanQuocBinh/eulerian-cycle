@@ -98,7 +98,7 @@ function AppContent() {
                   panelRef={bottomPanelRef}
                   collapsible
                   collapsedSize={0}
-                  defaultSize="25%"
+                  defaultSize="0"
                   minSize="25%"
                   onResize={handleBottomPanelResize}
                 >
@@ -116,7 +116,7 @@ function AppContent() {
             panelRef={rightSidebarPanelRef}
             minSize={300}
             defaultSize={320}
-            maxSize={520}
+            maxSize={420}
             collapsible
             collapsedSize={0}
             onResize={handleRightSidebarResize}

@@ -9,9 +9,10 @@ export const useUIStore = create<UIStore>()(
       mode: "view",
       enableSmartScroll: true,
       bottomPanelTab: "steps",
-      isBottomPanelOpen: true,
+      isBottomPanelOpen: false,
       isSidebarOpen: true,
       isRightSidebarOpen: true,
+      isPrimaryControlCollapsed: false,
       showStack: true,
       showQueue: true,
 
@@ -21,6 +22,8 @@ export const useUIStore = create<UIStore>()(
       toggleBottomPanel: (isOpen) => set({ isBottomPanelOpen: isOpen }),
       toggleSidebar: (isOpen) => set({ isSidebarOpen: isOpen }),
       toggleRightSidebar: (isOpen) => set({ isRightSidebarOpen: isOpen }),
+      togglePrimaryControlCollapse: (isCollapsed) =>
+        set({ isPrimaryControlCollapsed: isCollapsed }),
       toggleShowStack: (show) => set({ showStack: show }),
       toggleShowQueue: (show) => set({ showQueue: show }),
     }),
