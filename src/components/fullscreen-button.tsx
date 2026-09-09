@@ -7,16 +7,20 @@ import { useRegisterHotkey } from "@/hooks/use-register-hotkey";
 function FullscreenButton() {
   const isSidebarOpen = useUIStore((s) => s.isSidebarOpen);
   const isBottomPanelOpen = useUIStore((s) => s.isBottomPanelOpen);
+  const isRightSidebarOpen = useUIStore((s) => s.isRightSidebarOpen);
   const toggleSidebar = useUIStore((s) => s.toggleSidebar);
   const toggleBottomPanel = useUIStore((s) => s.toggleBottomPanel);
+  const toggleRightSidebar = useUIStore((s) => s.toggleRightSidebar);
 
   const handleToggleFullscreen = useCallback(() => {
-    if (isSidebarOpen || isBottomPanelOpen) {
+    if (isSidebarOpen || isBottomPanelOpen || isRightSidebarOpen) {
       toggleSidebar(false);
       toggleBottomPanel(false);
+      toggleRightSidebar(false);
     } else {
       toggleSidebar(true);
       toggleBottomPanel(true);
+      toggleRightSidebar(true);
     }
   }, [isSidebarOpen, isBottomPanelOpen, toggleSidebar, toggleBottomPanel]);
 

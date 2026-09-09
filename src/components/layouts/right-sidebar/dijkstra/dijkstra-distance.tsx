@@ -11,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { RulerDimensionLine } from "lucide-react";
 
 import GraphElement from "../../bottom-panel/graph-element";
 
@@ -28,15 +29,14 @@ export default function DijkstraDistanceItem() {
   const distances = currentStep?.distances;
 
   return (
-    <section className="overflow-hidden rounded-md border border-(--gl-border) bg-(--gl-bg-base)">
-      <PanelHeader
-        icon={<span className="text-[11px] font-bold">D</span>}
-        label="Distance / previous"
-      />
+    <section className="overflow-hidden">
+      <PanelHeader icon={<RulerDimensionLine size={14} />} label="Distance / previous" />
       {!distances || distances.size === 0 ? (
-        <div className="p-3 text-xs italic text-(--gl-text-muted)">No distance data</div>
+        <div className="p-4 text-xs italic text-center text-(--gl-text-muted) border border-(--gl-border) bg-(--gl-bg-base) rounded-md">
+          No distance data
+        </div>
       ) : (
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto border border-(--gl-border) bg-(--gl-bg-base) rounded-md">
           <Table className="border-collapse text-xs">
             <TableHeader>
               <TableRow>

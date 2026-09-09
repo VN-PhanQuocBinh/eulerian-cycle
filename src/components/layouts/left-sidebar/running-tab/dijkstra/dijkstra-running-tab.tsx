@@ -1,41 +1,9 @@
-import { useMemo } from "react";
-import { useAlgorithmStore, useGraphDataStore } from "@/stores";
 import type { Step } from "@/types/algorithm-store";
 import { createGraphUtils } from "@/core/helpers/graph-utils";
 import GraphElement from "@/components/layouts/bottom-panel/graph-element";
-import { VerticalStepper } from "../vertical-stepper";
+import DetailBlock from "../detail-block";
 
-function DijkstraRunningTab() {
-  const steps = useAlgorithmStore((state) => state.steps);
-  const currentStepIndex = useAlgorithmStore((state) => state.currentStepIndex);
-  const nodes = useGraphDataStore((state) => state.nodes);
-  const edges = useGraphDataStore((state) => state.edges);
-  const isDirected = useGraphDataStore((state) => state.isDirected);
-  const graphUtils = useMemo(
-    () => createGraphUtils({ nodes, edges, isDirected }),
-    [nodes, edges, isDirected],
-  );
-
-  if (steps.length === 0) {
-    return (
-      <div className="grid h-full place-items-center text-center text-sm text-(--gl-text-muted)">
-        Run Dijkstra to see its steps.
-      </div>
-    );
-  }
-
-  return (
-    <VerticalStepper
-      items={steps}
-      activeIndex={currentStepIndex}
-      details={(step) => <DijkstraDetails step={step} graphUtils={graphUtils} />}
-    >
-      {(step) => <DijkstraStepCard step={step} />}
-    </VerticalStepper>
-  );
-}
-
-function DijkstraStepCard({ step, isActive = false }: { step: Step; isActive?: boolean }) {
+export function DijkstraStepCard({ step }: { step: Step; isActive?: boolean }) {
   const element = step.currentNode ?? step.elements[0];
 
   return (
@@ -49,62 +17,98 @@ function DijkstraStepCard({ step, isActive = false }: { step: Step; isActive?: b
           )}
         </div>
       )}
-      <div className="space-y-0.5 text-xs text-(--gl-text-muted)">
+      <div className="space-y-1 text-xs text-(--gl-text-muted)">
         {step.message.map((message, index) => (
-          <div key={index}>- {message}</div>
+          <div key={index} className="bg-(--gl-green-soft)/50 rounded-sm py-1.5 px-3">
+            <span>{message}</span>
+          </div>
         ))}
       </div>
     </>
   );
 }
 
-function DijkstraDetails({
+export function DijkstraDetails({
   step,
   graphUtils,
 }: {
   step: Step;
   graphUtils: ReturnType<typeof createGraphUtils>;
 }) {
-  const formatMap = (values: Map<string, number> | undefined) =>
-    Array.from(values?.entries() ?? []).map(([nodeId, value]) => {
-      const label = graphUtils.getNode(nodeId)?.label ?? nodeId;
-      return `${label}: ${value === Infinity ? "Infinity" : (value ?? "-")}`;
-    });
-
-  const distances = formatMap(step.distances);
-  const previousNodes = Array.from(step.previousNodes?.entries() ?? []).map(
-    ([nodeId, previous]) => {
-      const label = graphUtils.getNode(nodeId)?.label ?? nodeId;
-      const previousLabel = previous ? (graphUtils.getNode(previous)?.label ?? previous) : "-";
-      return `${label}: ${previousLabel}`;
-    },
-  );
+  const currentElement = step.currentNode ?? step.elements[0];
 
   return (
-    <div className="space-y-3">
-      <DetailGroup label="Distance" values={distances} />
-      <DetailGroup label="Previous" values={previousNodes} />
-      {step.queue && <DetailGroup label="Queue" values={step.queue} />}
-      {step.stack && <DetailGroup label="Stack" values={step.stack} />}
+    <div className="grid grid-cols-2 gap-4">
+      {currentElement && (
+        <DetailBlock title="Current">
+          <div className="flex items-center gap-2">
+            {currentElement.type === "edge" ? (
+              <GraphElement
+                label={`${currentElement.source.label} -> ${currentElement.target.label}`}
+              />
+            ) : (
+              <GraphElement label={currentElement.label} />
+            )}
+          </div>
+        </DetailBlock>
+      )}
+
+      <DistanceAndPrevious step={step} graphUtils={graphUtils} />
+
+      <MessageGroup messages={step.message} />
     </div>
   );
 }
 
-function DetailGroup({ label, values }: { label: string; values: string[] }) {
-  if (values.length === 0) return null;
-
+function DistanceAndPrevious({
+  step,
+  graphUtils,
+}: {
+  step: Step;
+  graphUtils: ReturnType<typeof createGraphUtils>;
+}) {
   return (
-    <div>
-      <div className="mb-1 font-semibold uppercase tracking-wide text-(--gl-text-muted)">
-        {label}
-      </div>
-      <div className="space-y-0.5 font-mono">
-        {values.map((value, index) => (
-          <div key={index}>{value}</div>
+    <DetailBlock title="Distance / Previous">
+      <div className="max-h-32 overflow-y-auto custom-scrollbar rounded-sm border border-(--gl-border) ">
+        <div className="sticky top-0 bg-(--gl-bg-base) flex flex-row border-b border-(--gl-border) text-[11px] font-semibold uppercase tracking-wide text-(--gl-text-muted)">
+          <div className="basis-14 border-r border-(--gl-border) px-2 py-1.5">Node</div>
+          <div className="border-r flex-1 border-(--gl-border) px-2 py-1.5">Distance</div>
+          <div className=" flex-1 px-2 py-1.5">Previous</div>
+        </div>
+        {Array.from(step.distances?.keys() || []).map((nodeId) => (
+          <div
+            key={nodeId}
+            className="flex flex-row border-b border-(--gl-border)/60 last:border-b-0"
+          >
+            <div className="basis-14 min-w-0 border-r border-(--gl-border)/60 px-2 py-1.5 wrap-break-word">
+              {graphUtils.getNode(nodeId)?.label ?? nodeId}
+            </div>
+            <div className="min-w-0 flex-1 border-r border-(--gl-border)/60 px-2 py-1.5 wrap-break-word">
+              {step.distances?.get(nodeId) ?? "-"}
+            </div>
+            <div className="min-w-0 flex-1 px-2 py-1.5 wrap-break-word">
+              {step.previousNodes?.get(nodeId)
+                ? (graphUtils.getNode(step.previousNodes.get(nodeId) || "")?.label ??
+                  step.previousNodes.get(nodeId))
+                : "-"}
+            </div>
+          </div>
         ))}
       </div>
-    </div>
+    </DetailBlock>
   );
 }
 
-export default DijkstraRunningTab;
+function MessageGroup({ messages }: { messages: string[] }) {
+  if (messages.length === 0) return null;
+
+  return (
+    <DetailBlock title="Explain">
+      {messages.map((message, index) => (
+        <div key={index} className="rounded bg-(--gl-bg-base) px-1.5 py-1">
+          {message}
+        </div>
+      ))}
+    </DetailBlock>
+  );
+}

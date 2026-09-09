@@ -11,8 +11,19 @@ export const useSmartScroll = <T extends HTMLElement = HTMLElement>(isActive: bo
     const scrollContainer = ref.current.closest<HTMLElement>(".smart-scroll-container");
     if (!scrollContainer) return;
 
+    let suppressAutoScroll = false;
+    const handleUserScroll = () => {
+      suppressAutoScroll = true;
+    };
+
+    scrollContainer.addEventListener("scroll", handleUserScroll, { passive: true });
+    scrollContainer.addEventListener("wheel", handleUserScroll, { passive: true });
+    scrollContainer.addEventListener("touchstart", handleUserScroll, { passive: true });
+
     const observer = new IntersectionObserver(
       ([entry]) => {
+        if (suppressAutoScroll) return;
+
         if (!entry.isIntersecting || entry.intersectionRatio < 1) {
           const elementRect = entry.boundingClientRect;
           const containerRect = scrollContainer.getBoundingClientRect();
@@ -41,6 +52,9 @@ export const useSmartScroll = <T extends HTMLElement = HTMLElement>(isActive: bo
 
     return () => {
       observer.disconnect();
+      scrollContainer.removeEventListener("scroll", handleUserScroll);
+      scrollContainer.removeEventListener("wheel", handleUserScroll);
+      scrollContainer.removeEventListener("touchstart", handleUserScroll);
     };
   }, [isActive, enableSmartScroll]);
 

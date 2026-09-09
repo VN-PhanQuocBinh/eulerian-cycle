@@ -114,7 +114,7 @@ function AppContent() {
 
           <ResizablePanel
             panelRef={rightSidebarPanelRef}
-            minSize={260}
+            minSize={300}
             defaultSize={320}
             maxSize={520}
             collapsible
