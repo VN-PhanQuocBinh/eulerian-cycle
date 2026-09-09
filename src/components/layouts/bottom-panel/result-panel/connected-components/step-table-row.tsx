@@ -19,7 +19,7 @@ interface Props {
 }
 
 function StepTableRow({ step, index, isActive, graphUtils }: Props) {
-  const rowRef = useSmartScroll(isActive);
+  const rowRef = useSmartScroll<HTMLTableRowElement>(isActive);
   const element = step.elements[0];
 
   const componentIndex = useMemo(() => {

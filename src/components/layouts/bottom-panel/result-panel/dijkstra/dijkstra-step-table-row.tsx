@@ -17,7 +17,7 @@ function DijkstraStepTableRow({
   isActive: boolean;
   graphUtils: ReturnType<typeof createGraphUtils>;
 }) {
-  const rowRef = useSmartScroll(isActive);
+  const rowRef = useSmartScroll<HTMLTableRowElement>(isActive);
   const element = step.elements[0];
 
   return (

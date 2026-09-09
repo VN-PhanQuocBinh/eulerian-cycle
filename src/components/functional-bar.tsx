@@ -7,6 +7,7 @@ import {
   LucideIcon,
   ZoomIn,
   ZoomOut,
+  PanelRight,
 } from "lucide-react";
 import FunctionButton from "@/components/ui/function-button";
 import { useUIStore, useAlgorithmStore } from "@/stores";
@@ -34,6 +35,8 @@ function FunctionalBar() {
 
   const interactionMode = useUIStore((s) => s.mode);
   const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
+  const isRightSidebarOpen = useUIStore((state) => state.isRightSidebarOpen);
+  const toggleRightSidebar = useUIStore((state) => state.toggleRightSidebar);
   const setMode = useUIStore((s) => s.setMode);
 
   const handleClear = () => {
@@ -163,6 +166,20 @@ function FunctionalBar() {
           className="hover:bg-(--gl-red-dark)/20 text-(--gl-red-dark)"
         />
       </ButtonGroup>
+
+      {!isRightSidebarOpen && (
+        <>
+          <Separator />
+          <ButtonGroup>
+            <FunctionButton
+              onClick={() => toggleRightSidebar(true)}
+              tooltipContent={`Toggle Right Sidebar`}
+              icon={PanelRight}
+              side="bottom"
+            />
+          </ButtonGroup>
+        </>
+      )}
     </div>
   );
 }

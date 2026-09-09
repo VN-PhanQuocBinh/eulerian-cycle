@@ -1,21 +1,49 @@
 import { useRef, useEffect } from "react";
 import { useUIStore } from "@/stores";
 
-export const useSmartScroll = (isActive: boolean) => {
-  const ref = useRef<HTMLTableRowElement | null>(null);
+export const useSmartScroll = <T extends HTMLElement = HTMLElement>(isActive: boolean) => {
+  const ref = useRef<T | null>(null);
   const enableSmartScroll = useUIStore((state) => state.enableSmartScroll);
 
   useEffect(() => {
     if (!isActive || !ref.current || !enableSmartScroll) return;
 
+    const scrollContainer = ref.current.closest<HTMLElement>(".smart-scroll-container");
+    if (!scrollContainer) return;
+
+    let suppressAutoScroll = false;
+    const handleUserScroll = () => {
+      suppressAutoScroll = true;
+    };
+
+    scrollContainer.addEventListener("scroll", handleUserScroll, { passive: true });
+    scrollContainer.addEventListener("wheel", handleUserScroll, { passive: true });
+    scrollContainer.addEventListener("touchstart", handleUserScroll, { passive: true });
+
     const observer = new IntersectionObserver(
       ([entry]) => {
+        if (suppressAutoScroll) return;
+
         if (!entry.isIntersecting || entry.intersectionRatio < 1) {
-          ref.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+          const elementRect = entry.boundingClientRect;
+          const containerRect = scrollContainer.getBoundingClientRect();
+          const scrollPadding = 8;
+
+          if (elementRect.top < containerRect.top) {
+            scrollContainer.scrollBy({
+              top: elementRect.top - containerRect.top - scrollPadding,
+              behavior: "smooth",
+            });
+          } else if (elementRect.bottom > containerRect.bottom) {
+            scrollContainer.scrollBy({
+              top: elementRect.bottom - containerRect.bottom + scrollPadding,
+              behavior: "smooth",
+            });
+          }
         }
       },
       {
-        root: ref.current.closest(".smart-scroll-container"),
+        root: scrollContainer,
         threshold: 1,
       },
     );
@@ -24,6 +52,9 @@ export const useSmartScroll = (isActive: boolean) => {
 
     return () => {
       observer.disconnect();
+      scrollContainer.removeEventListener("scroll", handleUserScroll);
+      scrollContainer.removeEventListener("wheel", handleUserScroll);
+      scrollContainer.removeEventListener("touchstart", handleUserScroll);
     };
   }, [isActive, enableSmartScroll]);
 

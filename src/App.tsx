@@ -13,14 +13,18 @@ import { useAppHotkeys } from "./hooks/use-app-hotkeys";
 import LayoutContainer from "./components/layouts/layout-container";
 import AppFooter from "@/components/app-footer";
 import { cn } from "./utils/cn";
+import RightSidebar from "./components/layouts/right-sidebar";
 
 function AppContent() {
   const isSidebarOpen = useUIStore((state) => state.isSidebarOpen);
   const isBottomPanelOpen = useUIStore((state) => state.isBottomPanelOpen);
+  const isRightSidebarOpen = useUIStore((state) => state.isRightSidebarOpen);
   const sidebarPanelRef = useRef<PanelImperativeHandle>(null);
   const bottomPanelRef = useRef<PanelImperativeHandle>(null);
+  const rightSidebarPanelRef = useRef<PanelImperativeHandle>(null);
   const toggleBottomPanel = useUIStore((state) => state.toggleBottomPanel);
   const toggleSidebar = useUIStore((state) => state.toggleSidebar);
+  const toggleRightSidebar = useUIStore((state) => state.toggleRightSidebar);
   useAlgorithmSync();
   useAppHotkeys();
 
@@ -34,6 +38,11 @@ function AppContent() {
     else bottomPanelRef.current?.collapse();
   }, [isBottomPanelOpen]);
 
+  useEffect(() => {
+    if (isRightSidebarOpen) rightSidebarPanelRef.current?.expand();
+    else rightSidebarPanelRef.current?.collapse();
+  }, [isRightSidebarOpen]);
+
   const handleResize = () => {
     if (!sidebarPanelRef.current) return;
     const isCollapsed = sidebarPanelRef.current.isCollapsed();
@@ -46,6 +55,12 @@ function AppContent() {
     toggleBottomPanel(!isCollapsed);
   };
 
+  const handleRightSidebarResize = () => {
+    if (!rightSidebarPanelRef.current) return;
+    const isCollapsed = rightSidebarPanelRef.current.isCollapsed();
+    toggleRightSidebar(!isCollapsed);
+  };
+
   return (
     <div className="flex h-screen w-screen flex-col overflow-hidden bg-(--gl-bg-base) text-(--gl-text-main)">
       <TopMenuBar />
@@ -54,8 +69,8 @@ function AppContent() {
         <ResizablePanelGroup orientation="horizontal" className="h-full">
           <ResizablePanel
             minSize={260}
-            defaultSize={300}
-            maxSize={450}
+            defaultSize={360}
+            maxSize={600}
             panelRef={sidebarPanelRef}
             collapsible
             collapsedSize={48}
@@ -83,7 +98,7 @@ function AppContent() {
                   panelRef={bottomPanelRef}
                   collapsible
                   collapsedSize={0}
-                  defaultSize="25%"
+                  defaultSize="0"
                   minSize="25%"
                   onResize={handleBottomPanelResize}
                 >
@@ -93,6 +108,22 @@ function AppContent() {
                 </ResizablePanel>
               </ResizablePanelGroup>
             </main>
+          </ResizablePanel>
+
+          <ResizableHandle withHandle />
+
+          <ResizablePanel
+            panelRef={rightSidebarPanelRef}
+            minSize={300}
+            defaultSize={320}
+            maxSize={420}
+            collapsible
+            collapsedSize={0}
+            onResize={handleRightSidebarResize}
+          >
+            <LayoutContainer>
+              <RightSidebar />
+            </LayoutContainer>
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>

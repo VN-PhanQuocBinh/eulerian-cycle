@@ -39,7 +39,6 @@ export function SCCStepsTable({ steps }: Props) {
           <TableRow className="border-b border-(--gl-border) hover:bg-transparent">
             <TableHead className="w-10 bg-(--gl-bg-subtle) text-(--gl-text-main)">Step</TableHead>
             <TableHead className="bg-(--gl-bg-subtle) text-(--gl-text-main) text-center">Element</TableHead>
-            <TableHead className="bg-(--gl-bg-subtle) text-(--gl-text-main)">Component</TableHead>
             <TableHead className="bg-(--gl-bg-subtle) text-(--gl-text-main)">Stack</TableHead>
             <TableHead className="bg-(--gl-bg-subtle) text-(--gl-text-main)">SCC</TableHead>
             <TableHead className="bg-(--gl-bg-subtle) text-(--gl-text-main)">Explain</TableHead>

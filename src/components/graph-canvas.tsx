@@ -1,15 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import cytoscape from "cytoscape";
 import edgehandles from "cytoscape-edgehandles";
-import FunctionalBar from "./functional-bar";
 import dagre from "cytoscape-dagre";
+import FunctionalBar from "./functional-bar";
 import { useGraphDataStore, useAlgorithmStore } from "@/stores";
 import { graphService } from "@/services/graph-service";
 import { useGraphInteractions } from "@/hooks/use-graph-interactions";
 import { useUIStore } from "@/stores";
 import { useFileOperations } from "@/hooks/use-file-operations";
 import BottomToolbar from "./bottom-toolbar";
-import FloatingStackQueuePanel from "./floating-stack-queue-panel";
 import { useNodeInput } from "./ui/node-input";
 import { useAlgorithmOperations } from "@/hooks/use-algorithm-operations";
 import FullscreenButton from "./fullscreen-button";
@@ -36,13 +35,14 @@ const GraphCanvas = () => {
   const { commands } = useCommandManager();
 
   const interactionMode = useUIStore((s) => s.mode);
+  const togglePrimaryControlCollapse = useUIStore((s) => s.togglePrimaryControlCollapse);
   const isDirected = useGraphDataStore((state) => state.isDirected);
   const isWeighted = useGraphDataStore((state) => state.isWeighted);
   const edges = useGraphDataStore((state) => state.edges);
   const currentAlgorithm = useAlgorithmStore((state) => state.currentAlgorithm);
-  const updateNode = useGraphDataStore((state) => state.updateNode);
   const containerRef = useRef<HTMLDivElement>(null);
   const [contextTarget, setContextTarget] = useState<ContextTarget>(null);
+  const updateNode = useGraphDataStore((state) => state.updateNode);
   const { openNodeInputAt } = useNodeInput();
   const { handleStartNodeChange, handleTargetNodeChange } = useAlgorithmOperations();
 
@@ -100,8 +100,19 @@ const GraphCanvas = () => {
     graphService.init(containerRef.current);
     initCoreListeners();
 
+    const handleCanvasResize = (entries: ResizeObserverEntry[]) => {
+      const currentWidth = entries[0]?.contentRect.width;
+      if (currentWidth === undefined) return;
+
+      togglePrimaryControlCollapse(currentWidth < 700);
+    };
+
+    const resizeObserver = new ResizeObserver(handleCanvasResize);
+    resizeObserver.observe(containerRef.current);
+
     return () => {
       graphService.destroy();
+      resizeObserver.disconnect();
     };
   }, []);
 
@@ -253,7 +264,6 @@ const GraphCanvas = () => {
 
       <FunctionalBar />
       <BottomToolbar />
-      <FloatingStackQueuePanel />
       <FullscreenButton />
     </div>
   );

@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import InputTab from "./sidebar/input-tab";
-import ControlTab from "./sidebar/control-tab";
+import InputTab from "./left-sidebar/input-tab";
+import RunningTab from "./left-sidebar/running-tab";
 import { FileCode2, Play } from "lucide-react";
 import { Tooltip } from "@/components/ui/tooltip";
 import { useRegisterHotkey } from "@/hooks/use-register-hotkey";
@@ -81,7 +81,7 @@ export function NewSidebar({ isOpen, onOpenChange }: NewSidebarProps) {
           </TabsContent>
           <TabsContent value="control-tab" className="overflow-hidden">
             <LayoutContainer>
-              <ControlTab className="p-3 rounded-md" />
+              <RunningTab className="p-3 rounded-md" />
             </LayoutContainer>
           </TabsContent>
         </>

@@ -145,11 +145,11 @@ export function PseudoCodeViewer({ className }: PseudoCodeViewerProps) {
   return (
     <div
       className={cn(
-        "h-full overflow-y-auto custom-scrollbar rounded-md border border-(--gl-border) bg-(--gl-bg-surface)",
+        "max-h-full min-w-0 overflow-scroll custom-scrollbar rounded-md border border-(--gl-border) bg-(--gl-bg-surface)",
         className,
       )}
     >
-      <div className="p-3 font-mono text-sm text-(--gl-text-main)">
+      <div className="min-w-0 w-max font-mono py-3 text-sm text-(--gl-text-main)">
         {lines.length === 0 && (
           <div className="py-8 text-center text-(--gl-text-muted)">No pseudo code available.</div>
         )}
@@ -161,7 +161,7 @@ export function PseudoCodeViewer({ className }: PseudoCodeViewerProps) {
             <div
               key={String(line.id) + line.text + index}
               className={cn(
-                "flex items-stretch border border-transparent transition-colors duration-200",
+                "flex min-w-0 items-stretch border border-transparent transition-colors duration-200",
                 {
                   "bg-(--gl-green-soft) ": isActive,
                 },
@@ -178,12 +178,12 @@ export function PseudoCodeViewer({ className }: PseudoCodeViewerProps) {
                 {index + 1}
               </span>
 
-              <div className="flex items-center flex-1">
+              <div className="flex min-w-0 flex-1 items-center">
                 {Array.from({ length: line.indent }).map((_, i) => (
                   <div key={i} className="h-full border-l border-(--gl-border) mr-6 py-1"></div>
                 ))}
                 <span
-                  className={cn("text-(--gl-text-main)", {
+                  className={cn("min-w-0 wrap-break-word text-(--gl-text-main)", {
                     "font-semibold text-(--gl-text-main)": isActive,
                   })}
                 >

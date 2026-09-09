@@ -1,7 +1,7 @@
 import { ReactNode, useEffect } from "react";
 import { SkipForward, SkipBack, Play, Pause, RotateCcw } from "lucide-react";
 import FunctionButton from "@/components/ui/function-button";
-import { useAlgorithmStore } from "@/stores";
+import { useAlgorithmStore, useUIStore } from "@/stores";
 import { graphService } from "@/services/graph-service";
 import { useStepControl } from "@/hooks/use-step-control";
 import SpeedControl from "./speed-control";
@@ -28,6 +28,7 @@ function FloatintPrimaryControl() {
   const speed = useAlgorithmStore((state) => state.speed);
   const isAnimating = useAlgorithmStore((state) => state.isAnimating);
   const currentStepIndex = useAlgorithmStore((state) => state.currentStepIndex);
+  const isPrimaryControlCollapsed = useUIStore((state) => state.isPrimaryControlCollapsed);
   const setIsAnimating = useAlgorithmStore((state) => state.setIsAnimating);
   const setCurrentStepIndex = useAlgorithmStore((state) => state.setCurrentStepIndex);
   const setSpeed = useAlgorithmStore((state) => state.setSpeed);
@@ -117,7 +118,7 @@ function FloatintPrimaryControl() {
 
   return (
     <div className="min-h-12 flex items-center gap-1 rounded-md bg-(--gl-bg-surface) px-1 drop-shadow-md border border-(--gl-border)/50">
-      <AlgorithmSelect />
+      {!isPrimaryControlCollapsed && <AlgorithmSelect />}
 
       <SpeedControl
         speed={speed}
@@ -177,7 +178,7 @@ function FloatintPrimaryControl() {
         </div>
       </Tooltip>
 
-      <MoreOptionsButton />
+      {isPrimaryControlCollapsed && <MoreOptionsButton />}
     </div>
   );
 }

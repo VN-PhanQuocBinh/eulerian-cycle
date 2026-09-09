@@ -3,17 +3,17 @@ import cytoscape from "cytoscape";
 
 export const ALGORITHM_LAYOUT_CONFIGS: Record<GraphAlgorithm, cytoscape.LayoutOptions> = {
   "connected-components": {
-    name: "cose", // Force-directed layout: Tốt nhất để thấy các cụm tách rời
+    name: "cose",
     animate: true,
-    animationDuration: 800,
-    refresh: 20,
+    animationDuration: 600,
     fit: true,
-    padding: 100,
-    nodeRepulsion: () => 8000, // Đẩy các cụm xa nhau ra
-    idealEdgeLength: () => 50,
+    padding: 80,
+    randomize: false,
+    nodeRepulsion: () => 100000, // Đẩy các node xa nhau hơn để lộ rõ label weight trên edge
+    idealEdgeLength: () => 60, // Tăng độ dài cạnh giúp con số trọng số không bị che lấp
     edgeElasticity: () => 100,
-    nodeOverlap: 10,
-    componentSpacing: 100, // Khoảng cách giữa các thành phần liên thông
+    gravity: 60, // Giảm lực hút về tâm để đồ thị giãn rộng rãi
+    numIter: 1000,
   },
 
   "eulerian-cycle": {
