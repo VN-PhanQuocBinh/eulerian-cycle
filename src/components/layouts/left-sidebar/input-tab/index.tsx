@@ -10,6 +10,7 @@ import { useGraphDataStore, useAlgorithmStore } from "@/stores";
 import { useCommandManager } from "@/hooks/use-command-manager";
 import { DEFAULT_EDGE_WEIGHT } from "@/constant/graph-constants";
 import { useAlgorithmOperations } from "@/hooks/use-algorithm-operations";
+import GraphOptions from "./graph-options";
 
 const PLACEHOLDER_TEXT = `# one edge or alone node per line
 
@@ -129,6 +130,8 @@ function InputTab({ className }: { className?: string }) {
         <span className="text-xs font-semibold text-(--gl-text-main) uppercase tracking-wide">
           Edge List
         </span>
+
+        <GraphOptions />
       </div>
 
       <div className="relative group flex-1 w-full">

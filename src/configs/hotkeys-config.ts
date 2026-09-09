@@ -7,7 +7,7 @@ type FUNCTION_KEY =
   | "AUTO_LAYOUT"
   | "CLEAR_GRAPH"
   | "TOGGLE_SIDEBAR"
-  | "TOGGLE_BOTTOM_PANEL"
+  | "TOGGLE_RIGHT_SIDEBAR"
   | "TOGGLE_SIDEBAR"
   | "ZOOM_IN"
   | "ZOOM_OUT"
@@ -34,7 +34,7 @@ export const HOTKEYS_CONFIG: Record<
 
     // UI Layout interaction
     TOGGLE_SIDEBAR: "ctrl+b",
-    TOGGLE_BOTTOM_PANEL: "ctrl+a",
+    TOGGLE_RIGHT_SIDEBAR: "ctrl+a",
     ZOOM_IN: "ctrl+plus",
     ZOOM_OUT: "ctrl+minus",
 

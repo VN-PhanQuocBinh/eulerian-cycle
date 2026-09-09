@@ -9,6 +9,8 @@ export interface UIStore {
   bottomPanelTab: BottomPanelTab;
   isBottomPanelOpen: boolean;
   isSidebarOpen: boolean;
+  isRightSidebarOpen: boolean;
+  isPrimaryControlCollapsed: boolean;
   showStack: boolean;
   showQueue: boolean;
 
@@ -18,6 +20,8 @@ export interface UIStore {
   setBottomPanelTab: (tab: BottomPanelTab) => void;
   toggleBottomPanel: (isOpen: boolean) => void;
   toggleSidebar: (isOpen: boolean) => void;
+  toggleRightSidebar: (isOpen: boolean) => void;
+  togglePrimaryControlCollapse: (isCollapsed: boolean) => void;
   toggleShowStack: (show: boolean) => void;
   toggleShowQueue: (show: boolean) => void;
 }
